@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Directives for AI Search Crawlers (Perplexity, ChatGPT, Claude, Gemini)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://fusedprotectiveservices.com/sitemap.xml
