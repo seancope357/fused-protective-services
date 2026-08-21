@@ -1,0 +1,77 @@
+/* ==========================================================================
+   FUSED PROTECTIVE SERVICES — DESIGN TOKENS & SYSTEM VARIABLES
+   Exact Color Match to 3D Brushed Gold Shield Logo
+   ========================================================================== */
+:root {
+    /* Backgrounds & Surface Textures */
+    --color-void: #050504;
+    --color-surface-base: #090a09;
+    --color-surface-elevated: #111211;
+    --color-surface-card: rgba(18, 19, 18, 0.86);
+    --color-surface-card-hover: rgba(26, 28, 26, 0.98);
+    --color-surface-glass: rgba(255, 255, 255, 0.03);
+
+    /* Exact Logo Gold Spectrum */
+    --logo-gold-shadow: #72542b;
+    --logo-gold-warm: #87693b;
+    --logo-gold-core: #a1814c;
+    --logo-gold-bevel: #ba9857;
+    --logo-gold-glint: #c6a25c;
+    --logo-gold-highlight: #dfc07b;
+    --logo-gold-specular: #f7e5b2;
+
+    /* Metallic Gold Gradients */
+    --gradient-gold-brushed: linear-gradient(135deg, #f7e5b2 0%, #ba9857 25%, #a1814c 50%, #87693b 75%, #72542b 100%);
+    --gradient-gold-metallic: linear-gradient(180deg, #ffffff 0%, #f7e5b2 20%, #c6a25c 45%, #ba9857 70%, #72542b 100%);
+
+    /* Ambient Glows */
+    --gold-glow-intense: rgba(186, 152, 87, 0.45);
+    --gold-glow-soft: rgba(161, 129, 76, 0.16);
+
+    /* Borders */
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-muted: rgba(255, 255, 255, 0.14);
+    --border-gold-subtle: rgba(186, 152, 87, 0.35);
+    --border-gold-bright: #c6a25c;
+
+    /* Typography Colors */
+    --text-pure: #ffffff;
+    --text-primary: #f5f5f4;
+    --text-secondary: #a8a29e;
+    --text-tertiary: #78716c;
+    --text-gold-light: #f7e5b2;
+    --text-gold-core: #c6a25c;
+
+    /* Status Accents */
+    --color-emerald: #10b981;
+    --color-emerald-glow: rgba(16, 185, 129, 0.4);
+    --color-crimson: #ef4444;
+
+    /* Fluid Spacing Scale */
+    --space-1: clamp(3px, 0.5vw, 4px);
+    --space-2: clamp(6px, 1vw, 8px);
+    --space-3: clamp(10px, 1.5vw, 12px);
+    --space-4: clamp(12px, 2vw, 16px);
+    --space-5: clamp(16px, 2.5vw, 20px);
+    --space-6: clamp(20px, 3vw, 24px);
+    --space-8: clamp(24px, 4vw, 32px);
+    --space-10: clamp(32px, 5vw, 40px);
+    --space-12: clamp(40px, 6vw, 48px);
+    --space-16: clamp(52px, 8vw, 64px);
+    --space-20: clamp(64px, 10vw, 80px);
+    --space-24: clamp(76px, 12vw, 96px);
+
+    /* Radii */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+    --radius-2xl: 28px;
+    --radius-full: 9999px;
+
+    /* Easing & Physics */
+    --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-fast: 0.15s;
+    --duration-normal: 0.25s;
+    --duration-slow: 0.45s;
+}
