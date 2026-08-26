@@ -1,0 +1,224 @@
+/* ==========================================================================
+   FUSED PROTECTIVE SERVICES — SCROLL-FORGED EMBLEM INTRO ("THE ASSEMBLY")
+   Companion to js/logo-forge.js. The WebGL stage mounts as a fixed canvas
+   at z-index 0; everything here rides above it on the --assembly clock the
+   module publishes on <html> (0 = scattered, 1 = fused).
+   ========================================================================== */
+
+/* The nav island precedes the track in flow; collapse its wrapper's
+   height so the 100vh stage starts at true viewport top — otherwise the
+   first-paint HUD sits one nav-height below the fold. The island itself
+   still renders (overflow) and still sticks. */
+.nav-island-wrapper {
+    height: 0;
+    overflow: visible;
+}
+
+/* The scroll track. Its height IS the length of the assembly — the module
+   measures this element, so the collapses below shorten the experience
+   without touching any JS. */
+.forge-track {
+    position: relative;
+    z-index: 1;
+    height: 350vh;
+    pointer-events: none;
+}
+
+@media (max-width: 850px) {
+    .forge-track {
+        height: 300vh;
+    }
+}
+
+/* No WebGL / no CDN: a still emblem needs no runway. */
+html[data-forge-fallback] .forge-track {
+    height: 120vh;
+}
+
+/* Reduced motion: the module holds the assembled emblem; leave one calm
+   viewport of it rather than three of dead scroll. This sits after the
+   mobile track rule on purpose — the collapse must always win. */
+@media (prefers-reduced-motion: reduce) {
+    .forge-track {
+        height: 120vh;
+    }
+}
+
+.forge-stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ── Copy beats, keyed to the camera's own clock ──────────────────────────
+   Each beat owns a window of --assembly and fades on pure CSS math, so the
+   words and the fragments can never drift out of sync — and with no JS at
+   all (or before it runs) the first beat simply stands. */
+
+.forge-beat {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, calc(-50% + var(--beat-dy, 0px)));
+    width: min(92vw, 940px);
+    text-align: center;
+}
+
+.forge-eyebrow {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--logo-gold-highlight);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: var(--space-3);
+    padding: 7px 16px;
+    border-radius: var(--radius-full);
+    background: rgba(5, 5, 4, 0.55);
+    border: 1px solid var(--border-gold-subtle);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+
+.forge-line {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(30px, 5.2vw, 58px);
+    font-weight: 900;
+    line-height: 1.12;
+    letter-spacing: -0.5px;
+    color: var(--text-pure);
+    text-shadow: 0 2px 24px rgba(5, 5, 4, 0.85), 0 0 60px rgba(5, 5, 4, 0.6);
+}
+
+/* Gradient-clipped words ignore text-shadow; a dark drop-shadow keeps
+   the key word separated from the gold vortex converging behind it. */
+.forge-line .gold-gradient-text {
+    filter: drop-shadow(0 2px 6px rgba(5, 5, 4, 0.95)) drop-shadow(0 0 26px rgba(5, 5, 4, 0.8));
+}
+
+.forge-beat-1 {
+    --beat-dy: calc(var(--assembly, 0) * -80px);
+    opacity: clamp(0, (0.30 - var(--assembly, 0)) * 6, 1);
+}
+
+.forge-beat-2 {
+    --beat-dy: calc((0.55 - var(--assembly, 0)) * 60px);
+    opacity: clamp(0, min((var(--assembly, 0) - 0.36) * 7, (0.74 - var(--assembly, 0)) * 7), 1);
+}
+
+/* The settled shield is the finale statement; the motto is its caption,
+   parked low so it never covers the emblem. */
+.forge-beat-3 {
+    top: auto;
+    bottom: clamp(72px, 12vh, 130px);
+    transform: translate(-50%, calc(var(--beat-dy, 0px)));
+    --beat-dy: calc((1 - var(--assembly, 0)) * 30px);
+    opacity: clamp(0, (var(--assembly, 0) - 0.86) * 8, 1);
+}
+
+.forge-motto {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(11px, 1.3vw, 14px);
+    font-weight: 700;
+    color: var(--logo-gold-bevel);
+    letter-spacing: 4px;
+    text-shadow: 0 2px 16px rgba(5, 5, 4, 0.9);
+}
+
+.forge-continue {
+    display: block;
+    margin-top: var(--space-4);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+}
+
+.forge-continue-arrow {
+    display: inline-block;
+    animation: forgeNudge 2s infinite ease-in-out;
+}
+
+@keyframes forgeNudge {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .forge-continue-arrow {
+        animation: none;
+    }
+}
+
+/* ── HUD corners ──────────────────────────────────────────────────────────
+   The readout mirrors the terminal-log motif used across the site; its
+   underline is the assembly bar, driven by the same clock. The dispatch
+   bar owns the bottom-right corner, so the cue sits bottom-center. */
+
+.forge-hud-left {
+    position: absolute;
+    left: clamp(16px, 4vw, 40px);
+    bottom: clamp(18px, 3vh, 30px);
+    font-size: clamp(10px, 1.1vw, 12px);
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--logo-gold-highlight);
+    padding: 9px 14px 11px;
+    border-radius: var(--radius-md);
+    background: rgba(5, 5, 4, 0.6);
+    border: 1px solid var(--border-subtle);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+
+.forge-hud-left::after {
+    content: '';
+    display: block;
+    height: 2px;
+    width: clamp(120px, 16vw, 220px);
+    margin-top: 7px;
+    background: var(--gradient-gold-brushed);
+    transform-origin: left;
+    transform: scaleX(var(--assembly, 0));
+}
+
+.forge-hud-left.is-set {
+    color: var(--color-emerald);
+}
+
+.forge-hud-left.is-set::after {
+    background: var(--color-emerald);
+    box-shadow: 0 0 12px var(--color-emerald-glow);
+}
+
+.forge-cue {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: clamp(18px, 3vh, 30px);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    padding: 9px 16px;
+    border-radius: var(--radius-full);
+    background: rgba(5, 5, 4, 0.6);
+    border: 1px solid var(--border-subtle);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    opacity: clamp(0, (0.05 - var(--assembly, 0)) * 25, 1);
+}
+
+.forge-cue-arrow {
+    display: inline-block;
+    animation: forgeNudge 2s infinite ease-in-out;
+}
+
+/* A progress readout over a static fallback image would be a lie. */
+html[data-forge-fallback] .forge-hud-left,
+html[data-forge-fallback] .forge-cue {
+    display: none;
+}
