@@ -1,3 +1,4 @@
+@layer components {
 /* ==========================================================================
    FUSED PROTECTIVE SERVICES — SCROLL-FORGED EMBLEM INTRO ("THE ASSEMBLY")
    Companion to js/logo-forge.js. The WebGL stage mounts as a fixed canvas
@@ -181,7 +182,9 @@ html[data-forge-fallback] .forge-track {
     margin-top: 7px;
     background: var(--gradient-gold-brushed);
     transform-origin: left;
-    transform: scaleX(var(--assembly, 0));
+    /* The bar sits under a figure that makes a claim, so it tracks the
+       camera's real progress rather than the scroll position. */
+    transform: scaleX(var(--assembly-settled, var(--assembly, 0)));
 }
 
 .forge-hud-left.is-set {
@@ -221,4 +224,5 @@ html[data-forge-fallback] .forge-track {
 html[data-forge-fallback] .forge-hud-left,
 html[data-forge-fallback] .forge-cue {
     display: none;
+}
 }

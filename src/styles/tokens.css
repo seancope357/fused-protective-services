@@ -1,3 +1,4 @@
+@layer tokens {
 /* ==========================================================================
    FUSED PROTECTIVE SERVICES — DESIGN TOKENS & SYSTEM VARIABLES
    Exact Color Match to 3D Brushed Gold Shield Logo
@@ -61,6 +62,11 @@
     --space-20: clamp(64px, 10vw, 80px);
     --space-24: clamp(76px, 12vw, 96px);
 
+    /* Section Surfaces — the recessed bands between full-bleed sections */
+    --surface-section-sunken: rgba(9, 10, 9, 0.75);
+    --surface-section-deep: rgba(9, 10, 9, 0.80);
+    --surface-section-framed: rgba(12, 13, 12, 0.85);
+
     /* Radii */
     --radius-sm: 6px;
     --radius-md: 10px;
@@ -74,4 +80,5 @@
     --duration-fast: 0.15s;
     --duration-normal: 0.25s;
     --duration-slow: 0.45s;
+}
 }

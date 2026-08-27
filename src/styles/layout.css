@@ -1,0 +1,53 @@
+@layer layout {
+/* Section Commons */
+.section-padding {
+    padding: var(--space-16) 0;
+    position: relative;
+}
+
+.section-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--logo-gold-bevel);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: var(--space-2);
+}
+
+.section-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 800;
+    margin-bottom: var(--space-3);
+    letter-spacing: -0.5px;
+}
+
+.section-desc {
+    font-size: clamp(14px, 1.5vw, 17px);
+    color: var(--text-secondary);
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.section-head {
+    text-align: center;
+}
+
+/* Recessed bands. These were four near-identical inline background values;
+   two of them differed by one step per channel for no reason anyone recorded. */
+.section-padding--sunken {
+    background: var(--surface-section-sunken);
+}
+
+.section-padding--deep {
+    background: var(--surface-section-deep);
+}
+
+.section-padding--framed {
+    background: var(--surface-section-framed);
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+}
+}

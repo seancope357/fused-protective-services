@@ -1,0 +1,85 @@
+@layer components {
+.assessment-wrapper {
+    background: linear-gradient(180deg, rgba(18, 19, 18, 0.95) 0%, rgba(9, 10, 9, 0.98) 100%);
+    border: 1px solid var(--border-gold-subtle);
+    border-radius: var(--radius-2xl);
+    padding: clamp(20px, 4vw, 40px);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.85);
+    max-width: 960px;
+    margin: var(--space-8) auto 0;
+    backdrop-filter: blur(20px);
+}
+
+.threat-quiz-step { display: none; }
+.threat-quiz-step.active { display: block; }
+
+.quiz-q-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(18px, 2.5vw, 24px);
+    color: #fff;
+    margin-bottom: var(--space-4);
+}
+
+.quiz-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+}
+
+.quiz-option-btn {
+    background: var(--color-surface-glass);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    padding: clamp(12px, 2vw, 16px) clamp(14px, 2.5vw, 20px);
+    border-radius: var(--radius-md);
+    font-size: clamp(13px, 1.1vw, 14px);
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    transition: all var(--duration-fast) ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.quiz-option-btn:hover, .quiz-option-btn.selected {
+    background: rgba(186, 152, 87, 0.18);
+    border-color: var(--logo-gold-bevel);
+    color: var(--logo-gold-specular);
+    box-shadow: 0 0 15px rgba(186, 152, 87, 0.25);
+}
+
+
+.quiz-result {
+    text-align: center;
+}
+
+.quiz-result-heading {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(20px, 3vw, 26px);
+    color: var(--text-pure);
+    margin-bottom: 8px;
+}
+
+.quiz-result-rec {
+    font-size: clamp(14px, 1.5vw, 17px);
+    color: var(--logo-gold-specular);
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.quiz-result-body {
+    font-size: clamp(13px, 1.1vw, 14.5px);
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto 24px;
+    line-height: 1.6;
+}
+
+/* Steps are swapped with [hidden] rather than a class, so a step that is
+   not on screen is also not reachable by tab. */
+.threat-quiz-step[hidden] {
+    display: none;
+}
+}

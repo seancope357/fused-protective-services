@@ -1,0 +1,56 @@
+@layer components {
+/* The Fused Standard. The markup previously carried `.lifecycle-grid` and
+   `.lifecycle-card` — names left behind by an earlier iteration that no
+   stylesheet ever defined, so the three principles rendered as an unstyled
+   full-width stack. They are cards now, matching the house treatment used by
+   the estimator and protocol surfaces. */
+.standards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+    margin-top: var(--space-10);
+}
+
+.standard-card {
+    background: var(--color-surface-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: clamp(20px, 3vw, 32px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+    transition: border-color var(--duration-normal) ease, box-shadow var(--duration-normal) ease, transform var(--duration-normal) var(--ease-spring);
+}
+
+.standard-card:hover {
+    border-color: var(--border-gold-subtle);
+    box-shadow: 0 25px 55px rgba(0, 0, 0, 0.85), 0 0 30px var(--gold-glow-soft);
+    transform: translateY(-3px);
+}
+
+@media (max-width: 992px) {
+    .standards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.standard-index {
+    font-family: 'Cinzel', serif;
+    font-size: 34px;
+    font-weight: 900;
+    color: rgba(186, 152, 87, 0.35);
+    margin-bottom: 12px;
+}
+
+.standard-title {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: var(--text-pure);
+}
+
+.standard-body {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+}

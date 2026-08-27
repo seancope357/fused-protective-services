@@ -1,0 +1,63 @@
+@layer components {
+.faq-stack {
+    max-width: 940px;
+    margin: var(--space-8) auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.faq-box {
+    background: var(--color-surface-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: clamp(16px, 2.5vw, 24px) clamp(18px, 3vw, 28px);
+    cursor: pointer;
+    transition: all var(--duration-normal) ease;
+}
+
+.faq-box:hover { border-color: var(--border-gold-subtle); }
+
+.faq-question {
+    font-size: clamp(14px, 1.3vw, 17px);
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.faq-answer {
+    font-size: clamp(13px, 1.1vw, 15px);
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin-top: var(--space-3);
+    display: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: var(--space-3);
+}
+
+/* <details> supplies the open/closed behaviour; these remove the platform
+   marker and restore the original look. */
+.faq-box > summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+.faq-box > summary::-webkit-details-marker {
+    display: none;
+}
+
+.faq-toggle-icon::before {
+    content: '+';
+}
+
+.faq-box[open] .faq-toggle-icon::before {
+    content: '−';
+}
+
+.faq-box[open] .faq-answer {
+    display: block;
+}
+}

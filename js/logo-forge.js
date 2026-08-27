@@ -11,8 +11,13 @@
    as noise, and the scroll collects them into the photograph.
 
    Seams the page uses:
-     --assembly on <html> and a pixelScroll event carry progress 0-1;
-       css/forge.css keys the intro copy beats and HUD off that clock
+     --assembly on <html> and a pixelScroll event carry SCROLL progress 0-1;
+       css/forge.css keys the intro copy beats off that clock, so the words
+       move with the reader's thumb
+     --assembly-settled and a pixelScroll:settled event carry the CAMERA's
+       progress; anything that asserts completion in words reads this one,
+       because --assembly reaches 1 the moment the scroll does, while the
+       camera is still easing the last of the way in
      data-forge-fallback appears on <html> when WebGL or the CDN is
        missing and the emblem is mounted as a still instead
      prefers-reduced-motion holds the assembled emblem still and the
@@ -257,6 +262,32 @@ function publish(r) {
   window.dispatchEvent(new CustomEvent('pixelScroll', { detail: { assembly: r } }));
 }
 
+/* --assembly is a *position* signal: it reads 1.0000 the instant the scroll
+   reaches the end of the track, while the camera is still easing the last of
+   the way in. That is the right clock for the copy beats, which should move
+   with the reader's thumb — but it is the wrong one for a readout that makes
+   a claim in words, because on a slow renderer it announces a finished shield
+   over cubes that are visibly still arriving.
+
+   So the camera publishes its own progress. Anything asserting completion
+   should read this one; anything pacing itself against the scroll should read
+   --assembly. */
+
+let settled = -1;
+
+function publishSettled(s) {
+  const value = Math.min(1, Math.max(0, s));
+  if (Math.abs(value - settled) < 0.0005 && value !== 1) return;
+  if (value === settled) return;
+  settled = value;
+  document.documentElement.style.setProperty('--assembly-settled', value.toFixed(4));
+  window.dispatchEvent(new CustomEvent('pixelScroll:settled', { detail: { settled: value } }));
+}
+
+/** Where the camera actually is, as a 0-1 fraction of its travel. */
+const cameraProgress = () =>
+  camera ? (camera.position.z - START_Z) / (ASSEMBLE_Z - START_Z) : 0;
+
 /* ── hand-off ──────────────────────────────────────────────────── */
 /* Once the visitor scrolls past the track, the page below takes over:
    the stage (canvas or fallback still) fades across the next 45vh and
@@ -286,9 +317,9 @@ window.addEventListener('resize', onHandOff);
 
 const readoutEl = document.getElementById('forgeReadout');
 
-window.addEventListener('pixelScroll', function (e) {
+window.addEventListener('pixelScroll:settled', function (e) {
   if (!readoutEl) return;
-  const r = e.detail.assembly;
+  const r = e.detail.settled;
   if (r >= 0.999) {
     readoutEl.textContent = 'SHIELD INTEGRITY 100% · OPERATIONAL';
     readoutEl.classList.add('is-set');
@@ -315,7 +346,8 @@ function still() { return reduced.matches || pageStill; }
 function applyMotion() {
   if (still()) {
     targetZ = camera.position.z = ASSEMBLE_Z;
-    publish(1);   // content keyed to progress must show its resting state
+    publish(1);          // content keyed to progress must show its resting state
+    publishSettled(1);   // and the camera really is there, so say so
   } else {
     onScroll();
   }
@@ -399,6 +431,7 @@ function fallback(reason, notice) {
   }
 
   publish(1);
+  publishSettled(1);   // a still image is, by definition, fully arrived
 }
 
 /* ── run ───────────────────────────────────────────────────────── */
@@ -455,6 +488,9 @@ function boot() {
     }
     if (!needsFrame) return;
     needsFrame = false;
+    /* Published from here, after the camera has moved and before the frame
+       that shows it — so the figure on screen describes the frame on screen. */
+    publishSettled(cameraProgress());
     renderer.render(scene, camera);
   });
 

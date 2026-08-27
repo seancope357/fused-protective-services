@@ -1,0 +1,35 @@
+@layer components {
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-4);
+    background: var(--color-surface-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6) var(--space-8);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(24px);
+}
+
+.metric-item {
+    text-align: center;
+    padding: var(--space-2);
+}
+
+.metric-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 800;
+    color: var(--logo-gold-specular);
+    margin-bottom: 4px;
+}
+
+.metric-label {
+    font-size: clamp(11px, 1.1vw, 13px);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+}

@@ -1,0 +1,94 @@
+@layer base {
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--color-void);
+    color: var(--text-primary);
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: clamp(15px, 1.1vw, 16px);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+}
+
+/* Background Particle Mesh Canvas */
+#tactical-bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Cursor Interactive Spotlight Glow */
+.cursor-spotlight {
+    position: fixed;
+    width: clamp(400px, 45vw, 700px);
+    height: clamp(400px, 45vw, 700px);
+    border-radius: var(--radius-full);
+    background: radial-gradient(circle, var(--gold-glow-soft) 0%, transparent 65%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    transition: opacity var(--duration-normal) ease;
+}
+
+/* Global Container */
+.container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 clamp(16px, 4vw, 32px);
+    position: relative;
+    z-index: 1;
+}
+
+/* Keyboard users land here first; it stays off-screen until focused. */
+.skip-link {
+    position: absolute;
+    top: -100%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3000;
+    padding: 12px 22px;
+    background: var(--gradient-gold-brushed);
+    color: #050504;
+    font-weight: 800;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    text-decoration: none;
+}
+
+.skip-link:focus-visible {
+    top: 0;
+}
+
+/* One visible focus treatment for every interactive surface on the page. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--logo-gold-specular);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+}
