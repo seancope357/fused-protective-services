@@ -75,10 +75,16 @@
     --radius-2xl: 28px;
     --radius-full: 9999px;
 
-    /* Easing & Physics */
+    /* Easing & Physics.
+       --ease-studio is the ramp for large sliding surfaces: a firm
+       acceleration into the move and a long, settling landing. --ease-out-quint
+       is for elements arriving into view — all deceleration, no wind-up. */
     --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-studio: cubic-bezier(0.65, 0, 0.15, 1);
+    --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
     --duration-fast: 0.15s;
     --duration-normal: 0.25s;
     --duration-slow: 0.45s;
+    --duration-slide: 0.72s;
 }
 }

@@ -7,6 +7,7 @@
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
     margin-top: var(--space-10);
     position: relative;
+    -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
 }
 

@@ -48,7 +48,12 @@ html[data-forge-fallback] .forge-track {
 .forge-stage {
     position: sticky;
     top: 0;
+    /* svh where supported: at scrollY 0 iOS Safari's toolbar is expanded,
+       so a 100vh stage puts its bottom-anchored HUD and scroll cue below
+       the visual viewport — exactly when they are the only instruction
+       on screen. */
     height: 100vh;
+    height: 100svh;
     overflow: hidden;
 }
 
@@ -224,5 +229,14 @@ html[data-forge-fallback] .forge-track {
 html[data-forge-fallback] .forge-hud-left,
 html[data-forge-fallback] .forge-cue {
     display: none;
+}
+
+/* Phones: the bottom strip cannot hold three things. The HUD chips yield
+   (their integrity figure is flavor, restated by the finale copy), and the
+   cue rises clear of the floating dispatch bar, which owns the corner at
+   every width — "bottom-center is free" only ever held on desktop. */
+@media (max-width: 640px) {
+    .forge-hud-left { display: none; }
+    .forge-cue { bottom: 84px; }
 }
 }

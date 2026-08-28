@@ -16,8 +16,8 @@
     background: rgba(9, 10, 9, 0.9);
     border: 1px solid rgba(186, 152, 87, 0.38);
     border-radius: var(--radius-full);
-    backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
+    backdrop-filter: blur(30px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.85), 0 0 35px rgba(186, 152, 87, 0.16);
     padding: 7px 14px 7px 10px;
     display: flex;
@@ -112,9 +112,16 @@
     border-radius: var(--radius-full);
     font-size: 18px;
     cursor: pointer;
+    /* The sole path into navigation on touch — meet the 44px target. */
+    min-width: 44px;
+    min-height: 44px;
 }
 
-@media (max-width: 850px) {
+/* 1080, not 850: the seven nowrap pills plus brand plus the dispatch pill
+   have a min-content width around 1000px, and flex items cannot shrink
+   below nowrap text — between 851px and ~1000px the island overflowed its
+   own rounded border. The hamburger takes over while everything still fits. */
+@media (max-width: 1080px) {
     .segmented-nav-track { display: none; }
     .mobile-toggle-btn { display: block; }
 }

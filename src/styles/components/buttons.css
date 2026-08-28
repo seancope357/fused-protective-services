@@ -50,6 +50,7 @@
     padding: clamp(14px, 2vw, 18px) clamp(24px, 3vw, 38px);
     border-radius: var(--radius-md);
     text-decoration: none;
+    -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
     transition: all var(--duration-normal) var(--ease-spring);
     display: inline-flex;

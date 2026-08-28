@@ -12,6 +12,7 @@
     border-radius: var(--radius-full);
     padding: 6px 14px 6px 10px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), 0 0 25px var(--gold-glow-soft);
+    -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
     animation: pulseGlow 3s infinite alternate;
 }
@@ -42,6 +43,7 @@
     font-weight: 800;
     font-size: clamp(11px, 1.1vw, 13px);
     padding: 6px 14px;
+    min-height: 44px;
     border-radius: var(--radius-full);
     text-decoration: none;
     display: inline-flex;

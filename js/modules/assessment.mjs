@@ -53,12 +53,17 @@ function apply() {
     const rec = document.getElementById('quizRecommendationText')?.textContent.trim() ?? '';
     const notes = document.getElementById('formNotes');
     if (notes) {
-        notes.value = [
+        const summary = [
             'Assessment Results:',
             `- Environment: ${environment.value}`,
             `- Threat Level: ${threat?.value ?? 'Not specified'}`,
             `- ${rec}`
         ].join('\n');
+        /* Anything the visitor already typed is *their* threat detail —
+           the assessment appends below it rather than silently erasing it.
+           Re-applying the assessment replaces only its own earlier block. */
+        const typed = notes.value.split('\n\nAssessment Results:')[0].trim();
+        notes.value = typed ? `${typed}\n\n${summary}` : summary;
     }
 
     goToQuote();

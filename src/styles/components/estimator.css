@@ -7,12 +7,15 @@
     box-shadow: 0 30px 70px rgba(0, 0, 0, 0.85), 0 0 50px var(--gold-glow-soft);
     max-width: 980px;
     margin: var(--space-8) auto 0;
+    -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
 }
 
 .estimator-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    /* min(290px, 100%): a bare 290px floor overflows the card interior on
+       narrow phones (~40px of the price box clipped at 320px viewports). */
+    grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr));
     gap: var(--space-8);
     align-items: center;
 }
@@ -61,10 +64,19 @@
 .range-slider {
     width: 100%;
     -webkit-appearance: none;
+    appearance: none;
     height: 10px;
     border-radius: var(--radius-sm);
     background: #1e293b;
     outline: none;
+}
+
+/* outline:none above sits in the components layer, so it beats the base
+   layer's :focus-visible treatment for every keyboard user — the slider
+   needs its own, or Tab lands on it invisibly. */
+.range-slider:focus-visible {
+    outline: 2px solid var(--logo-gold-glint);
+    outline-offset: 3px;
 }
 
 .range-slider::-webkit-slider-thumb {
@@ -79,6 +91,25 @@
 }
 
 .range-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+/* Firefox styles its thumb through its own pseudo-element and ignores the
+   -webkit one entirely — without this pair the gold UI ships a stock gray
+   slider there. */
+.range-slider::-moz-range-thumb {
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--logo-gold-bevel);
+    cursor: pointer;
+    box-shadow: 0 0 14px var(--logo-gold-bevel);
+}
+
+.range-slider::-moz-range-track {
+    height: 10px;
+    border-radius: var(--radius-sm);
+    background: #1e293b;
+}
 
 .estimate-summary-box {
     background: #04060a;

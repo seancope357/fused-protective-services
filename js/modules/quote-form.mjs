@@ -46,6 +46,9 @@ export function initQuoteForm() {
         }
 
         form.reset();
-        status?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        status?.scrollIntoView({
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+            block: 'center'
+        });
     });
 }

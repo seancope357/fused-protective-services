@@ -85,10 +85,14 @@ body {
     html {
         scroll-behavior: auto;
     }
+    /* Delay must be zeroed alongside duration: a zeroed duration still
+       honors its delay, so a staggered reveal (the bookshelf payload
+       cascade) would otherwise replay as a sequence of timed pops. */
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+        transition-delay: 0s !important;
     }
 }
 }

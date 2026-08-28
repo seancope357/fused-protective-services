@@ -12,9 +12,14 @@ import { raw } from '../lib/html.mjs';
 
 const G = 'url(#tacticalGoldGrad)';
 
-/** Wraps icon body markup in a sized <svg>. */
+/** Wraps icon body markup in a sized <svg>.
+    When the caller's attrs carry their own class="…" (they always restate
+    the base class plus a modifier), the default class must NOT also be
+    emitted: two class attributes on one tag means HTML keeps the first and
+    silently drops the caller's — which is how every icon modifier class
+    (--quiz, --result, --lg, --filled) came to match nothing. */
 const icon = (viewBox, body) => (attrs = '') =>
-    raw(`<svg class="tactical-svg" viewBox="${viewBox}" aria-hidden="true"${attrs ? ' ' + attrs : ''}>${body}</svg>`);
+    raw(`<svg${attrs.includes('class="') ? '' : ' class="tactical-svg"'} viewBox="${viewBox}" aria-hidden="true"${attrs ? ' ' + attrs : ''}>${body}</svg>`);
 
 /* ── Division spine emblems (32×32) ────────────────────────────── */
 
@@ -54,14 +59,16 @@ export const spineIcons = {
     <path d="M22 1 A5 5 0 0 1 27 6" stroke="${G}" stroke-width="1" stroke-dasharray="2 1" fill="none"/>`),
 
     construction: icon('0 0 32 32', `
-    <path d="M6 28 L14 6 H28 L24 12 H14" stroke="${G}" stroke-width="1.4" fill="none"/>
-    <line x1="28" y1="6" x2="28" y2="18" stroke="${G}" stroke-width="1.2" stroke-dasharray="2 1"/>
-    <rect x="25" y="18" width="6" height="5" rx="0.5" stroke="${G}" stroke-width="1.2" fill="none"/>
-    <line x1="14" y1="6" x2="14" y2="28" stroke="${G}" stroke-width="1.5"/>
-    <line x1="9" y1="28" x2="19" y2="28" stroke="${G}" stroke-width="2"/>
-    <path d="M10 18 L14 14 L18 18" stroke="${G}" stroke-width="1" fill="none"/>
-    <path d="M10 24 L14 20 L18 24" stroke="${G}" stroke-width="1" fill="none"/>
-    <circle cx="14" cy="6" r="1.8" fill="${G}"/>`),
+    <rect x="5" y="12" width="22" height="7" rx="1" stroke="${G}" stroke-width="1.5" fill="none"/>
+    <line x1="7" y1="19" x2="12" y2="12" stroke="${G}" stroke-width="1.2"/>
+    <line x1="13" y1="19" x2="18" y2="12" stroke="${G}" stroke-width="1.2"/>
+    <line x1="19" y1="19" x2="24" y2="12" stroke="${G}" stroke-width="1.2"/>
+    <line x1="8" y1="19" x2="8" y2="28" stroke="${G}" stroke-width="1.4"/>
+    <line x1="24" y1="19" x2="24" y2="28" stroke="${G}" stroke-width="1.4"/>
+    <circle cx="16" cy="9" r="1.8" fill="${G}"/>
+    <line x1="16" y1="10.8" x2="16" y2="12" stroke="${G}" stroke-width="1.2"/>
+    <path d="M7 8 A 11 11 0 0 1 25 8" stroke="${G}" stroke-width="1" stroke-dasharray="2 1" fill="none"/>
+    <path d="M2 28 H30" stroke="${G}" stroke-width="1.8"/>`),
 
     estate: icon('0 0 32 32', `
     <path d="M3 26 V12 L16 3 L29 12 V26" stroke="${G}" stroke-width="1.5" fill="none"/>
@@ -108,10 +115,14 @@ export const quizIcons = {
     <line x1="2" y1="21" x2="22" y2="21" stroke="${G}" stroke-width="1.8"/>`),
 
     construction: icon('0 0 24 24', `
-    <path d="M4 21 L10 4 H21 L18 9 H10" stroke="${G}" stroke-width="1.4" fill="none"/>
-    <line x1="21" y1="4" x2="21" y2="14" stroke="${G}" stroke-width="1.2" stroke-dasharray="2 1"/>
-    <rect x="18.5" y="14" width="5" height="4" rx="0.5" stroke="${G}" stroke-width="1.2" fill="none"/>
-    <line x1="10" y1="4" x2="10" y2="21" stroke="${G}" stroke-width="1.5"/>
+    <rect x="4" y="9" width="16" height="5.5" rx="1" stroke="${G}" stroke-width="1.4" fill="none"/>
+    <line x1="5.5" y1="14.5" x2="9.5" y2="9" stroke="${G}" stroke-width="1.1"/>
+    <line x1="10" y1="14.5" x2="14" y2="9" stroke="${G}" stroke-width="1.1"/>
+    <line x1="14.5" y1="14.5" x2="18.5" y2="9" stroke="${G}" stroke-width="1.1"/>
+    <line x1="6.5" y1="14.5" x2="6.5" y2="21" stroke="${G}" stroke-width="1.3"/>
+    <line x1="17.5" y1="14.5" x2="17.5" y2="21" stroke="${G}" stroke-width="1.3"/>
+    <circle cx="12" cy="6.5" r="1.4" fill="${G}"/>
+    <line x1="12" y1="7.9" x2="12" y2="9" stroke="${G}" stroke-width="1.1"/>
     <line x1="2" y1="21" x2="22" y2="21" stroke="${G}" stroke-width="1.8"/>`),
 
     low: icon('0 0 24 24', `
@@ -138,8 +149,9 @@ export const quizIcons = {
 
 /* ── Interface marks (stroked, currentColor) ───────────────────── */
 
+/* Same duplicate-class rule as icon() above. */
 const ui = (body) => (attrs = '') =>
-    raw(`<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"${attrs ? ' ' + attrs : ''}>${body}</svg>`);
+    raw(`<svg${attrs.includes('class="') ? '' : ' class="ui-icon"'} viewBox="0 0 24 24" aria-hidden="true"${attrs ? ' ' + attrs : ''}>${body}</svg>`);
 
 export const uiIcons = {
     phone: ui('<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>'),

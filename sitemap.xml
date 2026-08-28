@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Single-page site: one canonical URL. robots.txt declares this file;
+     it exists so that declaration is honest and crawlers stop logging 404s. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://fusedprotectiveservices.com/</loc>
+  </url>
+</urlset>

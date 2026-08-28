@@ -84,11 +84,17 @@
     --radius-2xl: 28px;
     --radius-full: 9999px;
 
-    /* Easing & Physics */
+    /* Easing & Physics.
+       --ease-studio is the ramp for large sliding surfaces: a firm
+       acceleration into the move and a long, settling landing. --ease-out-quint
+       is for elements arriving into view — all deceleration, no wind-up. */
     --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-studio: cubic-bezier(0.65, 0, 0.15, 1);
+    --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
     --duration-fast: 0.15s;
     --duration-normal: 0.25s;
     --duration-slow: 0.45s;
+    --duration-slide: 0.72s;
 }
 }
 
@@ -180,10 +186,14 @@ body {
     html {
         scroll-behavior: auto;
     }
+    /* Delay must be zeroed alongside duration: a zeroed duration still
+       honors its delay, so a staggered reveal (the bookshelf payload
+       cascade) would otherwise replay as a sequence of timed pops. */
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+        transition-delay: 0s !important;
     }
 }
 }
@@ -343,6 +353,7 @@ body {
     padding: clamp(14px, 2vw, 18px) clamp(24px, 3vw, 38px);
     border-radius: var(--radius-md);
     text-decoration: none;
+    -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
     transition: all var(--duration-normal) var(--ease-spring);
     display: inline-flex;
@@ -415,8 +426,8 @@ body {
     background: rgba(9, 10, 9, 0.9);
     border: 1px solid rgba(186, 152, 87, 0.38);
     border-radius: var(--radius-full);
-    backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
+    backdrop-filter: blur(30px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.85), 0 0 35px rgba(186, 152, 87, 0.16);
     padding: 7px 14px 7px 10px;
     display: flex;
@@ -511,9 +522,16 @@ body {
     border-radius: var(--radius-full);
     font-size: 18px;
     cursor: pointer;
+    /* The sole path into navigation on touch — meet the 44px target. */
+    min-width: 44px;
+    min-height: 44px;
 }
 
-@media (max-width: 850px) {
+/* 1080, not 850: the seven nowrap pills plus brand plus the dispatch pill
+   have a min-content width around 1000px, and flex items cannot shrink
+   below nowrap text — between 851px and ~1000px the island overflowed its
+   own rounded border. The hamburger takes over while everything still fits. */
+@media (max-width: 1080px) {
     .segmented-nav-track { display: none; }
     .mobile-toggle-btn { display: block; }
 }
@@ -528,9 +546,16 @@ body {
     right: -100%;
     width: 80%;
     max-width: 320px;
+    /* dvh where supported: on iOS 100vh extends under the browser bar and
+       hides the drawer's call button. overflow-y is the landscape-phone
+       case — a fixed panel does not scroll with the page, so without its
+       own scrolling the lower links are simply unreachable. */
     height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
     background: rgba(5, 5, 4, 0.98);
     border-left: 1px solid var(--border-gold-subtle);
+    -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
     z-index: 2500;
     padding: var(--space-8) var(--space-6);
@@ -550,6 +575,7 @@ body {
     width: 100vw;
     height: 100vh;
     background: rgba(0, 0, 0, 0.8);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     z-index: 2400;
 }
@@ -590,6 +616,12 @@ body {
     line-height: 1;
     cursor: pointer;
     padding: 4px 8px;
+    /* The sole way out by touch — meet the 44px target. */
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .drawer-close:hover {
@@ -659,7 +691,12 @@ html[data-forge-fallback] .forge-track {
 .forge-stage {
     position: sticky;
     top: 0;
+    /* svh where supported: at scrollY 0 iOS Safari's toolbar is expanded,
+       so a 100vh stage puts its bottom-anchored HUD and scroll cue below
+       the visual viewport — exactly when they are the only instruction
+       on screen. */
     height: 100vh;
+    height: 100svh;
     overflow: hidden;
 }
 
@@ -836,6 +873,15 @@ html[data-forge-fallback] .forge-hud-left,
 html[data-forge-fallback] .forge-cue {
     display: none;
 }
+
+/* Phones: the bottom strip cannot hold three things. The HUD chips yield
+   (their integrity figure is flavor, restated by the finale copy), and the
+   cue rises clear of the floating dispatch bar, which owns the corner at
+   every width — "bottom-center is free" only ever held on desktop. */
+@media (max-width: 640px) {
+    .forge-hud-left { display: none; }
+    .forge-cue { bottom: 84px; }
+}
 }
 
 /* ── components/hero.css ─────────────────────────────────────── */
@@ -917,6 +963,7 @@ html[data-forge-fallback] .forge-cue {
     border-radius: var(--radius-xl);
     padding: var(--space-6) var(--space-8);
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+    -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
 }
 
@@ -963,7 +1010,12 @@ html[data-forge-fallback] .forge-cue {
     border-radius: var(--radius-xl);
     overflow: hidden;
     cursor: pointer;
-    transition: flex var(--duration-slow) var(--ease-spring), border-color 0.3s ease, box-shadow 0.3s ease;
+    /* `flex: 1` and `flex: 4.5` share a 0% basis, so flex-grow is the only
+       property actually moving — naming it keeps the ramp on exactly that. */
+    transition: flex-grow var(--duration-slide) var(--ease-studio),
+                border-color var(--duration-slow) ease,
+                box-shadow var(--duration-slide) var(--ease-studio),
+                background var(--duration-slow) ease;
     display: flex;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
 }
@@ -1028,24 +1080,66 @@ html[data-forge-fallback] .forge-cue {
 
 .spine-expanded-payload {
     flex-grow: 1;
-    opacity: 0;
-    transform: translateX(20px);
     pointer-events: none;
-    transition: opacity 0.3s ease 0.1s, transform 0.3s ease 0.1s;
     padding: 40px 36px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     overflow-y: auto;
     min-width: 320px;
+    /* A closed payload must be gone from the tab order and the
+       accessibility tree, not merely transparent — otherwise every closed
+       spine leaves an invisible, still-live Deploy button on the Tab path.
+       Visibility (unlike display) waits out its delay, so the flip to
+       hidden lands after the children finish fading; the open state below
+       zeroes the delay so content is available the instant a spine opens. */
+    visibility: hidden;
+    transition: visibility 0s linear 0.24s;
 }
 
 .bookshelf-spine:hover .spine-expanded-payload,
 .bookshelf-spine.active .spine-expanded-payload {
-    opacity: 1;
-    transform: translateX(0);
     pointer-events: auto;
+    visibility: visible;
+    transition-delay: 0s;
 }
+
+/* The payload cascade. The panel itself no longer fades — each element
+   inside rides its own small rise into focus, timed so the sequence starts
+   once the shelf slide is under way and the deploy button lands just after
+   the panel does. Closing is the reverse priority: everything drops away at
+   once, fast and undelayed, so the departing spine never trails stale copy. */
+.payload-badge,
+.payload-heading,
+.payload-desc,
+.payload-checklist li,
+.btn-select-division {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(4px);
+    transition: opacity 0.18s ease, transform 0.18s ease, filter 0.18s ease;
+}
+
+.bookshelf-spine:is(:hover, .active) :is(
+    .payload-badge, .payload-heading, .payload-desc,
+    .payload-checklist li, .btn-select-division) {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: opacity 0.5s var(--ease-out-quint),
+                transform 0.5s var(--ease-out-quint),
+                filter 0.5s var(--ease-out-quint);
+}
+
+.bookshelf-spine:is(:hover, .active) .payload-badge { transition-delay: 0.16s; }
+.bookshelf-spine:is(:hover, .active) .payload-heading { transition-delay: 0.22s; }
+.bookshelf-spine:is(:hover, .active) .payload-desc { transition-delay: 0.28s; }
+.bookshelf-spine:is(:hover, .active) .payload-checklist li:nth-child(1) { transition-delay: 0.34s; }
+.bookshelf-spine:is(:hover, .active) .payload-checklist li:nth-child(2) { transition-delay: 0.40s; }
+.bookshelf-spine:is(:hover, .active) .payload-checklist li:nth-child(3) { transition-delay: 0.46s; }
+.bookshelf-spine:is(:hover, .active) .payload-checklist li:nth-child(4) { transition-delay: 0.52s; }
+.bookshelf-spine:is(:hover, .active) .payload-checklist li:nth-child(n + 5) { transition-delay: 0.58s; }
+.bookshelf-spine:is(:hover, .active) .btn-select-division { transition-delay: 0.62s; }
 
 .payload-badge {
     font-family: 'JetBrains Mono', monospace;
@@ -1067,6 +1161,7 @@ html[data-forge-fallback] .forge-cue {
     color: #ffffff;
     margin-bottom: 12px;
     line-height: 1.15;
+    max-width: 18ch;
 }
 
 .payload-desc {
@@ -1074,6 +1169,9 @@ html[data-forge-fallback] .forge-cue {
     color: var(--text-secondary);
     line-height: 1.65;
     margin-bottom: 20px;
+    /* A capped measure is better typography, and it also means the text
+       stops re-wrapping partway through the slide instead of at its end. */
+    max-width: 56ch;
 }
 
 .payload-checklist {
@@ -1171,12 +1269,25 @@ html[data-forge-fallback] .forge-cue {
         margin: 0 auto 0 16px;
         font-size: 16px;
     }
+    /* On the stacked layout the payload opens by height, not display — a
+       display:none toggle snaps and also suppresses the cascade above,
+       because children unhidden alongside a display change transition
+       nothing. 560px comfortably clears the tallest payload; content past
+       it still scrolls via the overflow-y the base rule sets. Visibility
+       rides along exactly as in the base rule — hidden only after the
+       collapse lands, visible immediately on open via the .active rule's
+       zeroed delay — so closed payloads stay out of the tab order here too. */
     .spine-expanded-payload {
-        display: none;
-        padding: 24px 20px;
+        max-height: 0;
+        min-width: 0;
+        padding: 0 20px;
+        transition: max-height var(--duration-slide) var(--ease-studio),
+                    padding var(--duration-slide) var(--ease-studio),
+                    visibility 0s linear var(--duration-slide);
     }
     .bookshelf-spine.active .spine-expanded-payload {
-        display: flex;
+        max-height: 560px;
+        padding: 24px 20px;
     }
 }
 
@@ -1196,6 +1307,7 @@ html[data-forge-fallback] .forge-cue {
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
     margin-top: var(--space-10);
     position: relative;
+    -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
 }
 
@@ -1383,6 +1495,7 @@ html[data-forge-fallback] .forge-cue {
     box-shadow: 0 25px 60px rgba(0,0,0,0.85);
     max-width: 960px;
     margin: var(--space-8) auto 0;
+    -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
 }
 
@@ -1398,7 +1511,7 @@ html[data-forge-fallback] .forge-cue {
 
 .quiz-options-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
     gap: var(--space-3);
     margin-bottom: var(--space-6);
 }
@@ -1470,12 +1583,15 @@ html[data-forge-fallback] .forge-cue {
     box-shadow: 0 30px 70px rgba(0, 0, 0, 0.85), 0 0 50px var(--gold-glow-soft);
     max-width: 980px;
     margin: var(--space-8) auto 0;
+    -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
 }
 
 .estimator-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    /* min(290px, 100%): a bare 290px floor overflows the card interior on
+       narrow phones (~40px of the price box clipped at 320px viewports). */
+    grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr));
     gap: var(--space-8);
     align-items: center;
 }
@@ -1524,10 +1640,19 @@ html[data-forge-fallback] .forge-cue {
 .range-slider {
     width: 100%;
     -webkit-appearance: none;
+    appearance: none;
     height: 10px;
     border-radius: var(--radius-sm);
     background: #1e293b;
     outline: none;
+}
+
+/* outline:none above sits in the components layer, so it beats the base
+   layer's :focus-visible treatment for every keyboard user — the slider
+   needs its own, or Tab lands on it invisibly. */
+.range-slider:focus-visible {
+    outline: 2px solid var(--logo-gold-glint);
+    outline-offset: 3px;
 }
 
 .range-slider::-webkit-slider-thumb {
@@ -1542,6 +1667,25 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .range-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+/* Firefox styles its thumb through its own pseudo-element and ignores the
+   -webkit one entirely — without this pair the gold UI ships a stock gray
+   slider there. */
+.range-slider::-moz-range-thumb {
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--logo-gold-bevel);
+    cursor: pointer;
+    box-shadow: 0 0 14px var(--logo-gold-bevel);
+}
+
+.range-slider::-moz-range-track {
+    height: 10px;
+    border-radius: var(--radius-sm);
+    background: #1e293b;
+}
 
 .estimate-summary-box {
     background: #04060a;
@@ -1660,12 +1804,13 @@ html[data-forge-fallback] .forge-cue {
     max-width: 940px;
     margin: 0 auto;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+    -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
 }
 
 .form-row-2col {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
     gap: var(--space-4);
     margin-bottom: var(--space-4);
 }
@@ -1808,6 +1953,7 @@ html[data-forge-fallback] .forge-cue {
     border-radius: var(--radius-full);
     padding: 6px 14px 6px 10px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), 0 0 25px var(--gold-glow-soft);
+    -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
     animation: pulseGlow 3s infinite alternate;
 }
@@ -1838,6 +1984,7 @@ html[data-forge-fallback] .forge-cue {
     font-weight: 800;
     font-size: clamp(11px, 1.1vw, 13px);
     padding: 6px 14px;
+    min-height: 44px;
     border-radius: var(--radius-full);
     text-decoration: none;
     display: inline-flex;

@@ -250,8 +250,14 @@ function invalidate() { needsFrame = true; }
 function onScroll() {
   const track = trackLength();
   const r = track > 0 ? Math.min(1, Math.max(0, window.scrollY / track)) : 1;
-  targetZ = START_Z + (ASSEMBLE_Z - START_Z) * r;
-  invalidate();
+  const z = START_Z + (ASSEMBLE_Z - START_Z) * r;
+  /* Only a moved target is a new picture. Without this guard, every scroll
+     event for the rest of the visit — long after the camera has landed and
+     the stage is hidden — re-renders the full 65k-cube scene. */
+  if (z !== targetZ) {
+    targetZ = z;
+    invalidate();
+  }
   publish(r);
 }
 
@@ -425,7 +431,10 @@ function fallback(reason, notice) {
       zIndex: '2', margin: '0', maxWidth: 'min(90vw, 36em)',
       padding: '10px 14px', borderRadius: '8px', textAlign: 'center',
       background: 'rgba(0, 0, 0, .74)', color: '#fff',
-      font: '500 13px/1.5 ui-sans-serif, -apple-system, system-ui, sans-serif'
+      font: '500 13px/1.5 ui-sans-serif, -apple-system, system-ui, sans-serif',
+      /* Informational only — it must never intercept taps meant for the
+         dispatch bar that owns the same strip of viewport. */
+      pointerEvents: 'none'
     });
     document.body.appendChild(say);
   }
@@ -495,11 +504,29 @@ function boot() {
   });
 
   window.addEventListener('resize', resize);
+  /* A resize moves the visitor's position *within* the track (the track is
+     vh-based, innerHeight just changed) without firing a scroll event —
+     rotate a phone while parked at the end and the camera, beats, and
+     readout would all be describing the old geometry until the next 1px
+     of scroll. Recompute from the new geometry immediately. */
+  window.addEventListener('resize', function () { if (!still()) onScroll(); });
   document.addEventListener('scroll', function () { if (!still()) onScroll(); }, { passive: true });
   reduced.addEventListener('change', applyMotion);
   window.addEventListener('pixelScroll:motion', function (e) {
     pageStill = !!(e.detail && e.detail.still);
     applyMotion();
+  });
+
+  /* GPU contexts are evicted under memory pressure (a 65k-instance scene on
+     a phone is a candidate) and do not come back on their own. Degrade the
+     same way a missing GPU does: stop the loop, drop the canvas, mount the
+     still — rather than leaving a permanently blank stage under copy and a
+     readout that keep asserting an assembled shield. */
+  renderer.domElement.addEventListener('webglcontextlost', function (ev) {
+    ev.preventDefault();
+    renderer.setAnimationLoop(null);
+    renderer.domElement.remove();
+    fallback('the WebGL context was lost');
   });
 
   document.body.prepend(renderer.domElement);

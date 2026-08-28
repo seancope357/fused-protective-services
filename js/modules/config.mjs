@@ -21,9 +21,12 @@ function read() {
 
 export const config = read();
 
-/** Scrolls the intake form into view; the one place that behaviour lives. */
+/** Scrolls the intake form into view; the one place that behaviour lives.
+    An explicit 'smooth' would override the reduced-motion CSS, animating a
+    long ride across the intro track for users who asked for no motion. */
 export function goToQuote() {
-    document.getElementById('quote')?.scrollIntoView({ behavior: 'smooth' });
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.getElementById('quote')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
 }
 
 /** Sets a form control's value only when that exact option exists. */

@@ -7,12 +7,13 @@
     max-width: 940px;
     margin: 0 auto;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+    -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
 }
 
 .form-row-2col {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
     gap: var(--space-4);
     margin-bottom: var(--space-4);
 }

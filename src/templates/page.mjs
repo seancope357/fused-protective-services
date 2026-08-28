@@ -9,7 +9,6 @@
 
 import { html, json } from '../lib/html.mjs';
 import { site } from '../data/site.mjs';
-import { divisions } from '../data/divisions.mjs';
 import { assessment, recommendations } from '../data/assessment.mjs';
 import { tiers, defaultTier } from '../data/estimator.mjs';
 
@@ -26,9 +25,11 @@ import { quote } from './quote.mjs';
 import { faqSection } from './faq.mjs';
 import { dispatchBar, footer } from './footer.mjs';
 
-/** Exactly what the browser modules need — no more. */
+/** Exactly what the browser modules need — no more. A divisions slice used
+    to ship here too, but no module ever read it (the deploy buttons carry
+    their quoteValue in their own data-deploy attribute), and unread keys
+    are how this island's contract drifts. */
 const clientConfig = () => ({
-    divisions: divisions.map((d) => ({ id: d.id, quoteValue: d.quoteValue })),
     assessment: {
         recommendations,
         environment: Object.fromEntries(

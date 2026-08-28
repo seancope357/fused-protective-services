@@ -149,7 +149,9 @@ export function initTilt() {
 
 export function initSpotlight() {
     const spotlight = document.getElementById('cursorSpotlight');
-    if (!spotlight || !finePointer()) return;
+    /* Reduced motion applies here like the header promises it does for
+       every ambient layer — a glow chasing the pointer is motion. */
+    if (!spotlight || !finePointer() || reduced.matches) return;
 
     let pending = false;
     let x = 0;

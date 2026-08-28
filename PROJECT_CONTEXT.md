@@ -107,6 +107,11 @@ it changes what the operations team receives.
 - **Legibility over the animated canvas comes from panels and scrims only.**
   `mix-blend-mode` cannot reach the canvas — the `z-index: 1` content wrapper is its own
   stacking context.
+- **The spine emblems are the bespoke gold SVGs, full stop.** A live 3D
+  replacement (Three.js gyroscopic sigils rendered into the icon housings) was
+  built and rejected on sight on 2026-08-26 — at 48px it read as decoration and
+  displaced the approved emblem set. The bookshelf's polish budget goes to
+  motion (`--ease-studio`, the payload cascade), not to replacing the icons.
 - **`js/logo-forge.js` is deliberately left whole at ~530 lines**, past the usual
   300-line split. It is an adapted copy of the Pixel Scroll Forge engine, and that
   project's standing decision is that the effect is written in exactly one place. Slicing

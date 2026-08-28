@@ -17,7 +17,12 @@
     border-radius: var(--radius-xl);
     overflow: hidden;
     cursor: pointer;
-    transition: flex var(--duration-slow) var(--ease-spring), border-color 0.3s ease, box-shadow 0.3s ease;
+    /* `flex: 1` and `flex: 4.5` share a 0% basis, so flex-grow is the only
+       property actually moving — naming it keeps the ramp on exactly that. */
+    transition: flex-grow var(--duration-slide) var(--ease-studio),
+                border-color var(--duration-slow) ease,
+                box-shadow var(--duration-slide) var(--ease-studio),
+                background var(--duration-slow) ease;
     display: flex;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
 }
@@ -82,24 +87,66 @@
 
 .spine-expanded-payload {
     flex-grow: 1;
-    opacity: 0;
-    transform: translateX(20px);
     pointer-events: none;
-    transition: opacity 0.3s ease 0.1s, transform 0.3s ease 0.1s;
     padding: 40px 36px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     overflow-y: auto;
     min-width: 320px;
+    /* A closed payload must be gone from the tab order and the
+       accessibility tree, not merely transparent — otherwise every closed
+       spine leaves an invisible, still-live Deploy button on the Tab path.
+       Visibility (unlike display) waits out its delay, so the flip to
+       hidden lands after the children finish fading; the open state below
+       zeroes the delay so content is available the instant a spine opens. */
+    visibility: hidden;
+    transition: visibility 0s linear 0.24s;
 }
 
 .bookshelf-spine:hover .spine-expanded-payload,
 .bookshelf-spine.active .spine-expanded-payload {
-    opacity: 1;
-    transform: translateX(0);
     pointer-events: auto;
+    visibility: visible;
+    transition-delay: 0s;
 }
+
+/* The payload cascade. The panel itself no longer fades — each element
+   inside rides its own small rise into focus, timed so the sequence starts
+   once the shelf slide is under way and the deploy button lands just after
+   the panel does. Closing is the reverse priority: everything drops away at
+   once, fast and undelayed, so the departing spine never trails stale copy. */
+.payload-badge,
+.payload-heading,
+.payload-desc,
+.payload-checklist li,
+.btn-select-division {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(4px);
+    transition: opacity 0.18s ease, transform 0.18s ease, filter 0.18s ease;
+}
+
+.bookshelf-spine:is(:hover, .active) :is(
+    .payload-badge, .payload-heading, .payload-desc,
+    .payload-checklist li, .btn-select-division) {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: opacity 0.5s var(--ease-out-quint),
+                transform 0.5s var(--ease-out-quint),
+                filter 0.5s var(--ease-out-quint);
+}
+
+.bookshelf-spine:is(:hover, .active) .payload-badge { transition-delay: 0.16s; }
+.bookshelf-spine:is(:hover, .active) .payload-heading { transition-delay: 0.22s; }
+.bookshelf-spine:is(:hover, .active) .payload-desc { transition-delay: 0.28s; }
+.bookshelf-spine:is(:hover, .active) .payload-checklist li:nth-child(1) { transition-delay: 0.34s; }
+.bookshelf-spine:is(:hover, .active) .payload-checklist li:nth-child(2) { transition-delay: 0.40s; }
+.bookshelf-spine:is(:hover, .active) .payload-checklist li:nth-child(3) { transition-delay: 0.46s; }
+.bookshelf-spine:is(:hover, .active) .payload-checklist li:nth-child(4) { transition-delay: 0.52s; }
+.bookshelf-spine:is(:hover, .active) .payload-checklist li:nth-child(n + 5) { transition-delay: 0.58s; }
+.bookshelf-spine:is(:hover, .active) .btn-select-division { transition-delay: 0.62s; }
 
 .payload-badge {
     font-family: 'JetBrains Mono', monospace;
@@ -121,6 +168,7 @@
     color: #ffffff;
     margin-bottom: 12px;
     line-height: 1.15;
+    max-width: 18ch;
 }
 
 .payload-desc {
@@ -128,6 +176,9 @@
     color: var(--text-secondary);
     line-height: 1.65;
     margin-bottom: 20px;
+    /* A capped measure is better typography, and it also means the text
+       stops re-wrapping partway through the slide instead of at its end. */
+    max-width: 56ch;
 }
 
 .payload-checklist {
@@ -225,12 +276,25 @@
         margin: 0 auto 0 16px;
         font-size: 16px;
     }
+    /* On the stacked layout the payload opens by height, not display — a
+       display:none toggle snaps and also suppresses the cascade above,
+       because children unhidden alongside a display change transition
+       nothing. 560px comfortably clears the tallest payload; content past
+       it still scrolls via the overflow-y the base rule sets. Visibility
+       rides along exactly as in the base rule — hidden only after the
+       collapse lands, visible immediately on open via the .active rule's
+       zeroed delay — so closed payloads stay out of the tab order here too. */
     .spine-expanded-payload {
-        display: none;
-        padding: 24px 20px;
+        max-height: 0;
+        min-width: 0;
+        padding: 0 20px;
+        transition: max-height var(--duration-slide) var(--ease-studio),
+                    padding var(--duration-slide) var(--ease-studio),
+                    visibility 0s linear var(--duration-slide);
     }
     .bookshelf-spine.active .spine-expanded-payload {
-        display: flex;
+        max-height: 560px;
+        padding: 24px 20px;
     }
 }
 

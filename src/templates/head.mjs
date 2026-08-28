@@ -79,6 +79,7 @@ export const head = () => html`
     <meta name="author" content="${site.name}">
     <meta name="theme-color" content="#050504">
     <link rel="canonical" href="${site.url}">
+    <link rel="icon" type="image/png" href="${site.logo}">
 
     <!-- AI Search Engine Optimization (GEO & LLMs) -->
     <meta name="ai-content-declaration" content="verified-business-profile">
@@ -89,7 +90,7 @@ export const head = () => html`
     <meta property="og:site_name" content="${site.name}">
     <meta property="og:title" content="${site.seo.ogTitle}">
     <meta property="og:description" content="${site.seo.ogDescription}">
-    <meta property="og:image" content="${site.logo}">
+    <meta property="og:image" content="${site.url}/${site.logo}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="${site.url}">
 
@@ -97,7 +98,7 @@ export const head = () => html`
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${site.seo.twitterTitle}">
     <meta name="twitter:description" content="${site.seo.twitterDescription}">
-    <meta name="twitter:image" content="${site.logo}">
+    <meta name="twitter:image" content="${site.url}/${site.logo}">
 
     <!-- Schema.org JSON-LD (generated from src/data — never hand-edited) -->
     <script type="application/ld+json">
