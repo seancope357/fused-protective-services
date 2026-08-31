@@ -6,7 +6,8 @@
    There is no package.json, no lockfile, and nothing to install or keep
    current — the site still deploys by dragging the directory at a host.
 
-     node build.mjs           write index.html and css/site.css
+     node build.mjs           write index.html + css/site.css and
+                              invoice.html + css/invoice.css
      node build.mjs --check   verify the committed output matches src/,
                               exit 1 if it drifted (for CI or a pre-push hook)
 
@@ -20,6 +21,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 import { page } from './src/templates/page.mjs';
+import { invoicePage } from './src/templates/invoice/page.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const STYLES = join(ROOT, 'src', 'styles');
@@ -49,14 +51,29 @@ const STYLE_ORDER = [
     'utilities.css'
 ];
 
+/* The invoicing tool gets its own bundle: the marketing page never pays for
+   print rules or the white paper palette, and site.css stays byte-identical.
+   Shared modules are listed again rather than abstracted — the order is still
+   the design decision. Print rules come last so they outrank everything. */
+const INVOICE_STYLE_ORDER = [
+    'tokens.css',
+    'base.css',
+    'components/buttons.css',
+    'components/form.css',
+    'components/invoice-builder.css',
+    'components/invoice-doc.css',
+    'utilities.css',
+    'components/invoice-print.css'
+];
+
 const BANNER = `/* ==========================================================================
    GENERATED FILE — DO NOT EDIT
    Built from src/styles/ by build.mjs. Edit the module, then run:
        node build.mjs
    ========================================================================== */`;
 
-function buildStyles() {
-    const parts = STYLE_ORDER.map((name) => {
+function buildStyles(order) {
+    const parts = order.map((name) => {
         const css = readFileSync(join(STYLES, name), 'utf8').trim();
         return `/* ── ${name} ${'─'.repeat(Math.max(0, 58 - name.length))} */\n${css}`;
     });
@@ -66,13 +83,11 @@ function buildStyles() {
     return `${BANNER}\n\n@layer tokens, base, layout, components, utilities;\n\n${parts.join('\n\n')}\n`;
 }
 
-function buildHtml() {
-    return String(page());
-}
-
 const artefacts = () => [
-    { path: join(ROOT, 'index.html'), contents: buildHtml() },
-    { path: join(ROOT, 'css', 'site.css'), contents: buildStyles() }
+    { path: join(ROOT, 'index.html'), contents: String(page()) },
+    { path: join(ROOT, 'css', 'site.css'), contents: buildStyles(STYLE_ORDER) },
+    { path: join(ROOT, 'invoice.html'), contents: String(invoicePage()) },
+    { path: join(ROOT, 'css', 'invoice.css'), contents: buildStyles(INVOICE_STYLE_ORDER) }
 ];
 
 function write() {

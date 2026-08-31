@@ -1,0 +1,57 @@
+@layer utilities {
+/* ==========================================================================
+   INVOICE PRINT RULES
+   Print keeps exactly one thing: the paper. Everything else on the page is
+   builder chrome. Sits in the utilities layer and last in the bundle so it
+   outranks every component rule without a specificity fight. Letter, not
+   A4 — the company is in Texas.
+   ========================================================================== */
+
+@media print {
+    @page {
+        size: letter;
+        margin: 0.5in;
+    }
+
+    html,
+    body.inv-body {
+        background: #ffffff !important;
+    }
+
+    .skip-link,
+    .inv-topbar,
+    .inv-builder {
+        display: none !important;
+    }
+
+    .inv-layout {
+        display: block;
+        padding: 0;
+        max-width: none;
+    }
+
+    .inv-preview {
+        position: static;
+    }
+
+    .inv-doc {
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+        font-size: 12px;
+    }
+
+    /* The gold header bar and rules are the brand — keep them on paper. */
+    .inv-doc,
+    .inv-doc * {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .inv-doc__table tr,
+    .inv-doc__totals,
+    .inv-doc__foot-block {
+        break-inside: avoid;
+    }
+}
+}
