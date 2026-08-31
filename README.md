@@ -4,7 +4,7 @@ The official high-converting website and security detail quote intake engine for
 
 ---
 
-> **`index.html` and `css/site.css` are generated. Do not edit them by hand.**
+> **`index.html`, `css/site.css`, `invoice.html`, and `css/invoice.css` are generated. Do not edit them by hand.**
 > Change `src/`, then run `node build.mjs`.
 > Full blueprint: **[PROJECT_CONTEXT.md](PROJECT_CONTEXT.md)**.
 
@@ -16,7 +16,9 @@ The official high-converting website and security detail quote intake engine for
 fused-protective-services/
 ├── build.mjs             # The whole toolchain — zero dependencies
 ├── index.html            # GENERATED — do not edit
+├── invoice.html          # GENERATED — internal invoicing tool (/invoice)
 ├── css/site.css          # GENERATED — do not edit
+├── css/invoice.css       # GENERATED — do not edit
 ├── serve.py              # 1-Click Local Preview Server (http://localhost:5050)
 ├── src/
 │   ├── lib/html.mjs      # Escaping tagged template
@@ -42,7 +44,7 @@ from a single list — before this, those were three hand-maintained copies that
 already drifted apart.
 
 ```bash
-node build.mjs           # write index.html and css/site.css
+node build.mjs           # write index.html + css/site.css and invoice.html + css/invoice.css
 node build.mjs --check   # fail if committed output drifted from src/ (CI / pre-push)
 ```
 
@@ -96,6 +98,18 @@ transmitted anywhere yet.** Point the `deliver()` function in
 ([Formspree](https://formspree.io), [Web3Forms](https://web3forms.com), or a custom
 endpoint) to route leads to Cameron's phone or email. That function is the only seam
 that needs to change.
+
+## 🧾 Invoicing (internal tool)
+
+`/invoice` (generated `invoice.html`) is a branded invoice builder for Cameron:
+auto numbering (`FPS-YYYY-####`, counter advances only on save), auto issue/due
+dates from payment terms, line items priced from the same rate card as the
+estimator (`src/data/estimator.mjs`), tax, and a live gold-on-white document
+preview. **Print / Save PDF** uses the browser's print dialog — only the paper
+prints, one Letter page. Saved invoices live in the browser's localStorage only
+(clearing site data deletes them), and the page is `noindex` and linked from
+nowhere. Terms, tax default, numbering, and the remit-to wording live in
+[`src/data/invoice.mjs`](src/data/invoice.mjs).
 
 ## ☎️ Setting the real phone number
 

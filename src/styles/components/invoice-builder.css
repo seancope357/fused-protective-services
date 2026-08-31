@@ -1,0 +1,275 @@
+@layer components {
+/* ==========================================================================
+   INVOICE BUILDER — screen chrome for the internal invoicing tool
+   Two panes: the dark form on the left, the white paper preview on the
+   right. Field styling comes from form.css; this file only adds what the
+   marketing form never needed (line-item table, action bar, saved list).
+   ========================================================================== */
+
+.inv-body {
+    background: var(--color-void);
+    min-height: 100vh;
+}
+
+.inv-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-4) clamp(16px, 3vw, 32px);
+    border-bottom: 1px solid var(--border-gold-subtle);
+    background: var(--color-surface-base);
+}
+
+.inv-topbar__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.inv-topbar__name {
+    font-family: 'Cinzel', serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: 1.5px;
+    color: var(--logo-gold-specular);
+}
+
+.inv-topbar__sub {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.inv-topbar__tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+}
+
+.inv-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 620px);
+    gap: clamp(16px, 2.5vw, 32px);
+    align-items: start;
+    padding: clamp(16px, 3vw, 32px);
+    max-width: 1680px;
+    margin: 0 auto;
+}
+
+.inv-builder {
+    background: var(--color-surface-card);
+    border: 1px solid var(--border-gold-subtle);
+    border-radius: var(--radius-2xl);
+    padding: clamp(20px, 3vw, 36px);
+}
+
+.inv-builder__heading {
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--logo-gold-glint);
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: var(--space-2);
+    margin: var(--space-8) 0 var(--space-4);
+}
+
+.inv-builder__heading:first-child {
+    margin-top: 0;
+}
+
+.form-field--gap {
+    margin-bottom: var(--space-4);
+}
+
+/* Line-item table ------------------------------------------------------- */
+
+.inv-lines-scroll {
+    overflow-x: auto;
+}
+
+.inv-lines {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+}
+
+.inv-lines th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    padding: var(--space-2) var(--space-2);
+    border-bottom: 1px solid var(--border-muted);
+    white-space: nowrap;
+}
+
+.inv-lines td {
+    padding: var(--space-2);
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: top;
+}
+
+.inv-lines input,
+.inv-lines select {
+    width: 100%;
+    background: #060706;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+}
+
+.inv-lines input:focus,
+.inv-lines select:focus {
+    border-color: var(--logo-gold-bevel);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(186, 152, 87, 0.25);
+}
+
+.inv-line__service {
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.inv-line td:nth-child(2) input,
+.inv-line td:nth-child(3) input,
+.inv-line td:nth-child(4) input {
+    min-width: 72px;
+}
+
+.inv-line__amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--logo-gold-highlight);
+    white-space: nowrap;
+    text-align: right;
+    padding-top: 16px;
+}
+
+.inv-line__tools {
+    text-align: right;
+}
+
+.inv-tool-btn {
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    line-height: 1;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: all var(--duration-fast) ease;
+}
+
+.inv-tool-btn:hover {
+    border-color: var(--color-crimson);
+    color: var(--color-crimson);
+}
+
+.inv-add-line {
+    margin-top: var(--space-3);
+    padding: 10px 20px;
+    font-size: 13px;
+}
+
+.inv-tax-row {
+    margin-top: var(--space-6);
+}
+
+/* Action bar ------------------------------------------------------------ */
+
+.inv-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+}
+
+.inv-actions .btn-gold,
+.inv-actions .btn-secondary-glass {
+    padding: 12px 22px;
+    font-size: 13.5px;
+    width: auto;
+}
+
+/* Saved invoices -------------------------------------------------------- */
+
+.inv-saved {
+    margin-top: var(--space-8);
+}
+
+.inv-saved__empty {
+    font-size: 13px;
+    color: var(--text-tertiary);
+}
+
+.inv-saved__table td {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.inv-saved__actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+.inv-status-chip {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-muted);
+    color: var(--text-secondary);
+}
+
+.inv-status-chip[data-status='sent'] {
+    border-color: var(--border-gold-subtle);
+    color: var(--logo-gold-glint);
+}
+
+.inv-status-chip[data-status='paid'] {
+    border-color: var(--color-emerald);
+    color: var(--color-emerald);
+}
+
+/* Preview pane ---------------------------------------------------------- */
+
+.inv-preview {
+    position: sticky;
+    top: clamp(16px, 3vw, 32px);
+}
+
+@media (max-width: 1100px) {
+    .inv-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .inv-preview {
+        position: static;
+    }
+
+    .inv-topbar__tag {
+        display: none;
+    }
+}
+}

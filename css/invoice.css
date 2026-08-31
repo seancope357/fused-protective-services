@@ -1,0 +1,1028 @@
+/* ==========================================================================
+   GENERATED FILE — DO NOT EDIT
+   Built from src/styles/ by build.mjs. Edit the module, then run:
+       node build.mjs
+   ========================================================================== */
+
+@layer tokens, base, layout, components, utilities;
+
+/* ── tokens.css ──────────────────────────────────────────────── */
+@layer tokens {
+/* ==========================================================================
+   FUSED PROTECTIVE SERVICES — DESIGN TOKENS & SYSTEM VARIABLES
+   Exact Color Match to 3D Brushed Gold Shield Logo
+   ========================================================================== */
+:root {
+    /* Backgrounds & Surface Textures */
+    --color-void: #050504;
+    --color-surface-base: #090a09;
+    --color-surface-elevated: #111211;
+    --color-surface-card: rgba(18, 19, 18, 0.86);
+    --color-surface-card-hover: rgba(26, 28, 26, 0.98);
+    --color-surface-glass: rgba(255, 255, 255, 0.03);
+
+    /* Exact Logo Gold Spectrum */
+    --logo-gold-shadow: #72542b;
+    --logo-gold-warm: #87693b;
+    --logo-gold-core: #a1814c;
+    --logo-gold-bevel: #ba9857;
+    --logo-gold-glint: #c6a25c;
+    --logo-gold-highlight: #dfc07b;
+    --logo-gold-specular: #f7e5b2;
+
+    /* Metallic Gold Gradients */
+    --gradient-gold-brushed: linear-gradient(135deg, #f7e5b2 0%, #ba9857 25%, #a1814c 50%, #87693b 75%, #72542b 100%);
+    --gradient-gold-metallic: linear-gradient(180deg, #ffffff 0%, #f7e5b2 20%, #c6a25c 45%, #ba9857 70%, #72542b 100%);
+
+    /* Ambient Glows */
+    --gold-glow-intense: rgba(186, 152, 87, 0.45);
+    --gold-glow-soft: rgba(161, 129, 76, 0.16);
+
+    /* Borders */
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-muted: rgba(255, 255, 255, 0.14);
+    --border-gold-subtle: rgba(186, 152, 87, 0.35);
+    --border-gold-bright: #c6a25c;
+
+    /* Typography Colors */
+    --text-pure: #ffffff;
+    --text-primary: #f5f5f4;
+    --text-secondary: #a8a29e;
+    --text-tertiary: #78716c;
+    --text-gold-light: #f7e5b2;
+    --text-gold-core: #c6a25c;
+
+    /* Status Accents */
+    --color-emerald: #10b981;
+    --color-emerald-glow: rgba(16, 185, 129, 0.4);
+    --color-crimson: #ef4444;
+
+    /* Fluid Spacing Scale */
+    --space-1: clamp(3px, 0.5vw, 4px);
+    --space-2: clamp(6px, 1vw, 8px);
+    --space-3: clamp(10px, 1.5vw, 12px);
+    --space-4: clamp(12px, 2vw, 16px);
+    --space-5: clamp(16px, 2.5vw, 20px);
+    --space-6: clamp(20px, 3vw, 24px);
+    --space-8: clamp(24px, 4vw, 32px);
+    --space-10: clamp(32px, 5vw, 40px);
+    --space-12: clamp(40px, 6vw, 48px);
+    --space-16: clamp(52px, 8vw, 64px);
+    --space-20: clamp(64px, 10vw, 80px);
+    --space-24: clamp(76px, 12vw, 96px);
+
+    /* Section Surfaces — the recessed bands between full-bleed sections */
+    --surface-section-sunken: rgba(9, 10, 9, 0.75);
+    --surface-section-deep: rgba(9, 10, 9, 0.80);
+    --surface-section-framed: rgba(12, 13, 12, 0.85);
+
+    /* Radii */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+    --radius-2xl: 28px;
+    --radius-full: 9999px;
+
+    /* Easing & Physics.
+       --ease-studio is the ramp for large sliding surfaces: a firm
+       acceleration into the move and a long, settling landing. --ease-out-quint
+       is for elements arriving into view — all deceleration, no wind-up. */
+    --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-studio: cubic-bezier(0.65, 0, 0.15, 1);
+    --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+    --duration-fast: 0.15s;
+    --duration-normal: 0.25s;
+    --duration-slow: 0.45s;
+    --duration-slide: 0.72s;
+}
+}
+
+/* ── base.css ────────────────────────────────────────────────── */
+@layer base {
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--color-void);
+    color: var(--text-primary);
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: clamp(15px, 1.1vw, 16px);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+}
+
+/* Background Particle Mesh Canvas */
+#tactical-bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Cursor Interactive Spotlight Glow */
+.cursor-spotlight {
+    position: fixed;
+    width: clamp(400px, 45vw, 700px);
+    height: clamp(400px, 45vw, 700px);
+    border-radius: var(--radius-full);
+    background: radial-gradient(circle, var(--gold-glow-soft) 0%, transparent 65%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    transition: opacity var(--duration-normal) ease;
+}
+
+/* Global Container */
+.container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 clamp(16px, 4vw, 32px);
+    position: relative;
+    z-index: 1;
+}
+
+/* Keyboard users land here first; it stays off-screen until focused. */
+.skip-link {
+    position: absolute;
+    top: -100%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3000;
+    padding: 12px 22px;
+    background: var(--gradient-gold-brushed);
+    color: #050504;
+    font-weight: 800;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    text-decoration: none;
+}
+
+.skip-link:focus-visible {
+    top: 0;
+}
+
+/* One visible focus treatment for every interactive surface on the page. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--logo-gold-specular);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+    /* Delay must be zeroed alongside duration: a zeroed duration still
+       honors its delay, so a staggered reveal (the bookshelf payload
+       cascade) would otherwise replay as a sequence of timed pops. */
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        transition-delay: 0s !important;
+    }
+}
+}
+
+/* ── components/buttons.css ──────────────────────────────────── */
+@layer components {
+/* Common Gold Buttons */
+.btn-gold {
+    background: var(--gradient-gold-brushed);
+    color: #050504;
+    font-weight: 900;
+    font-size: clamp(14px, 1.2vw, 16px);
+    padding: clamp(14px, 2vw, 18px) clamp(28px, 3.5vw, 42px);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    box-shadow: 0 10px 30px rgba(186, 152, 87, 0.4);
+    transition: all var(--duration-normal) var(--ease-spring);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.btn-gold::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    transition: left 0.6s ease;
+}
+
+.btn-gold:hover::before {
+    left: 100%;
+}
+
+.btn-gold:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 45px rgba(186, 152, 87, 0.6);
+}
+
+.btn-secondary-glass {
+    background: var(--color-surface-glass);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: clamp(14px, 1.2vw, 16px);
+    padding: clamp(14px, 2vw, 18px) clamp(24px, 3vw, 38px);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    transition: all var(--duration-normal) var(--ease-spring);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.btn-secondary-glass:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--border-gold-subtle);
+    color: var(--logo-gold-highlight);
+    transform: translateY(-3px);
+}
+
+.btn-dispatch {
+    background: var(--gradient-gold-brushed);
+    color: #050504;
+    padding: 8px 18px;
+    border-radius: var(--radius-full);
+    font-size: 12.5px;
+    font-weight: 800;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 0 15px rgba(186, 152, 87, 0.3);
+    transition: all var(--duration-normal) var(--ease-spring);
+    white-space: nowrap;
+}
+
+.btn-dispatch:hover {
+    transform: translateY(-1px) scale(1.03);
+    box-shadow: 0 0 25px rgba(186, 152, 87, 0.6);
+}
+
+@media (max-width: 850px) {
+    .btn-dispatch { display: none; }
+    .btn-gold, .btn-secondary-glass { width: 100%; }
+}
+
+.btn-gold--block {
+    width: 100%;
+    justify-content: center;
+}
+
+.btn-gold--lg {
+    font-size: 17px;
+}
+}
+
+/* ── components/form.css ─────────────────────────────────────── */
+@layer components {
+.form-shell {
+    background: var(--color-surface-card);
+    border: 1px solid var(--border-gold-subtle);
+    border-radius: var(--radius-2xl);
+    padding: clamp(20px, 4vw, 44px);
+    max-width: 940px;
+    margin: 0 auto;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+}
+
+.form-row-2col {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.form-field { display: flex; flex-direction: column; gap: var(--space-1); }
+.form-field.full-span { grid-column: 1 / -1; }
+
+.form-field label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--logo-gold-specular);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.form-field input, .form-field select, .form-field textarea {
+    background: #060706;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    padding: clamp(12px, 1.8vw, 16px) clamp(14px, 2vw, 18px);
+    border-radius: var(--radius-md);
+    font-size: clamp(14px, 1.1vw, 15px);
+    outline: none;
+    transition: all var(--duration-normal) ease;
+}
+
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+    border-color: var(--logo-gold-bevel);
+    box-shadow: 0 0 0 3px rgba(186, 152, 87, 0.25);
+    background: #0b0c0b;
+}
+
+.form-field--notes {
+    margin-bottom: 24px;
+}
+
+.form-assurance {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 14px;
+}
+
+.form-status {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-emerald);
+    margin-top: 14px;
+    min-height: 1.4em;
+}
+
+.form-status:empty {
+    margin-top: 0;
+    min-height: 0;
+}
+}
+
+/* ── components/invoice-builder.css ──────────────────────────── */
+@layer components {
+/* ==========================================================================
+   INVOICE BUILDER — screen chrome for the internal invoicing tool
+   Two panes: the dark form on the left, the white paper preview on the
+   right. Field styling comes from form.css; this file only adds what the
+   marketing form never needed (line-item table, action bar, saved list).
+   ========================================================================== */
+
+.inv-body {
+    background: var(--color-void);
+    min-height: 100vh;
+}
+
+.inv-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-4) clamp(16px, 3vw, 32px);
+    border-bottom: 1px solid var(--border-gold-subtle);
+    background: var(--color-surface-base);
+}
+
+.inv-topbar__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.inv-topbar__name {
+    font-family: 'Cinzel', serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: 1.5px;
+    color: var(--logo-gold-specular);
+}
+
+.inv-topbar__sub {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.inv-topbar__tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+}
+
+.inv-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 620px);
+    gap: clamp(16px, 2.5vw, 32px);
+    align-items: start;
+    padding: clamp(16px, 3vw, 32px);
+    max-width: 1680px;
+    margin: 0 auto;
+}
+
+.inv-builder {
+    background: var(--color-surface-card);
+    border: 1px solid var(--border-gold-subtle);
+    border-radius: var(--radius-2xl);
+    padding: clamp(20px, 3vw, 36px);
+}
+
+.inv-builder__heading {
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--logo-gold-glint);
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: var(--space-2);
+    margin: var(--space-8) 0 var(--space-4);
+}
+
+.inv-builder__heading:first-child {
+    margin-top: 0;
+}
+
+.form-field--gap {
+    margin-bottom: var(--space-4);
+}
+
+/* Line-item table ------------------------------------------------------- */
+
+.inv-lines-scroll {
+    overflow-x: auto;
+}
+
+.inv-lines {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+}
+
+.inv-lines th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    padding: var(--space-2) var(--space-2);
+    border-bottom: 1px solid var(--border-muted);
+    white-space: nowrap;
+}
+
+.inv-lines td {
+    padding: var(--space-2);
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: top;
+}
+
+.inv-lines input,
+.inv-lines select {
+    width: 100%;
+    background: #060706;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+}
+
+.inv-lines input:focus,
+.inv-lines select:focus {
+    border-color: var(--logo-gold-bevel);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(186, 152, 87, 0.25);
+}
+
+.inv-line__service {
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.inv-line td:nth-child(2) input,
+.inv-line td:nth-child(3) input,
+.inv-line td:nth-child(4) input {
+    min-width: 72px;
+}
+
+.inv-line__amount {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--logo-gold-highlight);
+    white-space: nowrap;
+    text-align: right;
+    padding-top: 16px;
+}
+
+.inv-line__tools {
+    text-align: right;
+}
+
+.inv-tool-btn {
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    line-height: 1;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: all var(--duration-fast) ease;
+}
+
+.inv-tool-btn:hover {
+    border-color: var(--color-crimson);
+    color: var(--color-crimson);
+}
+
+.inv-add-line {
+    margin-top: var(--space-3);
+    padding: 10px 20px;
+    font-size: 13px;
+}
+
+.inv-tax-row {
+    margin-top: var(--space-6);
+}
+
+/* Action bar ------------------------------------------------------------ */
+
+.inv-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+}
+
+.inv-actions .btn-gold,
+.inv-actions .btn-secondary-glass {
+    padding: 12px 22px;
+    font-size: 13.5px;
+    width: auto;
+}
+
+/* Saved invoices -------------------------------------------------------- */
+
+.inv-saved {
+    margin-top: var(--space-8);
+}
+
+.inv-saved__empty {
+    font-size: 13px;
+    color: var(--text-tertiary);
+}
+
+.inv-saved__table td {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.inv-saved__actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+.inv-status-chip {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-muted);
+    color: var(--text-secondary);
+}
+
+.inv-status-chip[data-status='sent'] {
+    border-color: var(--border-gold-subtle);
+    color: var(--logo-gold-glint);
+}
+
+.inv-status-chip[data-status='paid'] {
+    border-color: var(--color-emerald);
+    color: var(--color-emerald);
+}
+
+/* Preview pane ---------------------------------------------------------- */
+
+.inv-preview {
+    position: sticky;
+    top: clamp(16px, 3vw, 32px);
+}
+
+@media (max-width: 1100px) {
+    .inv-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .inv-preview {
+        position: static;
+    }
+
+    .inv-topbar__tag {
+        display: none;
+    }
+}
+}
+
+/* ── components/invoice-doc.css ──────────────────────────────── */
+@layer components {
+/* ==========================================================================
+   INVOICE DOCUMENT — the paper itself
+   Rendered gold-on-white on screen so the preview and the printed PDF are
+   the same artwork. Gold here is the dark end of the logo ramp: the light
+   specular tones vanish on white paper, the shadow tones hold.
+   ========================================================================== */
+
+.inv-doc {
+    --paper-ink: #1c1917;
+    --paper-muted: #57534e;
+    --paper-faint: #a8a29e;
+    --paper-gold: #72542b;
+    --paper-gold-soft: rgba(114, 84, 43, 0.28);
+    --paper-emerald: #047857;
+
+    background: #ffffff;
+    color: var(--paper-ink);
+    font-family: 'Outfit', -apple-system, sans-serif;
+    font-size: 12.5px;
+    line-height: 1.5;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+    padding: clamp(24px, 3vw, 48px);
+    width: 100%;
+}
+
+/* Brand header ---------------------------------------------------------- */
+
+.inv-doc__brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 18px;
+    border-bottom: 3px solid var(--paper-gold);
+}
+
+.inv-doc__logo {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+
+.inv-doc__identity {
+    flex: 1;
+}
+
+.inv-doc__name {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--paper-gold);
+}
+
+.inv-doc__motto {
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    color: var(--paper-muted);
+    margin-top: 2px;
+}
+
+.inv-doc__contact {
+    font-style: normal;
+    font-size: 11px;
+    text-align: right;
+    color: var(--paper-muted);
+    line-height: 1.6;
+}
+
+/* Title + status -------------------------------------------------------- */
+
+.inv-doc__title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-top: 22px;
+}
+
+.inv-doc__title {
+    font-family: 'Cinzel', serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--paper-ink);
+}
+
+.inv-doc__badge {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: var(--radius-full);
+    border: 1.5px solid var(--paper-faint);
+    color: var(--paper-muted);
+}
+
+.inv-doc__badge[data-status='sent'] {
+    border-color: var(--paper-gold);
+    color: var(--paper-gold);
+}
+
+.inv-doc__badge[data-status='paid'] {
+    border-color: var(--paper-emerald);
+    color: var(--paper-emerald);
+}
+
+/* Bill-to + facts ------------------------------------------------------- */
+
+.inv-doc__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    margin-top: 18px;
+}
+
+.inv-doc__label {
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--paper-gold);
+    margin-bottom: 4px;
+}
+
+.inv-doc__billto p {
+    color: var(--paper-muted);
+}
+
+.inv-doc__billto p:empty {
+    display: none;
+}
+
+.inv-doc__client-name {
+    font-weight: 700;
+    color: var(--paper-ink);
+}
+
+.inv-doc__facts {
+    min-width: 220px;
+}
+
+.inv-doc__facts div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(28, 25, 23, 0.08);
+}
+
+.inv-doc__facts dt {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--paper-muted);
+}
+
+.inv-doc__facts dd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+}
+
+/* Line items ------------------------------------------------------------ */
+
+.inv-doc__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 22px;
+}
+
+.inv-doc__table th {
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #ffffff;
+    background: var(--paper-gold);
+    padding: 7px 10px;
+    text-align: left;
+}
+
+.inv-doc__table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(28, 25, 23, 0.12);
+    vertical-align: top;
+}
+
+.inv-doc__col-num,
+.inv-doc__table td:nth-child(n + 2) {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    white-space: nowrap;
+}
+
+.inv-doc__table td:first-child {
+    text-align: left;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12.5px;
+    white-space: normal;
+}
+
+.inv-doc__col-desc {
+    width: 44%;
+}
+
+.inv-doc__col-amt {
+    text-align: right;
+}
+
+/* Totals ---------------------------------------------------------------- */
+
+.inv-doc__totals {
+    margin-left: auto;
+    margin-top: 14px;
+    width: min(280px, 100%);
+}
+
+.inv-doc__totals > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 5px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+}
+
+.inv-doc__totals > div > span:first-child {
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--paper-muted);
+}
+
+.inv-doc__total-due {
+    border-top: 2px solid var(--paper-gold);
+    margin-top: 4px;
+    padding-top: 8px !important;
+}
+
+.inv-doc__total-due > span {
+    font-size: 15px !important;
+    font-weight: 800;
+    color: var(--paper-gold) !important;
+}
+
+/* Footer ---------------------------------------------------------------- */
+
+.inv-doc__foot {
+    margin-top: 26px;
+    padding-top: 16px;
+    border-top: 1px solid var(--paper-gold-soft);
+    display: grid;
+    gap: 14px;
+}
+
+.inv-doc__foot-block p {
+    font-size: 11px;
+    color: var(--paper-muted);
+}
+
+.inv-doc__foot-block[hidden] {
+    display: none;
+}
+}
+
+/* ── utilities.css ───────────────────────────────────────────── */
+@layer utilities {
+/* Typography Classes */
+.font-cinzel {
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.5px;
+}
+
+.font-mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.gold-gradient-text {
+    background: var(--gradient-gold-metallic);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 10px rgba(186, 152, 87, 0.4));
+}
+
+/* Available to assistive tech, removed from the visual flow. */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+}
+
+/* ── components/invoice-print.css ────────────────────────────── */
+@layer utilities {
+/* ==========================================================================
+   INVOICE PRINT RULES
+   Print keeps exactly one thing: the paper. Everything else on the page is
+   builder chrome. Sits in the utilities layer and last in the bundle so it
+   outranks every component rule without a specificity fight. Letter, not
+   A4 — the company is in Texas.
+   ========================================================================== */
+
+@media print {
+    @page {
+        size: letter;
+        margin: 0.5in;
+    }
+
+    html,
+    body.inv-body {
+        background: #ffffff !important;
+    }
+
+    .skip-link,
+    .inv-topbar,
+    .inv-builder {
+        display: none !important;
+    }
+
+    .inv-layout {
+        display: block;
+        padding: 0;
+        max-width: none;
+    }
+
+    .inv-preview {
+        position: static;
+    }
+
+    .inv-doc {
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+        font-size: 12px;
+    }
+
+    /* The gold header bar and rules are the brand — keep them on paper. */
+    .inv-doc,
+    .inv-doc * {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .inv-doc__table tr,
+    .inv-doc__totals,
+    .inv-doc__foot-block {
+        break-inside: avoid;
+    }
+}
+}
