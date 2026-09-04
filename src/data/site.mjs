@@ -82,7 +82,8 @@ export const navItems = [
     { href: '#calculator', label: 'Estimator', drawerLabel: 'Coverage Estimator' },
     { href: '#standards', label: 'Standards', drawerLabel: 'The Fused Standard' },
     { href: '#quote', label: 'Request Detail', drawerLabel: 'Request Detail' },
-    { href: '#faq', label: 'FAQ', drawerLabel: 'FAQ' }
+    { href: '#faq', label: 'FAQ', drawerLabel: 'FAQ' },
+    { href: 'careers.html', label: 'Careers', drawerLabel: 'Careers & Recruiting' }
 ];
 
 export const heroMetrics = [

@@ -1938,6 +1938,588 @@ html[data-forge-fallback] .forge-cue {
 }
 }
 
+/* ── components/careers.css ──────────────────────────────────── */
+@layer components {
+/* ==========================================================================
+   CAREERS & OFFICER RECRUITMENT COMPONENTS
+   ========================================================================== */
+
+/* ── Hero ─────────────────────────────────────────────────────────── */
+.careers-hero-section {
+    padding: clamp(100px, 14vw, 150px) 0 clamp(40px, 6vw, 60px);
+    background: radial-gradient(circle at 50% 20%, rgba(186, 152, 87, 0.08) 0%, transparent 70%);
+}
+
+.careers-hero-content {
+    max-width: 860px;
+    margin: 0 auto clamp(36px, 6vw, 56px);
+    text-align: center;
+}
+
+.careers-hero-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(32px, 5.5vw, 56px);
+    font-weight: 900;
+    line-height: 1.1;
+    margin: var(--space-4) 0;
+    letter-spacing: -0.01em;
+}
+
+.careers-hero-lead {
+    font-size: clamp(16px, 1.25vw, 19px);
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--space-8);
+}
+
+.careers-hero-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+}
+
+.careers-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-4);
+}
+
+.careers-metric-card {
+    background: var(--color-surface-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.careers-metric-card .metric-val {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 800;
+    margin-bottom: var(--space-2);
+}
+
+.careers-metric-card .metric-lbl {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* ── Pre-Qualification ─────────────────────────────────────────────── */
+.careers-prequal-section {
+    padding: clamp(50px, 8vw, 80px) 0;
+    background: var(--surface-section-sunken);
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.prequal-box {
+    max-width: 820px;
+    margin: 0 auto;
+    background: var(--color-surface-card);
+    border: 1px solid var(--border-gold-subtle);
+    border-radius: var(--radius-lg);
+    padding: clamp(20px, 4vw, 36px);
+}
+
+.prequal-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+.prequal-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    flex-wrap: wrap;
+}
+
+.prequal-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    color: var(--logo-gold-core);
+    font-size: 18px;
+}
+
+.prequal-body {
+    flex: 1;
+    min-width: 240px;
+}
+
+.prequal-label {
+    display: block;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 15px;
+}
+
+.prequal-helper {
+    display: block;
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+.prequal-switch-group {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.prequal-choice {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 14px;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--border-muted);
+    border-radius: var(--radius-sm);
+}
+
+.prequal-choice input:checked + span {
+    color: var(--logo-gold-highlight);
+}
+
+.prequal-actions {
+    text-align: center;
+}
+
+.prequal-feedback {
+    margin-top: var(--space-6);
+    padding: var(--space-6);
+    border-radius: var(--radius-md);
+    background: rgba(16, 185, 129, 0.06);
+    border: 1px solid var(--color-emerald-glow);
+    text-align: center;
+}
+
+.prequal-feedback.rejected {
+    background: rgba(239, 68, 68, 0.06);
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.feedback-status-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    background: var(--color-emerald);
+    color: #000;
+    margin-bottom: var(--space-2);
+}
+
+.prequal-feedback.rejected .feedback-status-badge {
+    background: var(--color-crimson);
+    color: #fff;
+}
+
+.feedback-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.feedback-text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+}
+
+/* ── Benefits Grid ─────────────────────────────────────────────────── */
+.careers-benefits-section {
+    padding: clamp(60px, 9vw, 100px) 0;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-6);
+}
+
+.benefit-card {
+    background: var(--color-surface-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8) var(--space-6);
+    transition: transform var(--duration-normal) var(--ease-studio), border-color var(--duration-normal);
+}
+
+.benefit-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-gold-subtle);
+}
+
+.benefit-icon-box {
+    width: 48px;
+    height: 48px;
+    margin-bottom: var(--space-4);
+    display: flex;
+    align-items: center;
+}
+
+.benefit-title {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+}
+
+.benefit-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* ── Positions Board ───────────────────────────────────────────────── */
+.careers-positions-section {
+    padding: clamp(60px, 9vw, 100px) 0;
+    background: var(--surface-section-deep);
+}
+
+.filter-tabs-track {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-8);
+    flex-wrap: wrap;
+}
+
+.filter-tab-btn {
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 10px 18px;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--border-muted);
+    border-radius: var(--radius-full);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--duration-fast);
+}
+
+.filter-tab-btn:hover, .filter-tab-btn.active {
+    background: var(--gradient-gold-brushed);
+    color: #050504;
+    border-color: transparent;
+}
+
+.positions-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.position-card {
+    background: var(--color-surface-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: clamp(20px, 3.5vw, 32px);
+    transition: border-color var(--duration-normal);
+}
+
+.position-card:hover {
+    border-color: var(--border-gold-subtle);
+}
+
+.position-card[hidden] {
+    display: none !important;
+}
+
+.position-meta-top {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.position-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--logo-gold-core);
+    letter-spacing: 0.08em;
+}
+
+.position-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    background: rgba(186, 152, 87, 0.15);
+    border: 1px solid var(--border-gold-subtle);
+    border-radius: var(--radius-sm);
+    color: var(--logo-gold-highlight);
+    text-transform: uppercase;
+}
+
+.position-license {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+}
+
+.position-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(20px, 2.5vw, 24px);
+    font-weight: 700;
+    margin-bottom: var(--space-4);
+    color: var(--text-primary);
+}
+
+.position-stats-strip {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-4);
+}
+
+.stat-pill {
+    font-size: 13px;
+    padding: 6px 12px;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+}
+
+.stat-pill--gold {
+    border-color: var(--border-gold-subtle);
+    color: var(--logo-gold-specular);
+    font-weight: 700;
+}
+
+.position-summary {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: var(--space-6);
+}
+
+.position-details {
+    padding-top: var(--space-6);
+    margin-top: var(--space-6);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+}
+
+.details-heading {
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--logo-gold-core);
+    letter-spacing: 0.08em;
+    margin-bottom: var(--space-3);
+}
+
+.details-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.details-list li {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    position: relative;
+    padding-left: 16px;
+}
+
+.details-list li::before {
+    content: '•';
+    color: var(--logo-gold-bevel);
+    position: absolute;
+    left: 0;
+}
+
+.position-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    flex-wrap: wrap;
+    gap: var(--space-4);
+}
+
+.position-toggle-btn {
+    background: none;
+    border: none;
+    color: var(--logo-gold-core);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ── Vetting Protocol ──────────────────────────────────────────────── */
+.careers-vetting-section {
+    padding: clamp(60px, 9vw, 100px) 0;
+}
+
+.vetting-stepper-track {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    max-width: 820px;
+    margin: 0 auto;
+}
+
+.vetting-stage-card {
+    display: flex;
+    gap: var(--space-6);
+    background: var(--color-surface-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+}
+
+.stage-step-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--border-gold-subtle);
+    color: var(--logo-gold-highlight);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    font-size: 18px;
+}
+
+.stage-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--logo-gold-core);
+    letter-spacing: 0.1em;
+    margin-bottom: var(--space-2);
+}
+
+.stage-heading {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+}
+
+.stage-text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: var(--space-3);
+}
+
+.stage-checkpoint {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--logo-gold-highlight);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ── Candidate Intake Form ─────────────────────────────────────────── */
+.careers-apply-section {
+    padding: clamp(60px, 9vw, 100px) 0;
+    background: var(--surface-section-framed);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.apply-form-wrapper {
+    max-width: 780px;
+    margin: 0 auto;
+    background: var(--color-surface-card);
+    border: 1px solid var(--border-gold-subtle);
+    border-radius: var(--radius-xl);
+    padding: clamp(24px, 5vw, 44px);
+}
+
+.form-row-duo {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-4);
+}
+
+.form-field-group {
+    margin-bottom: var(--space-4);
+}
+
+.form-field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    letter-spacing: 0.02em;
+}
+
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--border-muted);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: 'Outfit', sans-serif;
+    transition: border-color var(--duration-fast);
+}
+
+.form-input:focus-visible, .form-select:focus-visible, .form-textarea:focus-visible {
+    border-color: var(--logo-gold-glint);
+}
+
+.form-disclaimer {
+    display: block;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+    margin-top: var(--space-3);
+    text-align: center;
+}
+
+.candidate-status-box {
+    margin-top: var(--space-6);
+    padding: var(--space-6);
+    border-radius: var(--radius-md);
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid var(--color-emerald-glow);
+    color: #fff;
+    font-size: 15px;
+    text-align: center;
+    line-height: 1.6;
+}
+}
+
 /* ── components/dispatch-bar.css ─────────────────────────────── */
 @layer components {
 .floating-dispatch-bar {

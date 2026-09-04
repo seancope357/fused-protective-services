@@ -16,6 +16,7 @@ import { initProtocol } from './modules/protocol.mjs';
 import { initAssessment } from './modules/assessment.mjs';
 import { initEstimator } from './modules/estimator.mjs';
 import { initQuoteForm } from './modules/quote-form.mjs';
+import { initCareers } from './modules/careers.mjs';
 import { initParticles, initTilt, initSpotlight } from './modules/ambient.mjs';
 
 for (const init of [
@@ -25,6 +26,7 @@ for (const init of [
     initAssessment,
     initEstimator,
     initQuoteForm,
+    initCareers,
     initParticles,
     initTilt,
     initSpotlight

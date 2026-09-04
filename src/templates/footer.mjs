@@ -13,7 +13,7 @@ export const dispatchBar = () => html`
         ${callLink({ className: 'btn-quick-call', label: `Call ${site.phone.display}` })}
     </div>`;
 
-export const footer = () => html`
+export const footer = (isCareers = false) => html`
     <footer class="footer-block">
         <div class="container">
             <img src="${site.logo}" alt="" class="footer-badge-img" width="110" height="110">
@@ -21,7 +21,10 @@ export const footer = () => html`
             <p class="footer-motto">${site.motto}</p>
 
             <nav class="footer-menu" aria-label="Footer">
-                ${navItems.map((item) => html`<a href="${item.href}">${item.drawerLabel}</a>`)}
+                ${navItems.map((item) => {
+                    const href = isCareers && item.href.startsWith('#') ? `index.html${item.href}` : item.href;
+                    return html`<a href="${href}">${item.drawerLabel}</a>`;
+                })}
                 <a href="tel:${site.phone.e164}">24/7 Dispatch</a>
             </nav>
 

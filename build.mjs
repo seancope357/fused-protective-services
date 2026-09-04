@@ -22,6 +22,7 @@ import { dirname, join } from 'node:path';
 
 import { page } from './src/templates/page.mjs';
 import { invoicePage } from './src/templates/invoice/page.mjs';
+import { careersPage } from './src/templates/careers/page.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const STYLES = join(ROOT, 'src', 'styles');
@@ -46,6 +47,7 @@ const STYLE_ORDER = [
     'components/standards.css',
     'components/form.css',
     'components/faq.css',
+    'components/careers.css',
     'components/dispatch-bar.css',
     'components/footer.css',
     'utilities.css'
@@ -87,7 +89,8 @@ const artefacts = () => [
     { path: join(ROOT, 'index.html'), contents: String(page()) },
     { path: join(ROOT, 'css', 'site.css'), contents: buildStyles(STYLE_ORDER) },
     { path: join(ROOT, 'invoice.html'), contents: String(invoicePage()) },
-    { path: join(ROOT, 'css', 'invoice.css'), contents: buildStyles(INVOICE_STYLE_ORDER) }
+    { path: join(ROOT, 'css', 'invoice.css'), contents: buildStyles(INVOICE_STYLE_ORDER) },
+    { path: join(ROOT, 'careers.html'), contents: String(careersPage()) }
 ];
 
 function write() {
