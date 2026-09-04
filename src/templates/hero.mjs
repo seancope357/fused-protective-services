@@ -19,7 +19,7 @@ export const hero = () => html`
             </h1>
 
             <p class="hero-lead">
-                Commissioned armed tactical officers, VIP executive close protection, luxury event security, and commercial perimeter defense. Rapid statewide Texas deployment.
+                Commissioned armed and unarmed tactical officers, VIP executive close protection, luxury event and nightlife venue security, and commercial perimeter defense. Rapid deployment across Austin, San Antonio, and statewide Texas.
             </p>
 
             <div class="hero-actions">

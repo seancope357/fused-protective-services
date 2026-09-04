@@ -1,15 +1,16 @@
 /* ==========================================================================
    TACTICAL DIVISIONS — SINGLE SOURCE OF TRUTH
    ==========================================================================
-   Before this file existed, the six divisions were hand-maintained in five
+   Before this file existed, the divisions were hand-maintained in five
    separate places: the bookshelf spines, the quote form <select>, the
    schema.org OfferCatalog, the assessment mapping, and the estimator mapping.
    They had already drifted — the catalog carried four entries where the site
    offers six, so two services were invisible to search and AI crawlers.
 
    Everything about a division now lives in one entry here and is rendered
-   into every one of those places by the generator. Adding a seventh division
-   is a single object; deleting one removes it everywhere at once.
+   into every one of those places by the generator. Adding a division is a
+   single object (DIV-07 was added exactly that way); deleting one removes it
+   everywhere at once.
 
    `quoteValue` is the contract between the spine's deploy button, the form
    <select> option, and the assessment/estimator pre-fill. It is the division's
@@ -149,6 +150,28 @@ export const divisions = [
             name: 'Emergency Tactical Dispatch',
             description:
                 'Rapid under 45-minute on-demand armed officer deployment for high-risk threats and property vulnerabilities.'
+        }
+    },
+    {
+        id: 'div-07',
+        code: 'DIV-07 // VENUE',
+        icon: 'nightlife',
+        spineTitle: 'RESTAURANT, BAR & NIGHTLIFE',
+        badge: 'ENTERTAINMENT DISTRICT DETAIL',
+        heading: 'Restaurant, Bar & Nightlife Venue Security',
+        description:
+            'Door, floor, and parking-lot officers for restaurants, bars, lounges, and nightclubs: ID and capacity control, intoxicated-patron de-escalation, altercation intervention, closing-time staff escorts, and cash-drop protection across Austin and San Antonio entertainment districts.',
+        checklist: [
+            'ID Verification, Capacity Counts & Line Management',
+            'Intoxicated Patron De-escalation & Removal',
+            'Floor Roving, Altercation Intervention & Lot Patrol',
+            'Closing-Time Staff Escorts & Cash-Drop Protection'
+        ],
+        quoteValue: 'Restaurant, Bar & Nightlife Venue Security',
+        schema: {
+            name: 'Restaurant, Bar & Nightlife Venue Security',
+            description:
+                'Door control, ID verification, patron de-escalation, and closing-time protection for restaurants, bars, lounges, and nightclubs.'
         }
     }
 ];

@@ -10,25 +10,41 @@
 import { site } from './site.mjs';
 
 export const careersSeo = {
-    title: 'Careers & Protective Officer Recruiting — Fused Protective Services (Austin, TX)',
+    title: 'Careers & Protective Officer Recruiting — Fused Protective Services (Austin & San Antonio, TX)',
     description:
-        'Join Fused Protective Services. Hiring Texas DPS Level IV Personal Protection Officers (PPO), Level III Armed Patrol Officers, and Tactical Dispatchers. Industry-leading pay ($28–$65+/hr), paid training, and veteran-first culture.',
+        'Join Fused Protective Services. Hiring Texas DPS Level IV Personal Protection Officers (PPO), Level III Armed Officers, Level II Unarmed Officers, and Tactical Dispatchers across Austin and San Antonio. Market-rate pay by license level ($16–$60/hr), paid training, own gear preferred with a repayable gear stipend, and a veteran-first culture.',
     keywords:
-        'executive protection jobs Austin, Texas PPO bodyguard hiring, armed security jobs Texas, DPS Level 4 security careers, veteran security contractor Austin, Cameron Harrell security recruiting'
+        'executive protection jobs Austin, security jobs San Antonio, Texas PPO bodyguard hiring, armed security jobs Texas, unarmed security jobs Austin, DPS Level 4 security careers, veteran security contractor Austin, Cameron Harrell security recruiting'
 };
 
 export const careersMetrics = [
-    { value: '$28 – $65+', label: 'Hourly Compensation Range' },
+    { value: '$16 – $60', label: 'Hourly Pay by License Level' },
     { value: 'Top 5%', label: 'Applicant Acceptance Rate' },
     { value: '100%', label: 'Veteran & First Responder Friendly' },
     { value: '40-Hr / Week', label: 'Overtime & Surge Available' }
 ];
 
+/* Pay bands by Texas DPS license level, matched to what security employers
+   actually pay in the San Antonio–Austin market. The min/max here are the
+   same numbers the JobPosting baseSalary records state, so search engines and
+   candidates read one figure. */
+export const payScales = [
+    { level: 'Level IV PPO', range: '$30 – $60', note: 'Personal Protection Officer / executive detail', min: 30, max: 60 },
+    { level: 'Level III Armed', range: '$20 – $40', note: 'Commissioned armed patrol, post & venue', min: 20, max: 40 },
+    { level: 'Level II Unarmed', range: '$16 – $25', note: 'Non-commissioned concierge, gate & floor', min: 16, max: 25 },
+    { level: 'Command Dispatch', range: '$18 – $25', note: 'Tactical dispatcher / command desk', min: 18, max: 25 }
+];
+
+export const gearPolicy = {
+    headline: 'Own Gear Preferred',
+    body: 'Officers who bring their own approved duty gear deploy fastest and are preferred for roster placement. If you need kit, a repayable gear stipend is available at hire and is recovered through scheduled deductions from pay.'
+};
+
 export const officerBenefits = [
     {
         icon: 'executive',
-        title: 'Premium Pay & Surge Bonuses',
-        body: 'Industry-leading hourly wages with guaranteed bi-weekly direct deposit, holiday overtime multipliers, and short-notice rapid tactical dispatch surge bonuses.'
+        title: 'Market-Rate Pay & Surge Bonuses',
+        body: 'Hourly pay set by license level to match the San Antonio–Austin market, guaranteed bi-weekly direct deposit, holiday overtime multipliers, and short-notice rapid tactical dispatch surge bonuses.'
     },
     {
         icon: 'construction',
@@ -37,13 +53,13 @@ export const officerBenefits = [
     },
     {
         icon: 'emergency',
-        title: 'Duty Gear & Uniform Allowance',
-        body: 'Stipends for approved Level IIIA concealable body armor, Safariland duty holsters, encrypted tactical radio headsets, and custom Fused branded operational apparel.'
+        title: 'Own Gear Preferred, Repayable Stipend Available',
+        body: 'Bring your own approved Level IIIA body armor, duty holster, and radio headset and you are first in line for placement. Need kit? A repayable gear stipend covers approved gear and Fused branded apparel and is deducted from pay on a scheduled repayment plan.'
     },
     {
         icon: 'commercial',
-        title: 'Veteran & Law Enforcement Fast-Track',
-        body: 'Direct rank and experience credit for honorably discharged military veterans, Texas DPS troopers, SWAT operators, and seasoned private protection officers.'
+        title: 'Military, Law Enforcement & Skilled Civilian Credit',
+        body: 'Direct rank and experience credit for honorably discharged military veterans, Texas DPS troopers, SWAT operators, and confirmed skilled civilian protective professionals with verified private-sector detail experience.'
     }
 ];
 
@@ -53,8 +69,8 @@ export const vettingStages = [
         name: 'Application & License Audit',
         badge: 'STAGE 1: VERIFICATION',
         heading: 'TOPS License & Credential Verification',
-        body: 'We review your professional resume, Texas Online Private Security (TOPS) licensing history, and professional references within 48 business hours.',
-        checkpoint: 'Active Texas DPS Level II, III, or IV PPO license confirmed.'
+        body: 'We review your professional resume, Texas Online Private Security (TOPS) licensing history, and professional references within 48 business hours. Military and law enforcement service, or confirmed skilled civilian protective experience, is verified directly with prior employers.',
+        checkpoint: 'Active Texas DPS Level II, III, or IV license confirmed; operational experience verified.'
     },
     {
         step: '02',
@@ -97,16 +113,17 @@ export const positions = [
         title: 'Level IV Personal Protection Officer (Executive PPO)',
         licenseTier: 'Texas DPS Level IV PPO',
         category: 'executive',
-        location: 'Austin, TX (Statewide & Domestic Travel)',
+        location: 'Austin & San Antonio, TX (Statewide & Domestic Travel)',
         schedule: 'Full-Time & Dedicated Itinerary Details',
-        compensation: '$45.00 – $65.00 / hr',
+        compensation: '$30.00 – $60.00 / hr',
         badge: 'ELITE DETAIL',
         summary:
             'Discreet plainclothes close-protection officers providing armed escorts, advance route security, and secure transit for corporate executives, VIPs, and family offices.',
         requirements: [
             'Current Texas DPS Level IV Personal Protection Officer commission in good standing',
             'Passed Texas DPS-approved psychological examination (MMPI-2)',
-            'Minimum 3+ years in military special operations, tactical law enforcement, or executive protection',
+            'Minimum 3+ years in military special operations, tactical law enforcement, or confirmed skilled civilian executive protection',
+            'Own approved duty gear preferred; repayable gear stipend available (deducted from pay)',
             'Valid U.S. Passport and clean Texas driver’s license (defensive driving certified)',
             'Impeccable executive presence, suit-and-tie presentation, and verbal de-escalation skills'
         ],
@@ -119,8 +136,8 @@ export const positions = [
         schema: {
             title: 'Level IV Personal Protection Officer (Executive PPO)',
             description:
-                'Executive close protection and plainclothes armed bodyguard detail for high-net-worth clients in Austin and statewide Texas.',
-            baseSalary: { minValue: 45, maxValue: 65, unit: 'HOUR' },
+                'Executive close protection and plainclothes armed bodyguard detail for high-net-worth clients in Austin, San Antonio, and statewide Texas.',
+            baseSalary: { minValue: 30, maxValue: 60, unit: 'HOUR' },
             employmentType: 'FULL_TIME'
         }
     },
@@ -130,9 +147,9 @@ export const positions = [
         title: 'Level III Commissioned Armed Patrol Officer',
         licenseTier: 'Texas DPS Level III Armed',
         category: 'armed',
-        location: 'Austin Metro & Travis County, TX',
+        location: 'Austin & San Antonio Metro, TX',
         schedule: 'Full-Time / Evening & Overnight Shifts',
-        compensation: '$28.00 – $38.00 / hr',
+        compensation: '$20.00 – $40.00 / hr',
         badge: 'MOBILE TACTICAL',
         summary:
             'High-visibility marked cruiser and static armed officers protecting commercial headquarters, technology campuses, and luxury automotive dealerships.',
@@ -141,7 +158,8 @@ export const positions = [
             'Clean criminal record and negative 10-panel drug screen',
             'Valid Texas driver’s license with spotless driving record',
             'Proficient with standard 9mm/.40 duty sidearm and duty belt gear',
-            'Prior military, corrections, or armed security patrol experience preferred'
+            'Own approved duty gear preferred; repayable gear stipend available (deducted from pay)',
+            'Prior military, corrections, or confirmed skilled civilian armed patrol experience preferred'
         ],
         duties: [
             'Operate marked tactical patrol cruisers conducting scheduled & random site sweeps',
@@ -152,41 +170,42 @@ export const positions = [
         schema: {
             title: 'Level III Commissioned Armed Patrol Officer',
             description:
-                'Marked cruiser mobile patrols and armed post deterrence for commercial complexes across the Austin metro area.',
-            baseSalary: { minValue: 28, maxValue: 38, unit: 'HOUR' },
+                'Marked cruiser mobile patrols and armed post deterrence for commercial complexes across the Austin and San Antonio metro areas.',
+            baseSalary: { minValue: 20, maxValue: 40, unit: 'HOUR' },
             employmentType: 'FULL_TIME'
         }
     },
     {
         id: 'pos-event',
         code: 'POS-03 // EVENT',
-        title: 'Tactical Event Security & Venue Specialist',
+        title: 'Tactical Event, Venue & Nightlife Security Specialist',
         licenseTier: 'Texas DPS Level III Armed / Level II Mixed',
         category: 'event',
         location: 'Austin, San Antonio & Hill Country, TX',
-        schedule: 'Flexible / Event-Based (Galas, Summits, Weddings)',
-        compensation: '$30.00 – $42.00 / hr',
+        schedule: 'Flexible / Event & Nightlife Shifts (Galas, Summits, Bars, Clubs)',
+        compensation: '$16.00 – $40.00 / hr (by license level)',
         badge: 'LUXURY VENUE ACCESS',
         summary:
-            'Front-facing tactical officers delivering crowd screening, VIP area isolation, and diplomatic de-escalation for luxury weddings, summits, and estate galas.',
+            'Front-facing tactical officers delivering crowd screening, VIP area isolation, door control, and diplomatic de-escalation for luxury weddings, summits, estate galas, and restaurant, bar, and nightlife venues.',
         requirements: [
             'Current Texas DPS Level III Commissioned or Level II license',
             'Customer-facing diplomatic demeanor with commanding physical presence',
             'Superior conflict resolution and verbal de-escalation capability',
             'Current CPR / First Aid / AED certification (or ability to complete paid training)',
-            'Availability for evening, weekend, and holiday luxury events'
+            'Availability for evening, weekend, holiday, and late-night venue shifts',
+            'Own approved duty gear preferred; repayable gear stipend available (deducted from pay)'
         ],
         duties: [
-            'Conduct guest access list verification and credential screening',
+            'Conduct guest access list verification, ID checks, capacity counts, and credential screening',
             'Secure VIP green rooms, stage perimeters, and backstage staging corridors',
-            'Respond swiftly and calmly to medical emergencies or unauthorized entry attempts',
+            'De-escalate and remove intoxicated patrons; respond calmly to medical emergencies or unauthorized entry',
             'Maintain pristine tactical polo or suit-and-tie uniform presentation'
         ],
         schema: {
-            title: 'Tactical Event Security & Venue Specialist',
+            title: 'Tactical Event, Venue & Nightlife Security Specialist',
             description:
-                'Event access control, VIP perimeter defense, and customer-facing tactical security for luxury gatherings.',
-            baseSalary: { minValue: 30, maxValue: 42, unit: 'HOUR' },
+                'Event access control, VIP perimeter defense, door and floor security for bars and nightclubs, and customer-facing tactical security for luxury gatherings in Austin and San Antonio.',
+            baseSalary: { minValue: 16, maxValue: 40, unit: 'HOUR' },
             employmentType: 'PART_TIME'
         }
     },
@@ -196,9 +215,9 @@ export const positions = [
         title: 'Corporate & Estate Security Concierge',
         licenseTier: 'Texas DPS Level II Non-Commissioned',
         category: 'unarmed',
-        location: 'Austin & Westlake Hills, TX',
+        location: 'Austin, Westlake Hills & San Antonio, TX',
         schedule: 'Full-Time / Day & Swing Shifts',
-        compensation: '$22.00 – $28.00 / hr',
+        compensation: '$16.00 – $25.00 / hr',
         badge: 'ESTATE & CORPORATE',
         summary:
             'Professional gatehouse and corporate lobby access specialists managing visitor credentials, phone triage, and physical access control.',
@@ -219,7 +238,7 @@ export const positions = [
             title: 'Corporate & Estate Security Concierge',
             description:
                 'Access gatehouse management and lobby security concierge for private estates and commercial offices.',
-            baseSalary: { minValue: 22, maxValue: 28, unit: 'HOUR' },
+            baseSalary: { minValue: 16, maxValue: 25, unit: 'HOUR' },
             employmentType: 'FULL_TIME'
         }
     },
@@ -231,7 +250,7 @@ export const positions = [
         category: 'operations',
         location: 'Austin Command Operations Center (On-Site)',
         schedule: 'Full-Time / 12-Hour Rotations (24/7/365 Desk)',
-        compensation: '$26.00 – $36.00 / hr',
+        compensation: '$18.00 – $25.00 / hr',
         badge: 'TACTICAL COMMAND',
         summary:
             'Central communications coordinator managing officer GPS telemetry, emergency call intake, rapid dispatch deployments, and client reporting.',
@@ -252,7 +271,7 @@ export const positions = [
             title: 'Command Desk Operations & Tactical Dispatcher',
             description:
                 '24/7 active command operations, tactical officer dispatching, and GPS telemetry monitoring.',
-            baseSalary: { minValue: 26, maxValue: 36, unit: 'HOUR' },
+            baseSalary: { minValue: 18, maxValue: 25, unit: 'HOUR' },
             employmentType: 'FULL_TIME'
         }
     }

@@ -3,12 +3,19 @@
    `.lifecycle-card` — names left behind by an earlier iteration that no
    stylesheet ever defined, so the three principles rendered as an unstyled
    full-width stack. They are cards now, matching the house treatment used by
-   the estimator and protocol surfaces. */
+   the estimator and protocol surfaces. Four cards: 4-up on wide screens,
+   2-up on laptops and tablets, stacked on phones. */
 .standards-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: var(--space-5);
     margin-top: var(--space-10);
+}
+
+@media (max-width: 1200px) {
+    .standards-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 .standard-card {
@@ -26,7 +33,7 @@
     transform: translateY(-3px);
 }
 
-@media (max-width: 992px) {
+@media (max-width: 640px) {
     .standards-grid {
         grid-template-columns: 1fr;
     }

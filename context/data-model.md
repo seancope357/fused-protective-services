@@ -90,7 +90,7 @@ interface SiteConfig {
 }
 ```
 
-### 2. `src/data/divisions.mjs` — The 6 Divisions
+### 2. `src/data/divisions.mjs` — The 7 Divisions
 The primary catalog of services rendered into the bookshelf, form, and SEO schemas.
 
 ```typescript
@@ -101,6 +101,7 @@ interface Division {
     spineTitle: string;              // Text displayed on the collapsed bookshelf spine
     badge: string;                   // Credential pill (e.g. "LEVEL IV PPO CERTIFIED")
     badgeTone?: 'urgent';            // Visual alert styling (used for DIV-06)
+    /* DIV-07 (Restaurant, Bar & Nightlife) uses icon key 'nightlife' */
     heading: string;                 // Detailed title in expanded state
     description: string;             // Detailed marketing copy
     checklist: string[];             // 4 tactical deliverables

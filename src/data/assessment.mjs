@@ -45,6 +45,15 @@ export const assessment = {
                     armed: armedPreferences.mixed
                 },
                 {
+                    id: 'nightlife',
+                    icon: 'nightlife',
+                    label: 'Restaurant / Bar / Nightlife Venue',
+                    value: 'Restaurant / Bar / Nightlife Venue',
+                    recommend: 'squad',
+                    division: 'Restaurant, Bar & Nightlife Venue Security',
+                    armed: armedPreferences.mixed
+                },
+                {
                     id: 'commercial',
                     icon: 'commercial',
                     label: 'Commercial Property / Corporate Complex',

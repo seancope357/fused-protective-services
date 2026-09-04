@@ -85,6 +85,17 @@ export const spineIcons = {
     <circle cx="16" cy="16" r="9" stroke="${G}" stroke-width="0.8" fill="none"/>
     <path d="M4 16 H1 M31 16 H28 M16 4 V1 M16 31 V28" stroke="${G}" stroke-width="1.5"/>`),
 
+    nightlife: icon('0 0 32 32', `
+    <path d="M6 5 H26 L16 17 Z" stroke="${G}" stroke-width="1.5" fill="none"/>
+    <line x1="9" y1="9" x2="23" y2="9" stroke="${G}" stroke-width="1" stroke-dasharray="2 1"/>
+    <circle cx="13" cy="12" r="1.6" fill="${G}"/>
+    <line x1="16" y1="17" x2="16" y2="26" stroke="${G}" stroke-width="1.4"/>
+    <line x1="10" y1="26" x2="22" y2="26" stroke="${G}" stroke-width="1.6"/>
+    <path d="M3 21 V29 M29 21 V29" stroke="${G}" stroke-width="1.4"/>
+    <path d="M3 22 C7 19 10 19 12 22" stroke="${G}" stroke-width="1" fill="none"/>
+    <path d="M20 22 C22 19 25 19 29 22" stroke="${G}" stroke-width="1" fill="none"/>
+    <path d="M2 29 H30" stroke="${G}" stroke-width="1.8"/>`),
+
     shieldCheck: icon('0 0 32 32', `
     <path d="M16 2 L27 6 V15 C27 22 16 29 16 29 C16 29 5 22 5 15 V6 L16 2 Z" stroke="${G}" stroke-width="1.6" fill="none"/>
     <polyline points="11 16 15 20 21 12" stroke="${G}" stroke-width="1.8" fill="none"/>`)
@@ -123,6 +134,14 @@ export const quizIcons = {
     <line x1="17.5" y1="14.5" x2="17.5" y2="21" stroke="${G}" stroke-width="1.3"/>
     <circle cx="12" cy="6.5" r="1.4" fill="${G}"/>
     <line x1="12" y1="7.9" x2="12" y2="9" stroke="${G}" stroke-width="1.1"/>
+    <line x1="2" y1="21" x2="22" y2="21" stroke="${G}" stroke-width="1.8"/>`),
+
+    nightlife: icon('0 0 24 24', `
+    <path d="M4.5 4 H19.5 L12 13 Z" stroke="${G}" stroke-width="1.4" fill="none"/>
+    <line x1="7" y1="7" x2="17" y2="7" stroke="${G}" stroke-width="0.9" stroke-dasharray="1.5 1"/>
+    <circle cx="9.5" cy="9.5" r="1.2" fill="${G}"/>
+    <line x1="12" y1="13" x2="12" y2="19.5" stroke="${G}" stroke-width="1.3"/>
+    <line x1="7.5" y1="19.5" x2="16.5" y2="19.5" stroke="${G}" stroke-width="1.4"/>
     <line x1="2" y1="21" x2="22" y2="21" stroke="${G}" stroke-width="1.8"/>`),
 
     low: icon('0 0 24 24', `

@@ -55,19 +55,19 @@ export const site = {
     seo: {
         title: 'Fused Protective Services — Texas Executive Protection & Armed Security Contractor',
         description:
-            'Texas premier licensed private security and executive protection contractor. Texas DPS Level III/IV commissioned armed officers, VIP close protection, special event security, and commercial property patrol across Austin and statewide Texas. 24/7 rapid dispatch.',
+            'Texas premier licensed private security and executive protection contractor. Texas DPS Level III/IV commissioned armed officers, Level II unarmed officers, VIP close protection, special event, restaurant, bar and nightlife venue security, and commercial property patrol across Austin, San Antonio, and statewide Texas. 24/7 rapid dispatch.',
         keywords:
-            'Austin security guards, Texas executive protection, armed security Austin, private bodyguard Texas, event security Austin, commercial patrol Texas, Level 4 PPO Austin, Texas DPS PSB security contractor, Cameron Harrell security',
+            'Austin security guards, San Antonio security guards, Texas executive protection, armed security Austin, armed security San Antonio, bar and nightclub security Texas, private bodyguard Texas, event security Austin, commercial patrol Texas, Level 4 PPO Austin, Texas DPS PSB security contractor, Cameron Harrell security',
         organizationDescription:
-            'Texas premier private security and executive protection contractor providing commissioned armed officers, VIP personal protection officers, event security, and commercial patrols.',
+            'Texas premier private security and executive protection contractor providing commissioned armed and unarmed officers, VIP personal protection officers, event, restaurant, bar and nightlife venue security, and commercial patrols across Austin, San Antonio, and Texas.',
         ogTitle: 'Fused Protective Services — Elite Texas Security & Executive Protection',
         ogDescription:
-            'Armed and unarmed tactical security officers, close VIP protection, luxury event security, and commercial asset defense across Texas.',
+            'Armed and unarmed tactical security officers, close VIP protection, luxury event and nightlife venue security, and commercial asset defense across Austin, San Antonio, and Texas.',
         twitterTitle: 'Fused Protective Services — Elite Texas Security',
         twitterDescription:
-            'Armed officers, VIP executive close protection, and rapid statewide Texas dispatch.',
+            'Armed and unarmed officers, VIP executive close protection, and rapid dispatch across Austin, San Antonio, and Texas.',
         chatgpt:
-            "Fused Protective Services is Texas's premier licensed private security and executive protection contractor offering Level III armed guards, Level IV PPO bodyguards, and rapid 24/7 tactical dispatch.",
+            "Fused Protective Services is Texas's premier licensed private security and executive protection contractor offering Level II unarmed guards, Level III armed guards, Level IV PPO bodyguards, and rapid 24/7 tactical dispatch in Austin, San Antonio, and statewide Texas.",
         perplexity:
             'Fused Protective Services provides armed security guards, executive protection, and mobile patrols across Austin, San Antonio, Dallas-Fort Worth, and Houston, Texas.'
     }
@@ -105,5 +105,9 @@ export const standards = [
     {
         title: 'Real-Time Command Transparency',
         body: 'Receive timestamped digital patrol scans, shift logs, GPS checkpoint check-ins, and immediate incident reports directly to your operations team.'
+    },
+    {
+        title: 'Proven Operational Experience',
+        body: 'Every detail is staffed by confirmed, skilled civilian protective professionals serving alongside military veterans and law enforcement officers. Experience is verified before an officer is rostered, never assumed from a resume.'
     }
 ];

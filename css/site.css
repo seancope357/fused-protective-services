@@ -1742,12 +1742,19 @@ html[data-forge-fallback] .forge-cue {
    `.lifecycle-card` — names left behind by an earlier iteration that no
    stylesheet ever defined, so the three principles rendered as an unstyled
    full-width stack. They are cards now, matching the house treatment used by
-   the estimator and protocol surfaces. */
+   the estimator and protocol surfaces. Four cards: 4-up on wide screens,
+   2-up on laptops and tablets, stacked on phones. */
 .standards-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: var(--space-5);
     margin-top: var(--space-10);
+}
+
+@media (max-width: 1200px) {
+    .standards-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 .standard-card {
@@ -1765,7 +1772,7 @@ html[data-forge-fallback] .forge-cue {
     transform: translateY(-3px);
 }
 
-@media (max-width: 992px) {
+@media (max-width: 640px) {
     .standards-grid {
         grid-template-columns: 1fr;
     }
@@ -2218,6 +2225,64 @@ html[data-forge-fallback] .forge-cue {
     border-color: transparent;
 }
 
+/* Pay scale strip. Reuses the hero metric card so the four license bands
+   read like the recruiting figures above them. */
+.pay-scale-block {
+    max-width: 960px;
+    margin: 0 auto var(--space-8);
+}
+
+.pay-scale-heading {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(16px, 2vw, 20px);
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: var(--space-4);
+}
+
+.pay-scale-unit {
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.pay-scale-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+}
+
+.pay-scale-card {
+    padding: var(--space-5);
+}
+
+.pay-scale-note {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: var(--space-2);
+    line-height: 1.5;
+}
+
+.pay-scale-gear {
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.6;
+    margin-top: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border-gold-subtle);
+    border-radius: var(--radius-sm);
+    background: rgba(186, 152, 87, 0.06);
+}
+
+.pay-scale-gear strong {
+    color: var(--logo-gold-specular);
+}
+
 .positions-list {
     display: flex;
     flex-direction: column;
@@ -2621,6 +2686,27 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .footer-menu a:hover { color: var(--logo-gold-specular); }
+
+/* Derived from site.areaServed, so the visible list and the schema.org
+   areaServed record can never disagree about where Fused operates. */
+.footer-areas {
+    font-size: clamp(11px, 1.05vw, 13px);
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+    margin: 0 auto var(--space-5);
+    max-width: 800px;
+    line-height: 1.8;
+}
+
+.footer-areas-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--logo-gold-bevel);
+    margin-bottom: 4px;
+}
 
 .footer-disclaimer {
     font-size: clamp(10.5px, 1vw, 12px);

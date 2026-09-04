@@ -11,7 +11,7 @@ export const careersHero = () => html`
         <div class="careers-hero-content">
             <div class="tactical-eyebrow">
                 <span class="eyebrow-pip"></span>
-                <span>COMMAND RECRUITING // TEXAS DPS LEVEL III &amp; IV</span>
+                <span>COMMAND RECRUITING // TEXAS DPS LEVEL II, III &amp; IV</span>
             </div>
 
             <h1 class="careers-hero-title">
@@ -19,7 +19,7 @@ export const careersHero = () => html`
             </h1>
 
             <p class="careers-hero-lead">
-                Fused Protective Services is contracting commissioned Texas DPS Level IV Personal Protection Officers (PPO), Level III Armed Patrol Officers, and tactical dispatch operators across Austin and statewide Texas. We offer industry-leading compensation, paid specialized training, and a veteran-first command culture.
+                Fused Protective Services is contracting Texas DPS Level IV Personal Protection Officers (PPO), Level III Commissioned Armed Officers, Level II Unarmed Officers, and tactical dispatch operators across Austin, San Antonio, and statewide Texas. We offer market-rate pay by license level, paid specialized training, a repayable gear stipend, and a command culture built on military, law enforcement, and confirmed skilled civilian experience.
             </p>
 
             <div class="careers-hero-actions">

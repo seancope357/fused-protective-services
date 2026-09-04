@@ -3,7 +3,7 @@
    ========================================================================== */
 
 import { html } from '../../lib/html.mjs';
-import { positions } from '../../data/careers.mjs';
+import { positions, payScales, gearPolicy } from '../../data/careers.mjs';
 
 const categories = [
     { id: 'all', label: 'All Postings' },
@@ -21,8 +21,23 @@ export const careersPositions = () => html`
             <div class="tactical-badge">ACTIVE REQUISITIONS</div>
             <h2 class="section-title">DEPLOYMENT ROSTER OPENINGS</h2>
             <p class="section-lead">
-                Review active contractual security assignments in the greater Austin area and statewide Texas. Select a requisition to inspect operational duties and prerequisite licensing.
+                Review active contractual security assignments across the greater Austin and San Antonio areas and statewide Texas. Select a requisition to inspect operational duties and prerequisite licensing.
             </p>
+        </div>
+
+        <div class="pay-scale-block" aria-labelledby="payScaleHeading">
+            <h3 class="pay-scale-heading" id="payScaleHeading">Officer Pay Scales <span class="pay-scale-unit">/ hr, by Texas DPS license level</span></h3>
+            <div class="pay-scale-grid">
+                ${payScales.map(
+                    (scale) => html`
+                <div class="careers-metric-card pay-scale-card">
+                    <div class="metric-val text-gold-gradient">${scale.range}</div>
+                    <div class="metric-lbl">${scale.level}</div>
+                    <div class="pay-scale-note">${scale.note}</div>
+                </div>`
+                )}
+            </div>
+            <p class="pay-scale-gear"><strong>${gearPolicy.headline}.</strong> ${gearPolicy.body}</p>
         </div>
 
         <div class="filter-tabs-track" role="tablist" aria-label="Filter Positions by Category">
