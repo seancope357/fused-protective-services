@@ -44,57 +44,83 @@ The included `vercel.json` automatically configures route rewrites, clean URLs (
 
 ---
 
+---
+
 ## 🔌 External Integration Seams
 
-### The Lead Intake Webhook Seam (`deliver()`)
+### The Live Ingestion Pipeline (`/api/intake`)
 
-Submissions from the Security Detail Quote form (`#securityQuoteForm`) are handled by `js/modules/quote-form.mjs`.
+Submissions from the Security Detail Quote form (`#securityQuoteForm`) and Candidate Application form (`#candidateApplicationForm`) are transmitted asynchronously to `/api/intake`.
 
-Currently, submissions are stored in the user's browser `localStorage` (`last_fused_quote`) for demonstration. **No leads are transmitted externally yet.**
-
-#### Connecting to Formspree, Web3Forms, or an API Endpoint
-To route quotes directly to Cameron's email, SMS, or CRM, update the single `deliver()` function in `js/modules/quote-form.mjs`:
-
-```javascript
-// js/modules/quote-form.mjs
-async function deliver(payload) {
-    // 1. Local backup
-    try {
-        localStorage.setItem('last_fused_quote', JSON.stringify(payload));
-    } catch (_) {}
-
-    // 2. Transmit to remote endpoint
-    try {
-        const response = await fetch('https://api.web3forms.com/submit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                access_key: 'YOUR-ACCESS-KEY-HERE',
-                subject: `NEW INTAKE: ${payload.refCode} - ${payload.division}`,
-                ...payload
-            })
-        });
-        return response.ok;
-    } catch (err) {
-        console.error('Lead transmission failed:', err);
-    }
-}
+```
+[Browser Quote / Careers Form]
+         │ (POST /api/intake)
+         ▼
+[Ingestion Layer]
+  • Local: serve.py Handler (persists directly to PostgreSQL `fused_protective_services`)
+  • Production: api/intake.js (Vercel Serverless) / Supabase Edge Function
+         │
+         ├── 1. Database: Persists to PostgreSQL `client_quotes` or `candidate_applications`
+         ├── 2. Triage: Automatic trigger sets priority = 'emergency' for PPO / Rapid Dispatch
+         └── 3. Outbound Webhook: Dispatches to HubSpot CRM / Twilio SMS alert
 ```
 
-#### Lead Payload Data Structure
-```typescript
-interface QuotePayload {
-    refCode: string;          // e.g. "TX-FPS-4821"
-    timestamp: string;        // ISO 8601 string
-    fullName: string;         // Client contact name
-    formPhone: string;        // Client telephone number
-    formEmail: string;        // Client email address
-    serviceDivision: string;  // Matches division quoteValue
-    armedPreference: string;  // Matches armedPreferences string
-    startDate: string;        // Requested deployment date
-    notes: string;            // Threat context / specific instructions
-}
-```
+#### Dual Offline & Online Resilience
+Both `js/modules/quote-form.mjs` and `js/modules/careers.mjs` implement an **offline-first** strategy:
+1. Every submission is recorded immediately in browser `localStorage` (`last_fused_quote` and `last_fused_candidate_app`).
+2. The payload is transmitted asynchronously via `fetch('/api/intake')`.
+3. If the network or remote server is unreachable, the confirmation reference code still displays smoothly to the user.
+
+---
+
+## 🗄️ Supabase Backend & Database Architecture
+
+* **PostgreSQL Schema Location:** [`supabase/migrations/20260904000000_fused_core_schema.sql`](file:///Users/cope/projects/fused-protective-services/supabase/migrations/20260904000000_fused_core_schema.sql)
+* **Edge Function Dispatcher:** [`supabase/functions/intake-dispatcher/index.ts`](file:///Users/cope/projects/fused-protective-services/supabase/functions/intake-dispatcher/index.ts)
+* **Vercel Serverless Function:** [`api/intake.js`](file:///Users/cope/projects/fused-protective-services/api/intake.js)
+
+### Relational Tables & Triage Triggers
+
+1. **`client_quotes` (Inbound Leads & Bookings)**
+   * Primary key: `id` (UUID), Unique Reference: `ref_code` (`TX-FPS-####`).
+   * Core fields: `full_name`, `company`, `phone`, `email`, `service_division`, `armed_preference`, `deployment_location`, `schedule`, `notes`.
+   * State Machine: `status` (`new` $\rightarrow$ `contacted` $\rightarrow$ `audit_scheduled` $\rightarrow$ `proposal_sent` $\rightarrow$ `dispatched` $\rightarrow$ `closed_won` / `closed_lost`).
+   * Priority: `priority` (`standard`, `priority`, `emergency`).
+   * Automated Trigger: `trg_triage_quote` automatically evaluates division and threat keywords, escalating to `emergency` for *Emergency Tactical Dispatch* or *Level IV PPO*.
+
+2. **`candidate_applications` (Officer Recruiting & ATS)**
+   * Primary key: `id` (UUID), Unique Reference: `ref_code` (`TX-CAND-####`).
+   * Core fields: `position_id`, `license_level`, `full_name`, `phone`, `email`, `tops_number`, `service_branch`, `bio`.
+   * Vetting Pipeline: `vetting_stage` (`application_received` $\rightarrow$ `tops_audit` $\rightarrow$ `background_mmpi2` $\rightarrow$ `range_physical` $\rightarrow$ `command_interview` $\rightarrow$ `active_roster` / `rejected`).
+
+3. **`invoices` (Operational Billing)**
+   * Primary key: `id` (UUID), Unique Reference: `invoice_number` (`FPS-YYYY-####`).
+   * Stores client name, dates, payment terms, tax calculations, and line items.
+
+---
+
+## 📊 HubSpot CRM Integration Bridge
+
+When Cameron connects his HubSpot account, inbound leads and candidates flow into two separate HubSpot pipelines:
+
+### 1. Deals Pipeline (Client Security Quotes)
+| Supabase Column | HubSpot Deal / Contact Property | Purpose |
+| :--- | :--- | :--- |
+| `full_name` | `firstname` + `lastname` | Primary contact |
+| `phone` | `phone` | Instant mobile dial / SMS |
+| `email` | `email` | Proposal & invoice delivery |
+| `service_division` | `fused_division` (Custom Property) | Service type (`DIV-01` to `DIV-06`) |
+| `armed_preference` | `armed_status` (Custom Property) | Level III/IV Armed vs Level II |
+| `deployment_location` | `detail_location` (Custom Property) | Venue address / city |
+| `schedule` | `detail_schedule` (Custom Property) | Deployment dates / shift hours |
+| `notes` | `threat_parameters` (Custom Property) | Threat assessment & VIP parameters |
+| `ref_code` | `dealname` (`"TX-FPS-#### // [Client Name]"`) | Deal identifier |
+| `priority` | `priority` (`High` if `emergency`) | 45-minute response flag |
+
+### 2. Tickets / Recruiting Pipeline (Officer Applicants)
+* Inbound candidate records route to HubSpot **Service / Operations Tickets**:
+* Stages map directly to Fused's 5-stage vetting protocol: `Application Received` $\rightarrow$ `TOPS Audit` $\rightarrow$ `MMPI-2 Background` $\rightarrow$ `Range Qualification` $\rightarrow$ `Command Interview` $\rightarrow$ `Active Roster`.
+* Custom fields: `tops_license_number`, `service_branch`, `licensure_level`.
 
 ---
 

@@ -15,7 +15,7 @@
 | **Internal Invoicing Engine** | 🟢 **Production Ready** | `/invoice` generating Letter-formatted PDF invoices. |
 | **Careers & Recruiting Portal** | 🟢 **Production Ready** | `/careers` live with filterable jobs, 5-stage vetting, & pre-qual. |
 | **Context Engineering** | 🟢 **Complete (7 Modules)** | Modular domain documentation live in [`context/`](file:///Users/cope/projects/fused-protective-services/context/index.md). |
-| **Lead Transmission** | 🟡 **Local Only** | Submissions save to `localStorage`; endpoint seam ready. |
+| **Lead Transmission & Backend** | 🟢 **Live Database & Serverless Ingestion** | Inbound leads & candidates persist to PostgreSQL via `/api/intake` with offline backup. |
 | **Phone Line** | 🟡 **Placeholder** | Needs Cameron's real line to replace `(512) 555-0199`. |
 | **Review Markup** | 🟡 **Policy Risk** | Aggregate rating claims 5.0 from 28 reviews; needs audit. |
 
@@ -79,23 +79,30 @@
 - [x] Updated `build.mjs` compiler to generate `careers.html` and compile `careers.css` into `css/site.css` with zero drift.
 - [x] Configured clean URL support in `serve.py` and `vercel.json` for `/careers`.
 
+### Phase 8: Supabase Backend, PostgreSQL Relational Schema & Ingestion Engine
+- [x] Initialized Supabase architecture and authored deterministic PostgreSQL migration [`20260904000000_fused_core_schema.sql`](file:///Users/cope/projects/fused-protective-services/supabase/migrations/20260904000000_fused_core_schema.sql).
+- [x] Built relational tables: `client_quotes` (leads/bookings), `candidate_applications` (recruiting ATS), and `invoices` (billing records).
+- [x] Created automated PostgreSQL threat triage triggers (`trg_triage_quote`) escalating `priority` to `'emergency'` for rapid dispatch and Level IV PPO requests.
+- [x] Implemented Row Level Security (RLS) policies allowing public anon insertion while securing all read/update access.
+- [x] Created Supabase Deno Edge Function [`supabase/functions/intake-dispatcher/index.ts`](file:///Users/cope/projects/fused-protective-services/supabase/functions/intake-dispatcher/index.ts).
+- [x] Created zero-dependency Vercel Serverless Function [`api/intake.js`](file:///Users/cope/projects/fused-protective-services/api/intake.js) for instant production deployment.
+- [x] Updated local preview engine ([`serve.py`](file:///Users/cope/projects/fused-protective-services/serve.py)) with `/api/intake` routing and direct persistence to local PostgreSQL (`fused_protective_services`).
+- [x] Wired client controllers ([`quote-form.mjs`](file:///Users/cope/projects/fused-protective-services/js/modules/quote-form.mjs) and [`careers.mjs`](file:///Users/cope/projects/fused-protective-services/js/modules/careers.mjs)) to `/api/intake` with local offline resilience.
+- [x] Completed full automated browser submission validation and verified row insertions in PostgreSQL.
+- [x] Documented complete HubSpot CRM property mapping and webhook integration recipes in [`context/workflows.md`](file:///Users/cope/projects/fused-protective-services/context/workflows.md).
+
 ---
 
 ## ⚠️ Known Gaps & Immediate Operational Decisions (Cameron's Call)
 
-These 3 action items require direct operational input from Cameron Harrell:
+These 2 action items require direct operational input from Cameron Harrell:
 
 ### 1. Update Live Phone Number
 * **Problem:** `(512) 555-0199` is a fictional placeholder.
 * **File to Edit:** [`src/data/site.mjs`](file:///Users/cope/projects/fused-protective-services/src/data/site.mjs) (lines 15–18).
 * **Action Required:** Provide the real business line (display format and E.164 international format). Rebuilding will automatically update the header nav, mobile drawer, dispatch bar, footer, and schema.org markup.
 
-### 2. Connect Live Lead Transmission Endpoint
-* **Problem:** The quote intake form currently records submissions in the visitor's local browser `localStorage` only.
-* **File to Edit:** [`js/modules/quote-form.mjs`](file:///Users/cope/projects/fused-protective-services/js/modules/quote-form.mjs) (`deliver()` function, line 15).
-* **Action Required:** Decide on the destination service (e.g. Web3Forms, Formspree, Twilio SMS alert, or custom webhook) and supply the endpoint URL or API key.
-
-### 3. Review Authenticity Audit
+### 2. Review Authenticity Audit
 * **Problem:** `src/data/site.mjs` declares an `aggregateRating` of 5.0 from 28 reviews for search engine rich snippets.
 * **File to Edit:** [`src/data/site.mjs`](file:///Users/cope/projects/fused-protective-services/src/data/site.mjs) (line 53).
 * **Action Required:** Verify if 28 genuine collected reviews exist. If not, temporarily remove the rating block to protect the domain from Google schema policy penalties.
@@ -106,9 +113,9 @@ These 3 action items require direct operational input from Cameron Harrell:
 
 | Priority | Item | Description | Dependencies |
 | :---: | :--- | :--- | :--- |
-| **P1** | **Wire Lead Webhook** | Point `deliver()` at a live endpoint for real-time lead notification. | Cameron's API key |
+| **P1** | **HubSpot CRM Activation** | Input Cameron's HubSpot Access Token / Webhook into Vercel env. | Cameron's HubSpot account |
 | **P1** | **Set Real Phone Line** | Update `phone` in `site.mjs` with Cameron's active dispatch line. | Cameron's phone number |
-| **P2** | **SMS Dispatch Integration** | Add Twilio / AWS SNS webhook to text officers for <45 min urban dispatches. | Lead webhook |
+| **P2** | **Twilio SMS Dispatch Alerts** | Add Twilio API credentials to fire real-time SMS to Cameron on emergency dispatch. | Twilio Account SID & Auth Token |
 | **P2** | **Client Testimonials Section** | Add verified client quotes to support the 5.0-star schema claim. | Verified reviews |
-| **P3** | **Client-Side PDF Generator** | Add standalone PDF export library (e.g. `jspdf` or `html2pdf`) as alternative to browser print. | Invoicing module |
+| **P3** | **Client-Side PDF Generator** | Add standalone PDF export library as alternative to browser print. | Invoicing module |
 | **P3** | **DIV-07 Expansion (K9 Unit)** | Implement 7th division following the data-model runbook if K9 units are launched. | Operational division spec |

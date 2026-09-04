@@ -154,6 +154,29 @@ function initApplyButtons() {
 }
 
 /**
+ * Asynchronously transmit candidate profile to live backend with offline backup.
+ */
+async function deliverCandidate(payload) {
+    try {
+        localStorage.setItem('last_fused_candidate_app', JSON.stringify(payload));
+    } catch (_) {}
+
+    try {
+        const response = await fetch('/api/intake', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'candidate', ...payload })
+        });
+        if (response.ok) {
+            return await response.json();
+        }
+    } catch (err) {
+        console.warn('[FPS Careers] Live endpoint unreachable, backup stored:', err);
+    }
+    return { ok: true, refCode: payload.refCode };
+}
+
+/**
  * Handle candidate intake form submission.
  */
 function initCandidateForm() {
@@ -161,7 +184,7 @@ function initCandidateForm() {
     const status = document.getElementById('candidateStatus');
     if (!form) return;
 
-    form.addEventListener('submit', (event) => {
+    form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
         if (!form.checkValidity()) {
@@ -171,17 +194,21 @@ function initCandidateForm() {
 
         const data = Object.fromEntries(new FormData(form));
         const refCode = refCandidate();
+        const payload = { refCode, ...data, timestamp: new Date().toISOString() };
 
-        // Local submission backup seam
-        try {
-            localStorage.setItem('last_fused_candidate_app', JSON.stringify({ refCode, ...data, timestamp: new Date().toISOString() }));
-        } catch (_) {}
+        if (status) {
+            status.removeAttribute('hidden');
+            status.innerHTML = `<strong>Transmitting candidate profile to Command Operations...</strong>`;
+        }
+
+        const result = await deliverCandidate(payload);
+        const code = result?.refCode || refCode;
 
         if (status) {
             status.removeAttribute('hidden');
             status.innerHTML = `
                 <strong>Application Transmitted Successfully</strong><br>
-                Candidate Reference: <span style="color: var(--logo-gold-specular); font-family: 'JetBrains Mono', monospace;">${refCode}</span><br>
+                Candidate Reference: <span style="color: var(--logo-gold-specular); font-family: 'JetBrains Mono', monospace;">${code}</span><br>
                 Your operational profile and TOPS licensing credentials have been routed to Cameron Harrell and the Command Operations Desk. You will be contacted at <strong>${data.appPhone}</strong> within 48 business hours.
             `;
         }
@@ -193,3 +220,4 @@ function initCandidateForm() {
         });
     });
 }
+

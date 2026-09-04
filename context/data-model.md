@@ -272,3 +272,85 @@ To add a new security division (e.g., *K9 Detection & Patrol Units*), follow thi
    - The quote form `<select>` menu.
    - The `<script type="application/ld+json">` `OfferCatalog` block for search engines.
    - The client-side `#fps-config` island.
+
+---
+
+## 🗄️ Relational Database Schema & State Machines (PostgreSQL / Supabase)
+
+All inbound client quotes, officer candidate applications, and billing invoices persist to PostgreSQL conforming to the following database contracts:
+
+### 1. `client_quotes` Table Schema
+```sql
+CREATE TABLE public.client_quotes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    ref_code TEXT NOT NULL UNIQUE,          -- Format: TX-FPS-####
+    full_name TEXT NOT NULL,                -- Client Point of Contact
+    company TEXT,                           -- Organization / Entity
+    phone TEXT NOT NULL,                    -- Direct telephone number
+    email TEXT NOT NULL,                    -- Contact email address
+    service_division TEXT NOT NULL,         -- Matches division quoteValue
+    armed_preference TEXT NOT NULL,         -- Matches armedPreference
+    deployment_location TEXT NOT NULL,      -- Venue / City / Address
+    schedule TEXT NOT NULL,                 -- Date(s) and shift timing
+    notes TEXT,                             -- Threat context and instructions
+    status TEXT NOT NULL DEFAULT 'new'      -- State machine
+        CHECK (status IN ('new', 'contacted', 'audit_scheduled', 'proposal_sent', 'dispatched', 'closed_won', 'closed_lost')),
+    priority TEXT NOT NULL DEFAULT 'standard'
+        CHECK (priority IN ('standard', 'priority', 'emergency')),
+    estimated_value NUMERIC(10, 2) DEFAULT 0.00,
+    hubspot_deal_id TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+#### Client Deal State Machine
+```mermaid
+stateDiagram-v2
+    [*] --> new: Web Quote Submission
+    new --> contacted: First Contact (<45m emergency / <2h standard)
+    contacted --> audit_scheduled: Threat Audit & Recon Arranged
+    audit_scheduled --> proposal_sent: Formal Quote / Contract Delivered
+    proposal_sent --> dispatched: Contract Signed & Detail Deployed
+    dispatched --> closed_won: Invoice Paid & Mission Completed
+    contacted --> closed_lost: Disqualified / Budget Mismatch
+    proposal_sent --> closed_lost: Client Chose Alternative
+```
+
+---
+
+### 2. `candidate_applications` Table Schema
+```sql
+CREATE TABLE public.candidate_applications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    ref_code TEXT NOT NULL UNIQUE,          -- Format: TX-CAND-####
+    position_id TEXT NOT NULL,              -- Matches careers.mjs position id
+    license_level TEXT NOT NULL,            -- Texas DPS licensure tier
+    full_name TEXT NOT NULL,                -- Candidate legal name
+    phone TEXT NOT NULL,                    -- Candidate mobile phone
+    email TEXT NOT NULL,                    -- Candidate email address
+    tops_number TEXT,                       -- Texas TOPS security license
+    service_branch TEXT,                    -- Military / Law Enforcement branch
+    bio TEXT NOT NULL,                      -- Background and certifications
+    vetting_stage TEXT NOT NULL DEFAULT 'application_received'
+        CHECK (vetting_stage IN ('application_received', 'tops_audit', 'background_mmpi2', 'range_physical', 'command_interview', 'active_roster', 'rejected')),
+    hubspot_ticket_id TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+#### Officer Vetting State Machine
+```mermaid
+stateDiagram-v2
+    [*] --> application_received: Form Submitted (/careers)
+    application_received --> tops_audit: License Verified on Texas TOPS
+    tops_audit --> background_mmpi2: Criminal Audit & MMPI-2 Psych Passed
+    background_mmpi2 --> range_physical: Combat Pistol/Rifle & PT Passed
+    range_physical --> command_interview: Vetting with Cameron Harrell
+    command_interview --> active_roster: Commissioned & Badged
+    tops_audit --> rejected: Ineligible / TOPS Revocation
+    background_mmpi2 --> rejected: Disqualifying Incident
+    command_interview --> rejected: Command Rejection
+```
+
