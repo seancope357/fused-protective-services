@@ -31,7 +31,7 @@ export const careersPositions = () => html`
                 ${payScales.map(
                     (scale) => html`
                 <div class="careers-metric-card pay-scale-card">
-                    <div class="metric-val text-gold-gradient">${scale.range}</div>
+                    <div class="metric-val gold-gradient-text">${scale.range}</div>
                     <div class="metric-lbl">${scale.level}</div>
                     <div class="pay-scale-note">${scale.note}</div>
                 </div>`

@@ -24,6 +24,13 @@
     letter-spacing: -0.01em;
 }
 
+/* The highlighted half of the headline is a single phrase. Left to wrap it
+   breaks as "COUNTS" / "HERE" at desktop widths, stranding one word on its
+   own line; the browser now breaks before the span instead. */
+.careers-hero-title .gold-gradient-text {
+    white-space: nowrap;
+}
+
 .careers-hero-lead {
     font-size: clamp(16px, 1.25vw, 19px);
     color: var(--text-secondary);
