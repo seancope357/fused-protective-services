@@ -15,11 +15,11 @@ export const careersHero = () => html`
             </div>
 
             <h1 class="careers-hero-title">
-                JOIN THE <span class="text-gold-gradient">ELITE SHIELD</span>
+                YOUR EXPERIENCE <span class="gold-gradient-text">COUNTS HERE</span>
             </h1>
 
             <p class="careers-hero-lead">
-                Fused Protective Services is contracting Texas DPS Level IV Personal Protection Officers (PPO), Level III Commissioned Armed Officers, Level II Unarmed Officers, and tactical dispatch operators across Austin, San Antonio, and statewide Texas. We offer market-rate pay by license level, paid specialized training, a repayable gear stipend, and a command culture built on military, law enforcement, and confirmed skilled civilian experience.
+                Whether you earned it in uniform, on a police force, or on private protective details, your experience is verified and credited before you are rostered. Level IV officers run executive protection. Level III officers hold armed posts and patrols. Level II officers work gates, lobbies, and venue floors. Dispatchers run the command desk. Your license level sets your pay across Austin, San Antonio, and statewide Texas, advanced training is paid, and a repayable gear stipend is there if you need kit.
             </p>
 
             <div class="careers-hero-actions">
@@ -32,7 +32,7 @@ export const careersHero = () => html`
             ${careersMetrics.map(
                 (metric) => html`
             <div class="careers-metric-card">
-                <div class="metric-val text-gold-gradient">${metric.value}</div>
+                <div class="metric-val gold-gradient-text">${metric.value}</div>
                 <div class="metric-lbl">${metric.label}</div>
             </div>`
             )}
