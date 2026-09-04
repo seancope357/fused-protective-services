@@ -17,7 +17,7 @@ const categories = [
 export const careersPositions = () => html`
 <section class="careers-positions-section" id="open-postings">
     <div class="container">
-        <div class="section-header-centered">
+        <div class="section-header-centered" data-reveal>
             <div class="tactical-badge">ACTIVE REQUISITIONS</div>
             <h2 class="section-title">DEPLOYMENT ROSTER OPENINGS</h2>
             <p class="section-lead">
@@ -25,7 +25,7 @@ export const careersPositions = () => html`
             </p>
         </div>
 
-        <div class="pay-scale-block" aria-labelledby="payScaleHeading">
+        <div class="pay-scale-block" aria-labelledby="payScaleHeading" data-reveal>
             <h3 class="pay-scale-heading" id="payScaleHeading">Officer Pay Scales <span class="pay-scale-unit">/ hr, by Texas DPS license level</span></h3>
             <div class="pay-scale-grid">
                 ${payScales.map(
@@ -56,7 +56,7 @@ export const careersPositions = () => html`
         <div class="positions-list" id="positionsContainer">
             ${positions.map(
                 (pos) => html`
-            <article class="position-card" data-category="${pos.category}" id="${pos.id}">
+            <article class="position-card" data-category="${pos.category}" id="${pos.id}" data-reveal>
                 <div class="position-header">
                     <div class="position-meta-top">
                         <span class="position-code">${pos.code}</span>

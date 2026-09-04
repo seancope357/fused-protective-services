@@ -53,7 +53,7 @@ ${sectionHead({
     desc: 'Inspect each operational phase, from initial threat recon to live shift telemetry.'
 })}
 
-            <div class="protocol-hub">
+            <div class="protocol-hub" data-reveal>
                 <div class="protocol-stepper-nav" role="tablist" aria-label="Deployment protocol phases">
                     ${protocolStages.map(
                         (stage, index) => html`

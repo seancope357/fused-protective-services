@@ -48,6 +48,7 @@ const STYLE_ORDER = [
     'components/form.css',
     'components/faq.css',
     'components/careers.css',
+    'components/reveal.css',
     'components/dispatch-bar.css',
     'components/footer.css',
     'utilities.css'

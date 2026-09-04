@@ -99,6 +99,11 @@
 - [x] Stated operational experience standards (confirmed skilled civilian personnel alongside military and law enforcement) as a fourth Fused Standard card and in vetting Stage 1.
 - [x] First hero intro now names commissioned armed **and** unarmed officers.
 
+### Phase 10: Careers CTA Polish & Page Motion
+- [x] Defined the missing `.btn-outline` (plus `.btn-sm` / `.btn-block`) in `buttons.css`: the careers "Check Eligibility" link rendered as a default blue anchor because no rule matched its class.
+- [x] Added a scroll-reveal system (`components/reveal.css` + `js/modules/reveal.mjs`) applied to every section head and card on both pages, gated by `@media (scripting: enabled)` so no-JS visitors see a complete page and no inline script is required.
+- [x] Added a staged CSS entrance for the careers hero (`careersHeroRise`), fully clamped under `prefers-reduced-motion`.
+
 ---
 
 ## ⚠️ Known Gaps & Immediate Operational Decisions (Cameron's Call)

@@ -17,7 +17,7 @@ ${sectionHead({ tag: 'Intelligence Brief', title: 'Frequently Asked Questions' }
             <div class="faq-stack">
                 ${faqs.map(
                     (faq) => html`
-                <details class="faq-box">
+                <details class="faq-box" data-reveal>
                     <summary class="faq-question">
                         <span>${faq.question}</span>
                         <span class="faq-toggle-icon font-mono" aria-hidden="true"></span>

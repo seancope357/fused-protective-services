@@ -18,6 +18,7 @@ import { initEstimator } from './modules/estimator.mjs';
 import { initQuoteForm } from './modules/quote-form.mjs';
 import { initCareers } from './modules/careers.mjs';
 import { initParticles, initTilt, initSpotlight } from './modules/ambient.mjs';
+import { initReveal } from './modules/reveal.mjs';
 
 for (const init of [
     initDrawer,
@@ -29,7 +30,8 @@ for (const init of [
     initCareers,
     initParticles,
     initTilt,
-    initSpotlight
+    initSpotlight,
+    initReveal
 ]) {
     try {
         init();

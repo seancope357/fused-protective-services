@@ -31,7 +31,7 @@ ${sectionHead({
     desc: 'Answer 2 quick operational questions to calculate your risk level and receive an instant squad deployment recommendation.'
 })}
 
-            <div class="assessment-wrapper">
+            <div class="assessment-wrapper" data-reveal>
 ${assessment.steps.map(step)}
 
                 <div class="threat-quiz-step quiz-result" id="quizResult" hidden>

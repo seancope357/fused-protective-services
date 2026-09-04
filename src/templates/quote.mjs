@@ -28,7 +28,7 @@ ${sectionHead({
     desc: 'Submit your coverage parameters below. Our operations command will review your requirements and respond with a formal quote within 2 hours.'
 })}
 
-            <div class="form-shell">
+            <div class="form-shell" data-reveal>
                 <form id="securityQuoteForm" novalidate>
                     <div class="form-row-2col">
 ${field({ id: 'formName', label: 'Point of Contact Name', placeholder: 'Full name', required: true })}
