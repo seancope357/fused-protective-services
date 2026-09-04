@@ -10,7 +10,11 @@
 export const faqs = [
     {
         question: 'How rapidly can Fused deploy officers in Texas?',
-        answer: 'For planned contracts and events, we prefer 24–48 hours advance notice to run proper site recon and operational plans. For emergency or immediate threats, our rapid tactical dispatch team can deploy commissioned officers in under 45 minutes in the greater Austin area.'
+        answer: 'For planned contracts and events, we prefer 24–48 hours advance notice to run proper site recon and operational plans. For emergency or immediate threats, our rapid tactical dispatch team can deploy commissioned officers in under 45 minutes in the greater Austin and San Antonio areas.'
+    },
+    {
+        question: 'Which areas of Texas does Fused operate in?',
+        answer: 'Our primary areas of operation are Austin and San Antonio, including the I-35 corridor and the Texas Hill Country between them. We also staff details in Dallas, Fort Worth, and Houston, and deploy statewide for executive travel and dedicated contracts.'
     },
     {
         question: 'What is the difference between Level 3 Armed and Level 4 PPO?',

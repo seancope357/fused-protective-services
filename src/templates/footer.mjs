@@ -28,6 +28,11 @@ export const footer = (isCareers = false) => html`
                 <a href="tel:${site.phone.e164}">24/7 Dispatch</a>
             </nav>
 
+            <p class="footer-areas">
+                <span class="footer-areas-label">Areas of Operation</span>
+                ${site.areaServed.map((a) => (a.type === 'State' ? `Statewide ${a.name}` : a.name)).join(' \u2022 ')}
+            </p>
+
             <p class="footer-disclaimer">
                 ${site.name} is a licensed and insured private security company operating in full compliance with the Texas Department of Public Safety Private Security Bureau (PSB). All rights reserved.
             </p>

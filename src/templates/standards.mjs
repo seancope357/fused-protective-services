@@ -12,7 +12,7 @@ export const standardsSection = () => html`
 ${sectionHead({
     tag: 'Operational Excellence',
     title: 'The Fused Standard of Protection',
-    desc: 'We combine military and law-enforcement tactical discipline with the highest standards of client hospitality and brand preservation.'
+    desc: 'We combine confirmed, skilled civilian protective professionals with military and law-enforcement tactical discipline, all held to the highest standards of client hospitality and brand preservation.'
 })}
 
             <div class="standards-grid">

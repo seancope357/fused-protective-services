@@ -11,7 +11,7 @@
 | :--- | :--- | :--- |
 | **Compiler & Build Pipeline** | 🟢 **Passing (Zero Drift)** | `node build.mjs --check` validates byte-identical output. |
 | **Dependencies** | 🟢 **Zero Dependencies** | Pure Node.js ESM. No `package.json` or `node_modules`. |
-| **Marketing Web Platform** | 🟢 **Production Ready** | All 6 divisions, estimator, assessment quiz, and intake live. |
+| **Marketing Web Platform** | 🟢 **Production Ready** | All 7 divisions, estimator, assessment quiz, and intake live. |
 | **Internal Invoicing Engine** | 🟢 **Production Ready** | `/invoice` generating Letter-formatted PDF invoices. |
 | **Careers & Recruiting Portal** | 🟢 **Production Ready** | `/careers` live with filterable jobs, 5-stage vetting, & pre-qual. |
 | **Context Engineering** | 🟢 **Complete (7 Modules)** | Modular domain documentation live in [`context/`](file:///Users/cope/projects/fused-protective-services/context/index.md). |
@@ -62,7 +62,7 @@
 ### Phase 6: 7-File Context Engineering Architecture
 - [x] Transformed monolithic blueprint into 7 specialized domain steering documents in [`context/`](file:///Users/cope/projects/fused-protective-services/context/):
   1. [`context/index.md`](file:///Users/cope/projects/fused-protective-services/context/index.md) — Master Index, The One Rule, Task Router.
-  2. [`context/business.md`](file:///Users/cope/projects/fused-protective-services/context/business.md) — Client, 6 Divisions, Rate Cards, Quiz Logic.
+  2. [`context/business.md`](file:///Users/cope/projects/fused-protective-services/context/business.md) — Client, 7 Divisions, Rate Cards, Quiz Logic.
   3. [`context/architecture.md`](file:///Users/cope/projects/fused-protective-services/context/architecture.md) — Toolchain, WebGL Engine, Island State.
   4. [`context/data-model.md`](file:///Users/cope/projects/fused-protective-services/context/data-model.md) — Data Schemas, `quoteValue` Contract, SEO.
   5. [`context/code-standards.md`](file:///Users/cope/projects/fused-protective-services/context/code-standards.md) — Tagged Templates, Escaping, CSS Layers.
@@ -91,6 +91,14 @@
 - [x] Completed full automated browser submission validation and verified row insertions in PostgreSQL.
 - [x] Documented complete HubSpot CRM property mapping and webhook integration recipes in [`context/workflows.md`](file:///Users/cope/projects/fused-protective-services/context/workflows.md).
 
+### Phase 9: San Antonio Operations, Market Pay Scales & Nightlife Division
+- [x] Added **DIV-07 // VENUE** (Restaurant, Bar & Nightlife Venue Security) to `src/data/divisions.mjs`; renders into the bookshelf, quote `<select>`, `OfferCatalog`, and a new assessment quiz option with bespoke `nightlife` spine/quiz emblems.
+- [x] Surfaced San Antonio as a primary area of operation: hero intro, SEO copy, FAQ, careers postings, and a footer "Areas of Operation" line derived from `site.areaServed`.
+- [x] Reset officer pay scales to San Antonio–Austin market rates (Level IV $30–$60, Level III $20–$40, Level II $16–$25, Dispatch $18–$25) in `payScales`, every posting, and the `JobPosting` schema.
+- [x] Added the gear policy (own gear preferred; repayable stipend deducted from pay) to the benefits grid, pay-scale strip, and armed posting requirements.
+- [x] Stated operational experience standards (confirmed skilled civilian personnel alongside military and law enforcement) as a fourth Fused Standard card and in vetting Stage 1.
+- [x] First hero intro now names commissioned armed **and** unarmed officers.
+
 ---
 
 ## ⚠️ Known Gaps & Immediate Operational Decisions (Cameron's Call)
@@ -118,4 +126,4 @@ These 2 action items require direct operational input from Cameron Harrell:
 | **P2** | **Twilio SMS Dispatch Alerts** | Add Twilio API credentials to fire real-time SMS to Cameron on emergency dispatch. | Twilio Account SID & Auth Token |
 | **P2** | **Client Testimonials Section** | Add verified client quotes to support the 5.0-star schema claim. | Verified reviews |
 | **P3** | **Client-Side PDF Generator** | Add standalone PDF export library as alternative to browser print. | Invoicing module |
-| **P3** | **DIV-07 Expansion (K9 Unit)** | Implement 7th division following the data-model runbook if K9 units are launched. | Operational division spec |
+| **P3** | **DIV-08 Expansion (K9 Unit)** | Implement 8th division following the data-model runbook if K9 units are launched. | Operational division spec |

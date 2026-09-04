@@ -9,7 +9,7 @@ This document defines the business architecture, operational domain, client prof
 * **Principal / Owner:** Cameron Harrell
 * **Company Name:** Fused Protective Services (Short form: `FUSED`)
 * **Headquarters:** Austin, Texas (30.2672° N, -97.7431° W)
-* **Operational Territory:** Austin, San Antonio, Dallas, Fort Worth, Houston, and statewide Texas.
+* **Operational Territory:** Austin and San Antonio (primary areas of operation, including the I-35 corridor and Hill Country), plus Dallas, Fort Worth, Houston, and statewide Texas.
 * **Corporate Motto:** `DEFENSE • DISCRETION • INTEGRITY`
 * **Licensing & Regulatory Authority:** Texas Department of Public Safety (DPS) Private Security Board (PSB) under Texas Occupations Code §1702.
 * **Insurance & Underwriting:** $2,000,000+ aggregate commercial general liability, armed liability riders, and statutory workers’ compensation coverage. Certificates of Insurance (COI) issued upon contract execution.
@@ -20,15 +20,16 @@ This document defines the business architecture, operational domain, client prof
 
 Fused Protective Services operates in the high-readiness, premium private security market. Unlike generic guard services that provide passive, low-wage deterrence, Fused provides:
 
-1. **DPS Level III & IV Commissioned Officers:** Vetted personnel trained in close protection, armed deterrence, tactical de-escalation, and secure motorcade transit.
-2. **< 45-Minute Tactical Dispatch:** Rapid response for urgent threats, executive emergencies, high-risk terminations, or sudden site vulnerabilities in the Austin metro area.
-3. **Verified Command Telemetry:** Real-time timestamped NFC/QR checkpoint scans, GPS patrol heatmaps, and post-shift digital audit trails delivered directly to client operations teams.
+1. **DPS Level II, III & IV Officers:** Commissioned armed and unarmed personnel trained in close protection, armed deterrence, tactical de-escalation, and secure motorcade transit.
+2. **Verified Operational Experience:** Confirmed, skilled civilian protective professionals serve alongside military veterans and law enforcement; experience is verified with prior employers before rostering.
+3. **< 45-Minute Tactical Dispatch:** Rapid response for urgent threats, executive emergencies, high-risk terminations, or sudden site vulnerabilities in the Austin and San Antonio metro areas.
+4. **Verified Command Telemetry:** Real-time timestamped NFC/QR checkpoint scans, GPS patrol heatmaps, and post-shift digital audit trails delivered directly to client operations teams.
 
 ---
 
-## 🛡️ The 6 Tactical Divisions
+## 🛡️ The 7 Tactical Divisions
 
-The company packages its security offerings into six specialized divisions. These divisions represent the core service catalog and serve as the single source of truth across all marketing and intake workflows:
+The company packages its security offerings into seven specialized divisions. These divisions represent the core service catalog and serve as the single source of truth across all marketing and intake workflows:
 
 ```mermaid
 mindmap
@@ -39,6 +40,7 @@ mindmap
     DIV-04["DIV-04 // ASSET<br/>Construction Site Defense"]
     DIV-05["DIV-05 // RANCH<br/>Private Estate & Ranch Defense"]
     DIV-06["DIV-06 // RAPID<br/>Emergency Tactical Dispatch"]
+    DIV-07["DIV-07 // VENUE<br/>Restaurant, Bar & Nightlife Venue"]
 ```
 
 ### Division Specifications
@@ -79,6 +81,12 @@ mindmap
 * **Description:** Immediate short-term deployment of commissioned armed officers for urgent workplace violence threats, high-risk employee terminations, or sudden property vulnerabilities.
 * **Operational Deliverables:** Under 45-minute rapid urban deployment, high-threat deterrence units, workplace termination standing details, short-term physical asset lockdowns.
 
+#### 7. DIV-07 // VENUE: Restaurant, Bar & Nightlife Venue Security
+* **Badge:** `ENTERTAINMENT DISTRICT DETAIL`
+* **Intake Contract (`quoteValue`):** `Restaurant, Bar & Nightlife Venue Security`
+* **Description:** Door, floor, and parking-lot officers for restaurants, bars, lounges, and nightclubs: ID and capacity control, intoxicated-patron de-escalation, altercation intervention, closing-time staff escorts, and cash-drop protection across Austin and San Antonio entertainment districts.
+* **Operational Deliverables:** ID verification / capacity counts / line management, intoxicated patron de-escalation and removal, floor roving and lot patrol, closing-time staff escorts and cash-drop protection.
+
 ---
 
 ## 💰 Rate Card & Estimator Economics
@@ -106,6 +114,7 @@ The platform provides a guided assessment quiz (`src/data/assessment.mjs`) to ro
 ### Step 1: Operational Environment
 * **Executive Travel / VIP Escort** $\rightarrow$ Recommends `ppo` (`Level IV PPO + Plainclothes Escort`)
 * **Luxury Event / Wedding / Gala** $\rightarrow$ Recommends `squad` (`Level III Armed Squad`)
+* **Restaurant / Bar / Nightlife Venue** $\rightarrow$ Recommends `squad` (`Level III Armed Squad`, mixed armed + concierge preference)
 * **Commercial Property / Complex** $\rightarrow$ Recommends `patrol` (`24/7 Mobile Patrol + Level III Guard`)
 * **Construction Site** $\rightarrow$ Recommends `patrol` (`24/7 Mobile Patrol + Level III Guard`)
 
@@ -121,6 +130,22 @@ export const resolve = (environment, threat) =>
     threat?.escalate ? 'ppo' : (environment?.recommend ?? 'squad');
 ```
 * **Strategic Rule:** High-profile public exposure outranks the venue environment and escalates the recommendation to Level IV PPO. Otherwise, the operational environment determines the detail.
+
+---
+
+## 👮 Officer Pay Scales & Gear Policy (Careers)
+
+Officer compensation (`src/data/careers.mjs` → `payScales`) is pegged to what security employers actually pay in the San Antonio–Austin market. These are employee pay bands, distinct from the client billing rates above.
+
+| License Level | Hourly Pay Band | Typical Post |
+| :--- | :--- | :--- |
+| **Level IV PPO** | **$30 – $60** | Personal Protection Officer / executive detail |
+| **Level III Armed** | **$20 – $40** | Commissioned armed patrol, post & venue |
+| **Level II Unarmed** | **$16 – $25** | Non-commissioned concierge, gate & floor |
+| **Command Dispatch** | **$18 – $25** | Tactical dispatcher / command desk |
+
+* **Gear Policy:** Own approved duty gear is preferred. A repayable gear stipend is available at hire and is recovered through scheduled deductions from pay (`gearPolicy`).
+* **Experience Standard:** Confirmed, skilled civilian protective personnel are recruited alongside military veterans and law enforcement; experience is verified in vetting Stage 1.
 
 ---
 

@@ -32,6 +32,27 @@
 
 .footer-menu a:hover { color: var(--logo-gold-specular); }
 
+/* Derived from site.areaServed, so the visible list and the schema.org
+   areaServed record can never disagree about where Fused operates. */
+.footer-areas {
+    font-size: clamp(11px, 1.05vw, 13px);
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+    margin: 0 auto var(--space-5);
+    max-width: 800px;
+    line-height: 1.8;
+}
+
+.footer-areas-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--logo-gold-bevel);
+    margin-bottom: 4px;
+}
+
 .footer-disclaimer {
     font-size: clamp(10.5px, 1vw, 12px);
     color: var(--text-tertiary);

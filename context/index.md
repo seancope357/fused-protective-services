@@ -25,7 +25,7 @@ The project knowledge base is partitioned into 7 modular, high-density steering 
 | Document | Primary Domain | Essential Concepts & Invariants |
 | :--- | :--- | :--- |
 | **[`index.md`](file:///Users/cope/projects/fused-protective-services/context/index.md)** | Master Index & Router | Operating rules, directory layout, progressive disclosure router, rule precedence. |
-| **[`business.md`](file:///Users/cope/projects/fused-protective-services/context/business.md)** | Business & Domain Model | Cameron Harrell, Texas security market, 6 Divisions, rate cards, assessment quiz logic, invoice model. |
+| **[`business.md`](file:///Users/cope/projects/fused-protective-services/context/business.md)** | Business & Domain Model | Cameron Harrell, Texas security market, 7 Divisions, rate cards, assessment quiz logic, invoice model. |
 | **[`architecture.md`](file:///Users/cope/projects/fused-protective-services/context/architecture.md)** | Technical Architecture | Zero-dependency toolchain, `build.mjs`, tagged templates, WebGL voxel engine, `#fps-config` state island, invoice tool. |
 | **[`data-model.md`](file:///Users/cope/projects/fused-protective-services/context/data-model.md)** | Data Layer & Contracts | Single Source of Truth (`src/data/`), `quoteValue` stability contract, schema.org JSON-LD, anti-drift architecture. |
 | **[`code-standards.md`](file:///Users/cope/projects/fused-protective-services/context/code-standards.md)** | Engineering Guidelines | Escaping invariants (`html` vs `raw`), no inline handlers/styles, CSS `@layer` rules, `STYLE_ORDER`, 300 LOC limits, deterministic builds. |

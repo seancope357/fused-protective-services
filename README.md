@@ -38,7 +38,7 @@ fused-protective-services/
 
 ### 🧱 How it builds
 
-One data file feeds every place a fact appears. The six divisions render into the
+One data file feeds every place a fact appears. The seven divisions render into the
 bookshelf spines, the quote form's `<select>`, **and** the schema.org `OfferCatalog`
 from a single list — before this, those were three hand-maintained copies that had
 already drifted apart.
