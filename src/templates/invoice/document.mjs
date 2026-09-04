@@ -76,10 +76,14 @@ export const invoiceDoc = () => html`
                             <h3 class="inv-doc__label">Terms</h3>
                             <p id="docTermsText"></p>
                         </div>
-                        <div class="inv-doc__foot-block">
-                            <h3 class="inv-doc__label">${paymentCopy.heading}</h3>
-                            <p>${paymentCopy.instructions}</p>
-                            <p>Questions: ${site.email} · ${site.phone.display}</p>
+                        <div class="inv-doc__foot-block inv-doc__payment-block">
+                            <div class="inv-doc__payment-text">
+                                <h3 class="inv-doc__label">${paymentCopy.heading}</h3>
+                                <p>${paymentCopy.instructions}</p>
+                                <p>Questions: ${site.email} · ${site.phone.display}</p>
+                                <p class="inv-doc__link-wrap"><a href="#" id="docPaymentLink" target="_blank" hidden></a></p>
+                            </div>
+                            <img id="docPaymentQR" class="inv-doc__payment-qr" alt="Scan to Pay" width="80" height="80" hidden>
                         </div>
                     </footer>
                 </article>`;

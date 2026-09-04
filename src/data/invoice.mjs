@@ -41,7 +41,7 @@ export const invoiceStatuses = [
 export const paymentCopy = {
     heading: 'Payment',
     instructions:
-        'Remit payment by check payable to Fused Protective Services, or contact dispatch for ACH / wire instructions. Please reference the invoice number with your payment.'
+        'Pay securely online via credit card or ACH using the link or QR code below. Remit physical checks payable to Fused Protective Services.'
 };
 
 export const defaultNotes =

@@ -111,6 +111,19 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(res_body)
             return
 
+        if self.path == '/api/stripe-checkout':
+            res_body = json.dumps({
+                "url": "https://buy.stripe.com/test_mock_link_local_serve"
+            }).encode('utf-8')
+            
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Content-Length', str(len(res_body)))
+            self.end_headers()
+            self.wfile.write(res_body)
+            return
+
         self.send_response(404)
         self.end_headers()
 

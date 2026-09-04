@@ -259,10 +259,14 @@
                             <h3 class="inv-doc__label">Terms</h3>
                             <p id="docTermsText"></p>
                         </div>
-                        <div class="inv-doc__foot-block">
-                            <h3 class="inv-doc__label">Payment</h3>
-                            <p>Remit payment by check payable to Fused Protective Services, or contact dispatch for ACH / wire instructions. Please reference the invoice number with your payment.</p>
-                            <p>Questions: dispatch@fusedprotectiveservices.com · (512) 555-0199</p>
+                        <div class="inv-doc__foot-block inv-doc__payment-block">
+                            <div class="inv-doc__payment-text">
+                                <h3 class="inv-doc__label">Payment</h3>
+                                <p>Pay securely online via credit card or ACH using the link or QR code below. Remit physical checks payable to Fused Protective Services.</p>
+                                <p>Questions: dispatch@fusedprotectiveservices.com · (512) 555-0199</p>
+                                <p class="inv-doc__link-wrap"><a href="#" id="docPaymentLink" target="_blank" hidden></a></p>
+                            </div>
+                            <img id="docPaymentQR" class="inv-doc__payment-qr" alt="Scan to Pay" width="80" height="80" hidden>
                         </div>
                     </footer>
                 </article>

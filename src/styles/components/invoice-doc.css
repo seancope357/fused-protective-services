@@ -269,4 +269,35 @@
 .inv-doc__foot-block[hidden] {
     display: none;
 }
+
+.inv-doc__payment-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.inv-doc__payment-text {
+    flex: 1;
+}
+
+.inv-doc__payment-qr {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    background: #fff;
+    border: 1px solid var(--paper-faint);
+    border-radius: 4px;
+}
+
+.inv-doc__link-wrap {
+    margin-top: 6px;
+}
+
+.inv-doc__payment-link {
+    color: var(--paper-gold);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid var(--paper-gold);
+}
 }

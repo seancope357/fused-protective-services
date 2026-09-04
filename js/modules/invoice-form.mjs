@@ -209,6 +209,7 @@ export function initInvoiceBuilder() {
         notes: $('invNotes').value,
         terms: $('invTerms').value,
         totals: currentTotals(),
+        paymentUrl: !$('docPaymentLink').hidden ? $('docPaymentLink').href : undefined,
         savedAt: new Date().toISOString()
     });
 
@@ -242,6 +243,19 @@ export function initInvoiceBuilder() {
             rowInput(row, 'rate').value = line.rate ?? 0;
         }
         recalc();
+
+        if (record.paymentUrl) {
+            const qr = $('docPaymentQR');
+            const link = $('docPaymentLink');
+            link.href = record.paymentUrl;
+            link.textContent = record.paymentUrl.replace(/^https?:\/\//, '');
+            link.hidden = false;
+            qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(record.paymentUrl)}`;
+            qr.hidden = false;
+        } else {
+            $('docPaymentQR').hidden = true;
+            $('docPaymentLink').hidden = true;
+        }
     }
 
     function freshInvoice() {
@@ -252,6 +266,8 @@ export function initInvoiceBuilder() {
         $('invNumber').value = peekInvoiceNumber(invoiceCfg.numbering);
         $('invIssueDate').value = todayIso();
         updateDueDate();
+        $('docPaymentQR').hidden = true;
+        $('docPaymentLink').hidden = true;
         recalc();
     }
 
@@ -310,7 +326,7 @@ export function initInvoiceBuilder() {
 
     /* ── Actions ───────────────────────────────────────────────────────── */
 
-    function save() {
+    async function save() {
         if (!$('invClientName').value.trim()) {
             announce('Add a client contact name before saving.');
             $('invClientName').focus();
@@ -319,9 +335,38 @@ export function initInvoiceBuilder() {
         if (!$('invNumber').value.trim()) $('invNumber').value = peekInvoiceNumber(invoiceCfg.numbering);
 
         const record = serialize();
+        
+        if (!record.paymentUrl && record.totals.totalCents > 0) {
+            announce('Generating secure Stripe checkout link...');
+            try {
+                const res = await fetch('/api/stripe-checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(record)
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    record.paymentUrl = data.url;
+                }
+            } catch (err) {
+                console.error('Stripe link generation failed:', err);
+            }
+        }
+
         if (saveInvoice(record)) {
             commitInvoiceNumber(record.number, invoiceCfg.numbering);
             renderSaved();
+            
+            if (record.paymentUrl) {
+                const qr = $('docPaymentQR');
+                const link = $('docPaymentLink');
+                link.href = record.paymentUrl;
+                link.textContent = record.paymentUrl.replace(/^https?:\/\//, '');
+                link.hidden = false;
+                qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(record.paymentUrl)}`;
+                qr.hidden = false;
+            }
+            
             announce(`Saved ${record.number} — ${money(record.totals.totalCents)} (${record.status}).`);
         } else {
             announce('This browser is blocking storage — the invoice was NOT saved. Print or PDF it instead.');
@@ -334,6 +379,8 @@ export function initInvoiceBuilder() {
         $('invIssueDate').value = todayIso();
         delete $('invDueDate').dataset.touched;
         updateDueDate();
+        $('docPaymentQR').hidden = true;
+        $('docPaymentLink').hidden = true;
         recalc();
         announce(`Duplicated as ${$('invNumber').value} — save to keep it.`);
     }
