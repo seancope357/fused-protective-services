@@ -93,6 +93,12 @@ Animations follow real-world physical inertia curves defined in `tokens.css`:
 | `--ease-out-quint` | `cubic-bezier(0.22, 1, 0.36, 1)` | Elements arriving into the viewport (cards, badges). Instant deceleration with no bounce. |
 | `--ease-spring` | `cubic-bezier(0.16, 1, 0.3, 1)` | Tactile interactive feedback (button presses, hover releases). |
 
+### Scroll Reveal & Page Entrance
+* Sections and cards carry `data-reveal` in the templates. `components/reveal.css` hides them (opacity 0, 26px drop) only under `@media (scripting: enabled)`, and `js/modules/reveal.mjs` adds `.is-revealed` on first intersection. No inline script gates it; a no-JS visitor sees a fully rendered page.
+* Stagger is positional: sibling `[data-reveal]` elements trail by 80ms per `:nth-child`, capped at 400ms. Never set per-element delays inline.
+* The careers hero is above the fold and uses a pure-CSS `careersHeroRise` entrance (eyebrow → title → lead → actions → metrics) instead of the observer.
+* Under `prefers-reduced-motion`, `reveal.css` lifts the hidden state entirely so nothing waits on a scroll event.
+
 ### The Assembly Dual Clocks
 * `--assembly`: Bound to viewport scroll offset (`0.0000` to `1.0000`). Used for pacing copy beat opacities.
 * `--assembly-settled`: Bound to physical camera matrix convergence. The only clock that may trigger full-scene completion.

@@ -10,7 +10,7 @@ import { uiIcons } from '../data/icons.mjs';
 
 /** Eyebrow + title + optional standfirst, centred above a section's content. */
 export const sectionHead = ({ tag, title, desc }) => html`
-            <div class="section-head">
+            <div class="section-head" data-reveal>
                 <span class="section-tag">${tag}</span>
                 <h2 class="section-title">${title}</h2>
                 ${desc ? html`<p class="section-desc">${desc}</p>` : ''}

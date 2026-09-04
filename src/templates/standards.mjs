@@ -18,7 +18,7 @@ ${sectionHead({
             <div class="standards-grid">
                 ${standards.map(
                     (standard, index) => html`
-                <div class="standard-card">
+                <div class="standard-card" data-reveal>
                     <div class="standard-index" aria-hidden="true">${String(index + 1).padStart(2, '0')}</div>
                     <h3 class="standard-title">${standard.title}</h3>
                     <p class="standard-body">${standard.body}</p>

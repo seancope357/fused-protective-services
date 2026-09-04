@@ -8,7 +8,7 @@ import { positions } from '../../data/careers.mjs';
 export const careersApply = () => html`
 <section class="careers-apply-section" id="candidate-application">
     <div class="container">
-        <div class="section-header-centered">
+        <div class="section-header-centered" data-reveal>
             <div class="tactical-badge">COMMAND INTAKE</div>
             <h2 class="section-title">TRANSMIT OFFICER APPLICATION</h2>
             <p class="section-lead">
@@ -16,7 +16,7 @@ export const careersApply = () => html`
             </p>
         </div>
 
-        <div class="apply-form-wrapper">
+        <div class="apply-form-wrapper" data-reveal>
             <form id="candidateApplicationForm" class="tactical-apply-form" novalidate>
                 <div class="form-row-duo">
                     <div class="form-field-group">

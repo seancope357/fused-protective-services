@@ -19,7 +19,7 @@ ${sectionHead({
     desc: 'Configure your coverage parameters below for instant ballpark operational budgets.'
 })}
 
-            <div class="estimator-card">
+            <div class="estimator-card" data-reveal>
                 <div class="estimator-grid">
                     <div>
                         <div class="estimator-control-group">

@@ -8,7 +8,7 @@ import { vettingStages } from '../../data/careers.mjs';
 export const careersVetting = () => html`
 <section class="careers-vetting-section" id="vetting-protocol">
     <div class="container">
-        <div class="section-header-centered">
+        <div class="section-header-centered" data-reveal>
             <div class="tactical-badge">SCREENING MATRIX</div>
             <h2 class="section-title">THE 5-STAGE VETTING PROTOCOL</h2>
             <p class="section-lead">
@@ -19,7 +19,7 @@ export const careersVetting = () => html`
         <div class="vetting-stepper-track">
             ${vettingStages.map(
                 (stage, idx) => html`
-            <div class="vetting-stage-card" data-step="${stage.step}">
+            <div class="vetting-stage-card" data-step="${stage.step}" data-reveal>
                 <div class="stage-step-indicator">
                     <span class="stage-step-num">${stage.step}</span>
                     <span class="stage-step-connector" aria-hidden="true"></span>

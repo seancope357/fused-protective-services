@@ -9,7 +9,7 @@ import { spineIcons } from '../../data/icons.mjs';
 export const careersBenefits = () => html`
 <section class="careers-benefits-section" id="officer-standards">
     <div class="container">
-        <div class="section-header-centered">
+        <div class="section-header-centered" data-reveal>
             <div class="tactical-badge">OPERATIONAL CULTURE</div>
             <h2 class="section-title">THE FUSED STANDARD FOR OFFICERS</h2>
             <p class="section-lead">
@@ -20,7 +20,7 @@ export const careersBenefits = () => html`
         <div class="benefits-grid">
             ${officerBenefits.map(
                 (b) => html`
-            <div class="benefit-card">
+            <div class="benefit-card" data-reveal>
                 <div class="benefit-icon-box">
                     ${spineIcons[b.icon] ? spineIcons[b.icon]('class="tactical-svg--lg"') : ''}
                 </div>

@@ -38,6 +38,35 @@
     flex-wrap: wrap;
 }
 
+/* Entrance. The hero is above the fold, so it cannot wait on a scroll
+   observer: each line rises on load, eyebrow first, metrics last. Pure CSS,
+   so it runs with or without JavaScript; base.css clamps it to nothing under
+   prefers-reduced-motion. */
+@keyframes careersHeroRise {
+    from {
+        opacity: 0;
+        transform: translateY(22px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.careers-hero-content > *,
+.careers-metric-card {
+    animation: careersHeroRise 0.9s var(--ease-out-quint) both;
+}
+
+.careers-hero-content > :nth-child(1) { animation-delay: 0.05s; }
+.careers-hero-content > :nth-child(2) { animation-delay: 0.15s; }
+.careers-hero-content > :nth-child(3) { animation-delay: 0.28s; }
+.careers-hero-content > :nth-child(4) { animation-delay: 0.4s; }
+.careers-metric-card:nth-child(1) { animation-delay: 0.5s; }
+.careers-metric-card:nth-child(2) { animation-delay: 0.58s; }
+.careers-metric-card:nth-child(3) { animation-delay: 0.66s; }
+.careers-metric-card:nth-child(4) { animation-delay: 0.74s; }
+
 .careers-metrics-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

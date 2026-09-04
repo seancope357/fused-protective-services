@@ -1,0 +1,51 @@
+@layer components {
+/* ==========================================================================
+   SCROLL REVEAL
+   Sections and cards rise into place as they enter the viewport. The hidden
+   starting state is applied only when the browser reports scripting enabled
+   (`@media (scripting: enabled)`), so a visitor without JavaScript, or on a
+   browser that predates the media feature, sees the page fully rendered and
+   simply forgoes the motion. No inline script is needed to gate it.
+
+   js/modules/reveal.mjs adds `.is-revealed` on intersection. Stagger comes
+   from sibling position, not from per-element inline styles: the first card
+   in a row leads, each following card trails by 80ms, capped at 400ms.
+   ========================================================================== */
+
+@media (scripting: enabled) {
+    [data-reveal] {
+        opacity: 0;
+        transform: translateY(26px);
+        transition:
+            opacity 0.7s var(--ease-out-quint),
+            transform 0.8s var(--ease-out-quint);
+        transition-delay: var(--reveal-delay, 0s);
+        will-change: opacity, transform;
+    }
+
+    [data-reveal].is-revealed {
+        opacity: 1;
+        transform: none;
+        /* Once landed, release the compositor layer so the element paints
+           like any other and hover transitions inside it stay crisp. */
+        will-change: auto;
+    }
+
+    [data-reveal]:nth-child(2) { --reveal-delay: 0.08s; }
+    [data-reveal]:nth-child(3) { --reveal-delay: 0.16s; }
+    [data-reveal]:nth-child(4) { --reveal-delay: 0.24s; }
+    [data-reveal]:nth-child(5) { --reveal-delay: 0.32s; }
+    [data-reveal]:nth-child(n + 6) { --reveal-delay: 0.4s; }
+}
+
+/* Reduced motion: nothing is ever hidden, nothing ever slides. base.css
+   already clamps durations, but an element waiting on an intersection would
+   still be invisible until scrolled to, so the starting state is lifted too. */
+@media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
+}

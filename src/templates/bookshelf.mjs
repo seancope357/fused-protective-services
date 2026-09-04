@@ -48,7 +48,7 @@ ${sectionHead({
     desc: 'Select any division spine to slide open its operational deployment details.'
 })}
 
-            <div class="bookshelf-container" id="bookshelfAccordion">
+            <div class="bookshelf-container" id="bookshelfAccordion" data-reveal>
 ${divisions.map(spine)}
             </div>
         </div>

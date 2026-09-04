@@ -8,7 +8,7 @@ import { prequalQuestions } from '../../data/careers.mjs';
 export const careersPrequal = () => html`
 <section class="careers-prequal-section" id="prequal-check">
     <div class="container">
-        <div class="section-header-centered">
+        <div class="section-header-centered" data-reveal>
             <div class="tactical-badge">STATUTORY ELIGIBILITY</div>
             <h2 class="section-title">60-SECOND CANDIDATE PRE-CHECK</h2>
             <p class="section-lead">
@@ -16,7 +16,7 @@ export const careersPrequal = () => html`
             </p>
         </div>
 
-        <div class="prequal-box">
+        <div class="prequal-box" data-reveal>
             <form id="prequalForm" class="prequal-form" novalidate>
                 <div class="prequal-grid">
                     ${prequalQuestions.map(
