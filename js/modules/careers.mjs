@@ -170,6 +170,9 @@ async function deliverCandidate(payload) {
         if (response.ok) {
             return await response.json();
         }
+        /* 503 means every delivery stage failed; show that instead of a success. */
+        const failure = await response.json().catch(() => null);
+        if (failure && failure.ok === false) return failure;
     } catch (err) {
         console.warn('[FPS Careers] Live endpoint unreachable, backup stored:', err);
     }
@@ -203,6 +206,14 @@ function initCandidateForm() {
 
         const result = await deliverCandidate(payload);
         const code = result?.refCode || refCode;
+
+        if (result && result.ok === false) {
+            if (status) {
+                status.removeAttribute('hidden');
+                status.innerHTML = `<strong>Transmission Failed</strong><br>${result.message || 'We could not transmit your application. Please call our dispatch line directly.'}`;
+            }
+            return;
+        }
 
         if (status) {
             status.removeAttribute('hidden');

@@ -28,6 +28,10 @@ async function deliver(payload) {
         if (response.ok) {
             return await response.json();
         }
+        /* The server answers 503 when every delivery stage failed. Surface that
+           rather than telling the visitor their request went through. */
+        const failure = await response.json().catch(() => null);
+        if (failure && failure.ok === false) return failure;
     } catch (err) {
         console.warn('[FPS Dispatch] Live endpoint unreachable, backup stored:', err);
     }
@@ -57,6 +61,12 @@ export function initQuoteForm() {
 
         const result = await deliver(payload);
         const code = result?.refCode || refCode;
+
+        if (result && result.ok === false) {
+            if (status) status.textContent = result.message || 'We could not transmit your request. Please call our dispatch line directly.';
+            return;
+        }
+
         const msg = result?.message ||
             `Request received — dispatch reference ${code}. A commanding officer will contact ${data.formPhone} within 2 hours.`;
 
