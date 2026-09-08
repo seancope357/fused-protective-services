@@ -58,18 +58,30 @@ Submissions from the Security Detail Quote form (`#securityQuoteForm`) and Candi
          ▼
 [Ingestion Layer]
   • Local: serve.py Handler (persists directly to PostgreSQL `fused_protective_services`)
-  • Production: api/intake.js (Vercel Serverless) / Supabase Edge Function
+  • Production: api/intake.js (Vercel Function, zero dependencies)
          │
-         ├── 1. Database: Persists to PostgreSQL `client_quotes` or `candidate_applications`
-         ├── 2. Triage: Automatic trigger sets priority = 'emergency' for PPO / Rapid Dispatch
-         └── 3. Outbound Webhook: Dispatches to HubSpot CRM / Twilio SMS alert
+         ├── 1. Persist  → Supabase REST insert into `client_quotes` / `candidate_applications`
+         │                 (DB trigger `trg_triage_quote` sets priority; the row's answer wins)
+         ├── 2. Alert    → Resend email to DISPATCH_ALERT_TO (subject carries 🚨 EMERGENCY / ⚠️ PRIORITY)
+         └── 3. Forward  → Optional JSON webhook (HubSpot / Zapier / Slack)
 ```
 
-#### Dual Offline & Online Resilience
-Both `js/modules/quote-form.mjs` and `js/modules/careers.mjs` implement an **offline-first** strategy:
-1. Every submission is recorded immediately in browser `localStorage` (`last_fused_quote` and `last_fused_candidate_app`).
-2. The payload is transmitted asynchronously via `fetch('/api/intake')`.
-3. If the network or remote server is unreachable, the confirmation reference code still displays smoothly to the user.
+The three stages are independent. The response reports `delivery: { persisted, alerted, forwarded }`. If **every configured stage fails** the function returns `503 { ok: false, error: 'not_delivered' }` and both form controllers show a "call dispatch directly" message instead of a success screen. The server generates the reference code (`TX-FPS-XXXXXX` / `TX-CAND-XXXXXX`, 6 chars, no 0/O/1/I) and both forms display whatever the server returns.
+
+#### Production environment variables (Vercel)
+
+| Variable | Set by | Purpose |
+| :--- | :--- | :--- |
+| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Vercel Marketplace (Supabase integration) | Stage 1 persistence. Service role bypasses RLS on the server only. |
+| `RESEND_API_KEY` | Vercel Marketplace (Resend integration) | Stage 2 email. **Not yet installed — Sean must accept Resend's marketplace terms in the browser, then `vercel integration add resend --name fused-dispatch-alerts`.** |
+| `DISPATCH_ALERT_TO` | Manual (`vercel env add`) | Comma-separated recipients. Currently Sean's inbox; switch to Cameron's dispatch address when known. |
+| `DISPATCH_ALERT_FROM` | Manual, optional | Defaults to `Fused Dispatch <onboarding@resend.dev>`, which Resend only delivers to the account owner. Set to a verified `@fusedprotectiveservices.com` sender once the domain is connected. |
+| `DISPATCH_ALERT_WEBHOOK` / `HUBSPOT_WEBHOOK_URL` | Manual, optional | Stage 3 forward. |
+
+Hosted Supabase project: `fused-protective-services` (ref `zphyvnouierjwjqjvahs`, us-east-1), provisioned 2026-09-08 through the Vercel Marketplace. Migrations in `supabase/migrations/` are applied there and the migration history matches the file names, so `supabase db push` will not try to re-apply them.
+
+#### Offline backup
+Both `js/modules/quote-form.mjs` and `js/modules/careers.mjs` still write the payload to `localStorage` (`last_fused_quote`, `last_fused_candidate_app`) before transmitting. If the network itself is unreachable the client falls back to a local reference code; this is a convenience, not a delivery path.
 
 ---
 
@@ -162,9 +174,9 @@ These three items require operational decisions by Cameron Harrell:
   ```
 * **Impact:** Rebuilding via `node build.mjs` updates the header nav, mobile drawer, dispatch emergency bar, footer, and schema.org structured data simultaneously.
 
-### 2. Live Lead Transmission
-* **Current State:** Form submissions log to client `localStorage` only.
-* **Fix Procedure:** Connect `deliver()` in `js/modules/quote-form.mjs` to a real form endpoint (Formspree, Web3Forms, or Twilio SMS webhook).
+### 2. Dispatch Alert Recipient
+* **Current State:** Leads persist to the hosted Supabase project and, once Resend is installed, email `DISPATCH_ALERT_TO` (currently Sean).
+* **Fix Procedure:** Get Cameron's dispatch email and update `DISPATCH_ALERT_TO` in Vercel for all three environments. For SMS on emergency priority, add Twilio (see Backlog).
 
 ### 3. Review Authenticity Policy
 * **Current State:** The schema.org metadata claims an aggregate rating of `5.0` based on `28` reviews in `src/data/site.mjs`.

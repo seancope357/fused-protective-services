@@ -15,7 +15,8 @@
 | **Internal Invoicing Engine** | 🟢 **Production Ready** | `/invoice` generating Letter-formatted PDF invoices. |
 | **Careers & Recruiting Portal** | 🟢 **Production Ready** | `/careers` live with filterable jobs, 5-stage vetting, & pre-qual. |
 | **Context Engineering** | 🟢 **Complete (7 Modules)** | Modular domain documentation live in [`context/`](file:///Users/cope/projects/fused-protective-services/context/index.md). |
-| **Lead Transmission & Backend** | 🟢 **Live Database & Serverless Ingestion** | Inbound leads & candidates persist to PostgreSQL via `/api/intake` with offline backup. |
+| **Lead Persistence** | 🟢 **Live (hosted Supabase)** | `/api/intake` on production writes to the hosted `fused-protective-services` Supabase project; verified end to end 2026-09-08. |
+| **Dispatch Alerts** | 🟡 **Code shipped, Resend not installed** | Email alert stage is live in `api/intake.js` but `RESEND_API_KEY` is absent until Sean accepts Resend's marketplace terms. Until then leads sit in the database unannounced. |
 | **Phone Line** | 🟡 **Placeholder** | Needs Cameron's real line to replace `(512) 555-0199`. |
 | **Review Markup** | 🟡 **Policy Risk** | Aggregate rating claims 5.0 from 28 reviews; needs audit. |
 
@@ -104,6 +105,14 @@
 - [x] Added a scroll-reveal system (`components/reveal.css` + `js/modules/reveal.mjs`) applied to every section head and card on both pages, gated by `@media (scripting: enabled)` so no-JS visitors see a complete page and no inline script is required.
 - [x] Added a staged CSS entrance for the careers hero (`careersHeroRise`), fully clamped under `prefers-reduced-motion`.
 
+### Phase 11: Hosted Backend & Real Lead Delivery (2026-09-08)
+- [x] Provisioned the hosted Supabase project through the Vercel Marketplace; env vars auto-injected into all Vercel environments.
+- [x] Applied the core schema and a `search_path` hardening migration; migration history aligned to the committed file names.
+- [x] Rewrote `api/intake.js` as a three-stage delivery chain (persist → Resend email → webhook) that reports per-stage success and returns 503 when nothing was delivered.
+- [x] Server-generated collision-safe reference codes; user text escaped in alert emails.
+- [x] Form controllers now show a failure message instead of a fake success when delivery fails.
+- [x] Verified on preview and production: rows land in Supabase, DB trigger escalates emergency divisions.
+
 ---
 
 ## ⚠️ Known Gaps & Immediate Operational Decisions (Cameron's Call)
@@ -126,6 +135,8 @@ These 2 action items require direct operational input from Cameron Harrell:
 
 | Priority | Item | Description | Dependencies |
 | :---: | :--- | :--- | :--- |
+| **P0** | **Install Resend** | Accept marketplace terms in browser, then `vercel integration add resend --name fused-dispatch-alerts`. Turns on lead emails. | Sean, 2 minutes |
+| **P1** | **Point alerts at Cameron** | Set `DISPATCH_ALERT_TO` to Cameron's dispatch inbox. | Cameron's email |
 | **P1** | **HubSpot CRM Activation** | Input Cameron's HubSpot Access Token / Webhook into Vercel env. | Cameron's HubSpot account |
 | **P1** | **Set Real Phone Line** | Update `phone` in `site.mjs` with Cameron's active dispatch line. | Cameron's phone number |
 | **P2** | **Twilio SMS Dispatch Alerts** | Add Twilio API credentials to fire real-time SMS to Cameron on emergency dispatch. | Twilio Account SID & Auth Token |
