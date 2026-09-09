@@ -3,7 +3,7 @@
 > **The definitive build blueprint and context engineering repository for this project.**
 
 **Client:** Cameron Harrell / Fused Protective Services (Austin, TX)  
-**What it is:** High-converting marketing, security detail intake, and internal billing platform.  
+**What it is:** High-converting marketing site + security detail intake, and the operations platform (`app/`, Next.js + Supabase) that runs the work from lead to cash: quotes, proposals, jobs, invoices, payments, notifications, client portal.  
 **Full Context Architecture:** See the modular 7-document repository in [`context/`](file:///Users/cope/projects/fused-protective-services/context/index.md).
 
 ---
@@ -56,7 +56,11 @@ For active workstreams, completed phase deliverables, operational blockers, and 
 ## 🗂️ High-Level Layout
 
 ```text
-├── build.mjs                  the whole toolchain (zero dependencies)
+├── app/                       operations portal — Next.js 16 + Supabase (own package.json)
+├── api/                       Vercel functions for the static site (intake) + api/_lib transports
+├── supabase/migrations/       additive migrations (ten), supabase/tests/auth_shim.sql for local RLS tests
+├── docs/                      RUNBOOK.md (setup order), OPEN_QUESTIONS.md (blocked on Cameron)
+├── build.mjs                  the static-site toolchain (zero dependencies)
 ├── index.html                 GENERATED — marketing & intake page
 ├── invoice.html               GENERATED — internal invoicing tool (/invoice)
 ├── css/

@@ -26,9 +26,6 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ],
-      "@shared/*": [
-        "../src/*"
       ]
     }
   },
@@ -37,9 +34,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "../src/data/*.mjs",
-    "../src/lib/*.mjs",
-    "../api/_lib/*.mjs",
+    "shared/**/*.mjs",
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [

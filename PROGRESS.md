@@ -12,7 +12,11 @@
 | **Compiler & Build Pipeline** | 🟢 **Passing (Zero Drift)** | `node build.mjs --check` validates byte-identical output. |
 | **Dependencies** | 🟢 **Zero Dependencies** | Pure Node.js ESM. No `package.json` or `node_modules`. |
 | **Marketing Web Platform** | 🟢 **Production Ready** | All 7 divisions, estimator, assessment quiz, and intake live. |
-| **Internal Invoicing Engine** | 🟡 **Browser-only** | `/invoice` builds and prints; records live in one browser's localStorage. Server-side invoices arrive with the operations portal (Phase 1). |
+| **Operations Portal** | 🟢 **Live** | `app/` (Next.js 16 + Supabase) at https://fused-portal.vercel.app — leads → quotes → proposals → jobs → invoices → payments → reviews, client portal, notification engine, hourly scheduler. Owner account exists. |
+| **Invoicing** | 🟢 **Server-side** | Numbers minted by Postgres; payments from the Stripe webhook. The old `/invoice` page is now an export tool for legacy browser records; import at Portal → Invoices → Import legacy. |
+| **Client-facing email** | 🔴 **Blocked on Resend** | Proposals, briefs, invoices, receipts and client sign-in links all wait on `DISPATCH_ALERT_FROM` (verified sender). Every skipped send is logged. |
+| **Payments** | 🟡 **Code live, no Stripe keys** | Pay page and webhook deployed; `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` absent, so the pay button explains that online payment is unavailable. |
+| **Legal pages** | 🟡 **Draft** | `/privacy`, `/terms`, `/sms-consent` generated from `src/data/legal.mjs`, banner-marked pending attorney review, `noindex`. |
 | **Careers & Recruiting Portal** | 🟢 **Production Ready** | `/careers` live with filterable jobs, 5-stage vetting, & pre-qual. |
 | **Context Engineering** | 🟢 **Complete (7 Modules)** | Modular domain documentation live in [`context/`](file:///Users/cope/projects/fused-protective-services/context/index.md). |
 | **Lead Persistence** | 🟢 **Live (hosted Supabase)** | `/api/intake` on production writes to the hosted `fused-protective-services` Supabase project; verified end to end 2026-09-08. |
@@ -117,6 +121,20 @@
 - [x] Form controllers now show a failure message instead of a fake success when delivery fails.
 - [x] Verified on preview and production: rows land in Supabase, DB trigger escalates emergency divisions.
 
+### Phase 1: Lead to cash — the operations platform (2026-09-09)
+- [x] **Data model** — seven additive migrations (`20260910000001` … `07`): `profiles` with roles, `clients`, `sites`, `quotes`, `proposals`, `jobs`, `shifts`, `officers` + `shift_assignments` (Phase 2 seams), reshaped `invoices` (cents columns, generated dollar columns, sequence-minted numbers, pay tokens), `payments`, `stripe_events`, `reviews`, append-only `notifications`, `settings`, SMS consent columns, `sms_opt_outs`. Every table has RLS; cross-table policies go through SECURITY DEFINER helpers so the policy graph is acyclic. Applied to the hosted project with versions aligned to filenames.
+- [x] **Auth** — Supabase Auth; owner/staff by password, clients and officers by magic link minted server-side and emailed through Resend (branded, deliverable to anyone once the sender is verified). Roles enforced in RLS: `tests/db/rls.test.ts` proves a client cannot read another client's invoice, drafts are invisible, an officer sees only assigned shifts, anon sees nothing.
+- [x] **Owner portal** `/portal` — dashboard (leads needing response, next 7 days, unpaid with aging, collected this month), leads inbox with one-click convert-to-quote, quotes + proposal editor + send, jobs (list, calendar, shifts, recurrence, brief, complete), invoices (generate from shifts, deposit/balance, edit drafts, send with pay link + in-page QR, manual payments, void), clients & sites, reviews, message log, settings (recipients, defaults, integrations check, staff accounts, password change).
+- [x] **Client portal** `/client` — proposal with binding acceptance (typed name, timestamp, IP, user agent; emailed copy; job auto-created), upcoming/past details with the brief, invoices with pay button, review form. Public `/pay/[token]` and `/review/[token]` reached from email without login.
+- [x] **Payments** — Stripe Checkout (card + ACH) for the stored balance only; webhook verifies the signature, deduplicates by event id, updates invoice + payment in one Postgres transaction (`apply_stripe_payment_event`), sends receipt + owner alert. Deposit % on quotes/jobs; balance invoice credits the deposit pre-tax. QR generated in-process.
+- [x] **Notification engine** — table-driven matrix (`app/src/lib/notifications/templates.ts`, 14 rules) + engine with SMS consent and STOP enforcement + hourly scheduler (`/api/cron/tick`: 2h unanswered leads, 24h reminders, unstaffed warning, review request +24h, overdue day 1/7/14, 7am Central digest), all idempotent through `notifications.dedupe_key`. The intake function logs its sends to the same table.
+- [x] **SMS compliance** — consent checkbox with disclosure on both intake forms, stored with timestamp; Twilio inbound webhook records STOP/START; `/sms-consent` program terms page.
+- [x] **Legal pages** — `privacy.html`, `terms.html`, `sms-consent.html` generated by `build.mjs` from `src/data/legal.mjs`, draft-banner until `reviewed: true`.
+- [x] **Legacy invoices** — `/invoice` shows the browser's saved records as JSON to paste into Portal → Invoices → Import legacy (totals recomputed and checked; sequence bumped past imported numbers).
+- [x] **Tests** — 38 in `app/tests` (tax arithmetic, deposit/balance maths, legacy parsing, notification rules and scheduler conditions, Stripe event interpretation, shift materialisation, RLS, 40-way concurrent numbering, payment idempotency) + 7 intake tests. CI runs both suites, typecheck and `next build`.
+- [x] **Deployed** — `fused-portal` Vercel project (prebuilt CLI deploy; Git auto-deploy needs two dashboard settings, see `docs/RUNBOOK.md` §5b). Owner account created; cron verified on production.
+- [ ] **Blocked on accounts** — Resend sender, Twilio, Stripe keys, custom domains (`docs/OPEN_QUESTIONS.md`).
+
 ### Phase 0: Stop the bleeding (2026-09-09)
 - [x] Phone number and DPS licence number carry `placeholder: true` in `src/data/site.mjs`; the build warns on every run and every non-production host shows a red PLACEHOLDER flag (`components/placeholder.css`, `js/modules/env.mjs`).
 - [x] `licenseNumber` rendered in the footer and as the schema.org `identifier` (Tex. Occ. Code §1702.284).
@@ -145,7 +163,8 @@ Tracked in [`docs/OPEN_QUESTIONS.md`](file:///Users/cope/projects/fused-protecti
 | **P1** | **HubSpot CRM Activation** | Input Cameron's HubSpot Access Token / Webhook into Vercel env. | Cameron's HubSpot account |
 | **P1** | **Set Real Phone Line** | Update `phone` in `site.mjs` with Cameron's active dispatch line. | Cameron's phone number |
 | **P1** | **Twilio credentials** | Code is live; set the four Twilio variables and `DISPATCH_ALERT_SMS_TO` (`docs/RUNBOOK.md` §3). | Twilio account, 10DLC |
-| **P1** | **Operations platform (Phase 1)** | Next.js + Supabase app at `app.fusedprotectiveservices.com`: leads → quotes → proposals → jobs → invoices → Stripe webhook → reviews, notification engine, legal pages. | Phase 0 merged |
+| **P0** | **Resend sender + Stripe keys + Twilio** | Everything client-facing waits on these accounts (`docs/RUNBOOK.md` §2–4). | Sean, Cameron |
+| **P2** | **Phase 2 operations** | Officer roster UI, shift assignment with conflict detection, officer mobile view, GPS clock-in and checkpoint scans, incident reports with photos, timesheets/payroll export, invoices reconciled to worked hours. Schema seams exist (`officers`, `shift_assignments` clock columns, `pay_rate_cents`). | Phase 1 in use |
 | **P2** | **Client Testimonials Section** | Render `src/data/reviews.mjs` once real reviews exist; the rating markup follows automatically. | Verified reviews |
 | **P3** | **Client-Side PDF Generator** | Add standalone PDF export library as alternative to browser print. | Invoicing module |
 | **P3** | **DIV-08 Expansion (K9 Unit)** | Implement 8th division following the data-model runbook if K9 units are launched. | Operational division spec |

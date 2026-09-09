@@ -355,3 +355,28 @@ stateDiagram-v2
     command_interview --> rejected: Command Rejection
 ```
 
+
+
+---
+
+### 3. Platform tables (operations portal, Phase 1)
+
+Money is integer cents everywhere; the `invoices` dollar columns are generated. Every table has RLS: staff full access; a client reads its own rows (drafts excluded) and may only accept/decline a sent proposal and submit a requested review; an officer reads only assigned shifts and their jobs.
+
+| Table | Purpose | Status machine |
+| :--- | :--- | :--- |
+| `profiles` | role (`owner`, `staff`, `client`, `officer`) + scoping ids, created by trigger on `auth.users` | — |
+| `clients`, `sites` | billing entity; physical location with access/parking/gear notes and tax override | — |
+| `quotes` | division (`quoteValue`), armed level, officers × hours × rate, tax, deposit %, validity | `draft → sent → accepted \| declined \| expired` |
+| `proposals` | client-facing document; frozen `snapshot` at send; `accepted_at`, `accepted_name`, `accepted_ip`, `accepted_user_agent` | mirrors the quote |
+| `jobs` | accepted engagement; RRULE recurrence; brief fields; deposit % and deposit invoice | `scheduled → in_progress → completed \| cancelled` |
+| `shifts` | dated block: officers required, armed level, bill rate, pay rate (Phase 2) | as job |
+| `officers`, `shift_assignments` | Phase 2 seams: roster with DPS licence expiry; assignment with GPS clock-in/out columns | `assigned → confirmed → completed \| declined \| no_show` |
+| `invoices` | server-minted `FPS-YYYY-####`, line items from shifts, `kind` standard/deposit/balance, `pay_token` | `draft → sent → partially_paid → paid \| overdue \| void` |
+| `payments`, `stripe_events` | one row per payment; one row per Stripe event id (idempotency) | `pending → succeeded \| failed \| refunded` |
+| `reviews` | post-job request with public token; rating, text, permission to publish | `requested → submitted` |
+| `notifications` | append-only log of every send: trigger, channel, recipient, outcome, `dedupe_key` | — |
+| `settings` | key/value: owner recipients, defaults | — |
+| `sms_opt_outs` | numbers that replied STOP; never texted again | — |
+
+Numbering functions: `next_invoice_number(prefix, pad)` (prefix and padding passed from `src/data/invoice.mjs`), `next_quote_number()`, `reserve_invoice_sequence(number)` for legacy imports. Payment application: `apply_stripe_payment_event(...)` — one transaction, returns `{applied, reason, invoice_status}`.

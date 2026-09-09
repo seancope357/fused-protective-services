@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import '../../../src/styles/tokens.css';
+import '../../shared/src/styles/tokens.css';
 import '@/styles/app.css';
 import { site } from '@/lib/shared';
 

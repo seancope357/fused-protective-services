@@ -2,15 +2,16 @@
   "name": "fused-portal",
   "private": true,
   "version": "0.1.0",
-  "description": "Fused Protective Services operations platform — owner portal, client portal, payments, notifications.",
+  "description": "Fused Protective Services operations platform \u2014 owner portal, client portal, payments, notifications.",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "sync": "node scripts/sync-shared.mjs",
+    "dev": "node scripts/sync-shared.mjs && next dev",
+    "build": "node scripts/sync-shared.mjs && next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:db": "node scripts/reset-test-db.mjs && TEST_DATABASE_URL=${TEST_DATABASE_URL:-postgres://localhost/fused_test} vitest run tests/db",
-    "test:all": "pnpm typecheck && pnpm test && pnpm test:db"
+    "typecheck": "node scripts/sync-shared.mjs && tsc --noEmit",
+    "test": "node scripts/sync-shared.mjs && vitest run",
+    "test:db": "node scripts/reset-test-db.mjs && node scripts/sync-shared.mjs && vitest run tests/db",
+    "test:all": "pnpm typecheck && pnpm test"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
@@ -33,5 +34,7 @@
     "typescript": "5.9.3",
     "vitest": "5.0.0"
   },
-  "engines": { "node": ">=22" }
+  "engines": {
+    "node": ">=22"
+  }
 }

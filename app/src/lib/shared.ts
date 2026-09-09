@@ -7,11 +7,11 @@
    fact; it only adds types and lookups.
    ========================================================================== */
 
-import { divisions as rawDivisions } from '../../../src/data/divisions.mjs';
-import { tiers as rawTiers, defaultTier as rawDefaultTier } from '../../../src/data/estimator.mjs';
-import { armedPreferences } from '../../../src/data/intake.mjs';
-import { numbering, netTerms as rawNetTerms, defaultNetTerm as rawDefaultNetTerm, tax, defaultNotes, defaultTerms, paymentCopy } from '../../../src/data/invoice.mjs';
-import { site as rawSite } from '../../../src/data/site.mjs';
+import { divisions as rawDivisions } from '../../shared/src/data/divisions.mjs';
+import { tiers as rawTiers, defaultTier as rawDefaultTier } from '../../shared/src/data/estimator.mjs';
+import { armedPreferences } from '../../shared/src/data/intake.mjs';
+import { numbering, netTerms as rawNetTerms, defaultNetTerm as rawDefaultNetTerm, tax, defaultNotes, defaultTerms, paymentCopy } from '../../shared/src/data/invoice.mjs';
+import { site as rawSite } from '../../shared/src/data/site.mjs';
 
 export type Division = {
     id: string;

@@ -1,15 +1,11 @@
 import type { NextConfig } from 'next';
-import path from 'node:path';
 
 /* The portal reads business facts straight from ../src/data/*.mjs — the same
    files the static site is generated from — so both agree by construction.
-   The repo root is declared so Turbopack and output tracing include them. */
-const repoRoot = path.join(__dirname, '..');
-
+   scripts/sync-shared.mjs mirrors them into app/shared/ before every build,
+   typecheck and test run, so nothing is imported from above the app root. */
 const nextConfig: NextConfig = {
     reactStrictMode: true,
-    turbopack: { root: repoRoot },
-    outputFileTracingRoot: repoRoot,
     poweredByHeader: false,
     headers: async () => [
         {

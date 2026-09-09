@@ -8,7 +8,7 @@
    src/data/site.mjs through @/lib/shared.
    ========================================================================== */
 
-import { emailShell } from '../../../../api/_lib/intake-messages.mjs';
+import { emailShell } from '../../../shared/api/_lib/intake-messages.mjs';
 import { formatMoney } from '@/lib/money';
 import { fmtDateTime, fmtDateOnly, fmtTime } from '@/lib/format';
 import { site, divisionByQuoteValue } from '@/lib/shared';
