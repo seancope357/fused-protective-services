@@ -1,7 +1,7 @@
 # 📈 PROGRESS — Fused Protective Services
 
 > **Living operational status, completed milestones, active workstreams, and known gaps.**  
-> *Last Updated: September 2026*
+> *Last Updated: 9 September 2026*
 
 ---
 
@@ -16,9 +16,11 @@
 | **Careers & Recruiting Portal** | 🟢 **Production Ready** | `/careers` live with filterable jobs, 5-stage vetting, & pre-qual. |
 | **Context Engineering** | 🟢 **Complete (7 Modules)** | Modular domain documentation live in [`context/`](file:///Users/cope/projects/fused-protective-services/context/index.md). |
 | **Lead Persistence** | 🟢 **Live (hosted Supabase)** | `/api/intake` on production writes to the hosted `fused-protective-services` Supabase project; verified end to end 2026-09-08. |
-| **Dispatch Alerts** | 🟡 **Code shipped, Resend not installed** | Email alert stage is live in `api/intake.js` but `RESEND_API_KEY` is absent until Sean accepts Resend's marketplace terms. Until then leads sit in the database unannounced. |
+| **Dispatch Alerts** | 🟡 **Code shipped, Resend and Twilio not installed** | Owner email, client auto-reply, and emergency SMS stages are live in `api/intake.js`; none fire until the keys in [`docs/RUNBOOK.md`](docs/RUNBOOK.md) are set. Until then leads sit in the database unannounced. |
 | **Phone Line** | 🟡 **Placeholder** | Needs Cameron's real line to replace `(512) 555-0199`. |
-| **Review Markup** | 🟡 **Policy Risk** | Aggregate rating claims 5.0 from 28 reviews; needs audit. |
+| **Review Markup** | 🟢 **Removed** | `rating` is null; `aggregateRating` is only emitted once real reviews exist. |
+| **License Number** | 🟡 **Missing** | `licenseNumber` is null in `site.mjs`; footer line and schema identifier stay hidden until Cameron supplies it. `node build.mjs` warns; `--strict` fails. |
+| **Online Payment** | 🟡 **Stripe key not set** | `/api/stripe-checkout` recomputes totals server-side and refuses to mint a link without `STRIPE_SECRET_KEY`. |
 
 ---
 
@@ -113,21 +115,35 @@
 - [x] Form controllers now show a failure message instead of a fake success when delivery fails.
 - [x] Verified on preview and production: rows land in Supabase, DB trigger escalates emergency divisions.
 
+### Phase 12: Phase 0 Fixes — Stop the Bleeding (2026-09-09)
+- [x] Removed the unverified 5.0/28 `aggregateRating`; schema emits a rating only when `site.rating` has a positive count.
+- [x] Added `licenseNumber` to `site.mjs`, rendered in the footer and as a schema.org `identifier` only when set (Texas Occupations Code 1702).
+- [x] `build.mjs` prints a placeholder warning block (555 phone, missing license) after every build or check; `--strict` exits 1 for deploy gates.
+- [x] `api/intake.js`: client auto-reply email (Stage 2b), Twilio emergency SMS to `DISPATCH_ALERT_SMS_TO` (Stage 2c), origin-allowlisted CORS with `Vary: Origin`, honeypot field on both forms, Postgres-backed per-IP rate limit and duplicate suppression (`intake_attempts`, fails open).
+- [x] `api/stripe-checkout.js`: recomputes the charge from line items, rejects tampered or out-of-range totals, upserts every session into `public.invoices`, returns 503 instead of a mock URL when unconfigured.
+- [x] Form controllers surface 429 and duplicate responses instead of faking a local reference code.
+- [x] Wrote [`docs/RUNBOOK.md`](docs/RUNBOOK.md): Resend, Twilio, Stripe, and every env var with its source.
+
 ---
 
 ## ⚠️ Known Gaps & Immediate Operational Decisions (Cameron's Call)
 
-These 2 action items require direct operational input from Cameron Harrell:
+These 3 action items require direct operational input from Cameron Harrell:
 
 ### 1. Update Live Phone Number
 * **Problem:** `(512) 555-0199` is a fictional placeholder.
 * **File to Edit:** [`src/data/site.mjs`](file:///Users/cope/projects/fused-protective-services/src/data/site.mjs) (lines 15–18).
 * **Action Required:** Provide the real business line (display format and E.164 international format). Rebuilding will automatically update the header nav, mobile drawer, dispatch bar, footer, and schema.org markup.
 
-### 2. Review Authenticity Audit
-* **Problem:** `src/data/site.mjs` declares an `aggregateRating` of 5.0 from 28 reviews for search engine rich snippets.
-* **File to Edit:** [`src/data/site.mjs`](file:///Users/cope/projects/fused-protective-services/src/data/site.mjs) (line 53).
-* **Action Required:** Verify if 28 genuine collected reviews exist. If not, temporarily remove the rating block to protect the domain from Google schema policy penalties.
+### 2. Texas DPS License Number
+* **Problem:** `licenseNumber` is `null`, so the footer line and schema identifier required by Occupations Code 1702 do not render.
+* **File to Edit:** [`src/data/site.mjs`](src/data/site.mjs) (`const licenseNumber`).
+* **Action Required:** Enter the company license number exactly as printed on the DPS certificate, rebuild, commit.
+
+### 3. Alert Recipients and Keys
+* **Problem:** Owner email, client auto-reply, emergency SMS, and Stripe pay links are all coded and all inert without credentials.
+* **File to Read:** [`docs/RUNBOOK.md`](docs/RUNBOOK.md).
+* **Action Required:** Install Resend and Twilio, set the env vars listed there in all three Vercel environments, apply the two 2026-09-09 migrations.
 
 ---
 
@@ -135,7 +151,8 @@ These 2 action items require direct operational input from Cameron Harrell:
 
 | Priority | Item | Description | Dependencies |
 | :---: | :--- | :--- | :--- |
-| **P0** | **Install Resend** | Accept marketplace terms in browser, then `vercel integration add resend --name fused-dispatch-alerts`. Turns on lead emails. | Sean, 2 minutes |
+| **P0** | **Install Resend + Twilio, set env vars** | Follow [`docs/RUNBOOK.md`](docs/RUNBOOK.md). Turns on owner alerts, client confirmations, and emergency SMS. | Sean, 15 minutes |
+| **P0** | **Apply 2026-09-09 migrations** | `intake_attempts` table and `invoices` payment-link columns. Intake fails open without them; Stripe links still mint but do not persist. | `supabase db push` |
 | **P1** | **Point alerts at Cameron** | Set `DISPATCH_ALERT_TO` to Cameron's dispatch inbox. | Cameron's email |
 | **P1** | **HubSpot CRM Activation** | Input Cameron's HubSpot Access Token / Webhook into Vercel env. | Cameron's HubSpot account |
 | **P1** | **Set Real Phone Line** | Update `phone` in `site.mjs` with Cameron's active dispatch line. | Cameron's phone number |

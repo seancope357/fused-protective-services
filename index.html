@@ -147,12 +147,6 @@
             }
           }
         ]
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "5.0",
-        "reviewCount": "28",
-        "bestRating": "5"
       }
     },
     {
@@ -1000,6 +994,14 @@
                         <textarea id="formNotes" name="formNotes" rows="4" placeholder="Detail any VIP arrivals, high-value assets, crowd size, access control checkpoints, or specific security protocols required..."></textarea>
                     </div>
 
+                    <!-- Honeypot. Off-screen rather than hidden, because form-fillers skip
+                         hidden inputs and fill visible-looking ones; /api/intake drops
+                         any submission where this arrives non-empty. -->
+                    <div class="visually-hidden" aria-hidden="true">
+                        <label for="formWebsite">Website (leave blank)</label>
+                        <input type="text" id="formWebsite" name="website" tabindex="-1" autocomplete="off">
+                    </div>
+
                     <button type="submit" class="btn-gold btn-gold--block btn-gold--lg">
                         Submit Confidential Security Request
                     </button>
@@ -1087,6 +1089,8 @@
                 <span class="footer-areas-label">Areas of Operation</span>
                 Austin • San Antonio • Dallas • Fort Worth • Houston • Statewide Texas
             </p>
+
+            
 
             <p class="footer-disclaimer">
                 Fused Protective Services is a licensed and insured private security company operating in full compliance with the Texas Department of Public Safety Private Security Bureau (PSB). All rights reserved.

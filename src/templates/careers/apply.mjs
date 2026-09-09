@@ -88,6 +88,14 @@ export const careersApply = () => html`
                     <textarea id="appBio" name="appBio" class="form-textarea" rows="4" placeholder="Outline your tactical assignments, firearms qualifications, defensive driving, medical certifications, or paste a link to your digital resume (Google Drive, LinkedIn)..." required></textarea>
                 </div>
 
+                <!-- Honeypot. Off-screen rather than hidden, because form-fillers skip
+                     hidden inputs and fill visible-looking ones; /api/intake drops
+                     any submission where this arrives non-empty. -->
+                <div class="visually-hidden" aria-hidden="true">
+                    <label for="appWebsite">Website (leave blank)</label>
+                    <input type="text" id="appWebsite" name="website" tabindex="-1" autocomplete="off">
+                </div>
+
                 <div class="form-actions">
                     <button type="submit" class="btn btn-gold btn-block" id="submitCandidateBtn">
                         Transmit Candidate Application &rarr;

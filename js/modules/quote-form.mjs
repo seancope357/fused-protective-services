@@ -25,13 +25,17 @@ async function deliver(payload) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ type: 'quote', ...payload })
         });
-        if (response.ok) {
-            return await response.json();
-        }
-        /* The server answers 503 when every delivery stage failed. Surface that
-           rather than telling the visitor their request went through. */
-        const failure = await response.json().catch(() => null);
-        if (failure && failure.ok === false) return failure;
+        /* The server answered, so whatever it said is the truth about this
+           submission: a 200, a 429 rate limit, a duplicate notice, or a 503
+           when every delivery stage failed. All of them carry a message and are
+           returned as-is. A response with no usable body is still a refusal,
+           never a success — only a network failure reaches the offline fallback. */
+        const result = await response.json().catch(() => null);
+        if (result && typeof result.ok === 'boolean') return result;
+        return {
+            ok: false,
+            message: 'We could not transmit your request. Please call our dispatch line directly.'
+        };
     } catch (err) {
         console.warn('[FPS Dispatch] Live endpoint unreachable, backup stored:', err);
     }
@@ -64,6 +68,14 @@ export function initQuoteForm() {
 
         if (result && result.ok === false) {
             if (status) status.textContent = result.message || 'We could not transmit your request. Please call our dispatch line directly.';
+            return;
+        }
+
+        /* Already on file from a moment ago. Nothing was re-sent, so the form
+           is left as typed and the visitor is pointed at the reference they
+           already hold. */
+        if (result && result.duplicate) {
+            if (status) status.textContent = result.message;
             return;
         }
 

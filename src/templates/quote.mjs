@@ -67,6 +67,14 @@ ${field({ id: 'formSchedule', label: 'Estimated Shift Schedule & Date(s)', place
                         <textarea id="formNotes" name="formNotes" rows="4" placeholder="Detail any VIP arrivals, high-value assets, crowd size, access control checkpoints, or specific security protocols required..."></textarea>
                     </div>
 
+                    <!-- Honeypot. Off-screen rather than hidden, because form-fillers skip
+                         hidden inputs and fill visible-looking ones; /api/intake drops
+                         any submission where this arrives non-empty. -->
+                    <div class="visually-hidden" aria-hidden="true">
+                        <label for="formWebsite">Website (leave blank)</label>
+                        <input type="text" id="formWebsite" name="website" tabindex="-1" autocomplete="off">
+                    </div>
+
                     <button type="submit" class="btn-gold btn-gold--block btn-gold--lg">
                         Submit Confidential Security Request
                     </button>

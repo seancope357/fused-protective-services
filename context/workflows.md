@@ -60,13 +60,16 @@ Submissions from the Security Detail Quote form (`#securityQuoteForm`) and Candi
   • Local: serve.py Handler (persists directly to PostgreSQL `fused_protective_services`)
   • Production: api/intake.js (Vercel Function, zero dependencies)
          │
+         ├── 0. Guard    → honeypot drop, per-IP rate limit (429), duplicate suppression (`intake_attempts`, fails open)
          ├── 1. Persist  → Supabase REST insert into `client_quotes` / `candidate_applications`
          │                 (DB trigger `trg_triage_quote` sets priority; the row's answer wins)
          ├── 2. Alert    → Resend email to DISPATCH_ALERT_TO (subject carries 🚨 EMERGENCY / ⚠️ PRIORITY)
+         ├── 2b. Confirm → Resend email to the submitter with reference code, ETA, dispatch phone
+         ├── 2c. Page    → Twilio SMS to DISPATCH_ALERT_SMS_TO when priority is `emergency`
          └── 3. Forward  → Optional JSON webhook (HubSpot / Zapier / Slack)
 ```
 
-The three stages are independent. The response reports `delivery: { persisted, alerted, forwarded }`. If **every configured stage fails** the function returns `503 { ok: false, error: 'not_delivered' }` and both form controllers show a "call dispatch directly" message instead of a success screen. The server generates the reference code (`TX-FPS-XXXXXX` / `TX-CAND-XXXXXX`, 6 chars, no 0/O/1/I) and both forms display whatever the server returns.
+The three stages are independent. The response reports `delivery: { persisted, alerted, clientNotified, smsAlerted, forwarded }`. CORS echoes the Origin only for the production hosts, `*.vercel.app` previews, and localhost. If **every configured stage fails** the function returns `503 { ok: false, error: 'not_delivered' }` and both form controllers show a "call dispatch directly" message instead of a success screen. The server generates the reference code (`TX-FPS-XXXXXX` / `TX-CAND-XXXXXX`, 6 chars, no 0/O/1/I) and both forms display whatever the server returns.
 
 #### Production environment variables (Vercel)
 
@@ -77,6 +80,11 @@ The three stages are independent. The response reports `delivery: { persisted, a
 | `DISPATCH_ALERT_TO` | Manual (`vercel env add`) | Comma-separated recipients. Currently Sean's inbox; switch to Cameron's dispatch address when known. |
 | `DISPATCH_ALERT_FROM` | Manual, optional | Defaults to `Fused Dispatch <onboarding@resend.dev>`, which Resend only delivers to the account owner. Set to a verified `@fusedprotectiveservices.com` sender once the domain is connected. |
 | `DISPATCH_ALERT_WEBHOOK` / `HUBSPOT_WEBHOOK_URL` | Manual, optional | Stage 3 forward. |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`, `DISPATCH_ALERT_SMS_TO` | Manual | Stage 2c emergency SMS. |
+| `DISPATCH_PHONE_DISPLAY`, `INTAKE_HASH_SALT` | Manual | Confirmation callback number; salt for the abuse-control ledger. |
+| `STRIPE_SECRET_KEY`, `STRIPE_MAX_CHARGE_CENTS`, `SITE_ORIGIN` | Manual | `/api/stripe-checkout`. |
+
+Full install order and verification steps: [`docs/RUNBOOK.md`](../docs/RUNBOOK.md).
 
 Hosted Supabase project: `fused-protective-services` (ref `zphyvnouierjwjqjvahs`, us-east-1), provisioned 2026-09-08 through the Vercel Marketplace. Migrations in `supabase/migrations/` are applied there and the migration history matches the file names, so `supabase db push` will not try to re-apply them.
 
