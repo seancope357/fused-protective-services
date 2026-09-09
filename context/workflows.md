@@ -96,9 +96,31 @@ Both `js/modules/quote-form.mjs` and `js/modules/careers.mjs` still write the pa
 
 ---
 
+## 🏛️ Operations Portal (`app/`)
+
+The authenticated platform is a separate workspace: Next.js 16 (App Router, TypeScript, pnpm) + Supabase, deployed as the Vercel project `fused-portal` at `https://fused-portal.vercel.app` (future `app.fusedprotectiveservices.com`). The static site never links into it except the footer's **Client Portal** link (`portalUrl` in `src/data/site.mjs`).
+
+```bash
+cd app
+pnpm install
+pnpm dev            # syncs shared sources, then next dev (needs app/.env.local — see app/.env.example)
+pnpm typecheck      # syncs, then tsc --noEmit
+pnpm test           # syncs, then vitest (unit; db tests skip without TEST_DATABASE_URL)
+pnpm test:db        # rebuilds the local test database from every migration, then runs tests/db
+vercel pull --yes --environment=production && vercel build --prod && vercel deploy --prebuilt --prod --yes
+```
+
+* **Shared facts, one source.** `scripts/sync-shared.mjs` mirrors `src/data`, `src/lib`, `src/styles/tokens.css` and `api/_lib` into `app/shared/` (gitignored) before every build/typecheck/test. `app/src/lib/shared.ts` is the only module that imports them; the portal never restates a rate, division, term or contact detail.
+* **Auth.** `app/src/lib/auth.ts` (`requireStaff`, `requireClient`); `proxy.ts` refreshes the session cookie and bounces anonymous visitors. Magic links are minted with `auth.admin.generateLink` and emailed through our own sender so they are branded and deliverable to anyone.
+* **Server actions** in `app/src/lib/actions/*` write through the session-bound client (RLS applies); the service-role client (`supabase/admin.ts`) is used only where the code has already established authority (webhook, scheduler, auth link minting, the client-acceptance side effects).
+* **Notifications.** `app/src/lib/notifications/templates.ts` is the matrix; `engine.ts` resolves recipients, honours consent/STOP, sends and logs; `scheduler.ts` runs from `/api/cron/tick` hourly (Vercel Cron, `CRON_SECRET`). Every attempt is one row in `public.notifications` (Portal → Message log).
+* **Payments.** `app/src/lib/stripe.ts`; webhook at `/api/stripe/webhook`; public pay page `/pay/[pay_token]`. Amounts are only ever the stored invoice balance.
+* **Documents.** `components/proposal-paper.tsx` and `components/invoice-paper.tsx` render the client-facing paper (gold on white, prints on one Letter page) for the portal, the client view and the public pay page alike.
+
 ## 🗄️ Supabase Backend & Database Architecture
 
-* **PostgreSQL Schema Location:** [`supabase/migrations/`](file:///Users/cope/projects/fused-protective-services/supabase/migrations/) — `20260904000000_fused_core_schema.sql`, `20260908000000_harden_function_search_path.sql`, `20260909000000_intake_gate.sql`
+* **PostgreSQL Schema Location:** [`supabase/migrations/`](file:///Users/cope/projects/fused-protective-services/supabase/migrations/) — ten migrations, applied to the hosted project in filename order (core schema, search_path hardening, intake gate, profiles/roles, clients/sites, quotes/proposals, jobs/shifts, invoices/payments, reviews/notifications/settings, function grants). Additive only; never edit an applied file.
+* **Local test database:** `supabase/tests/auth_shim.sql` + `app/scripts/reset-test-db.mjs` rebuild a plain Postgres with the `auth` schema stub and every migration; `app/tests/db/` proves RLS isolation, numbering under concurrency and webhook idempotency.
 * **Vercel Serverless Functions:** [`api/intake.mjs`](file:///Users/cope/projects/fused-protective-services/api/intake.mjs), [`api/stripe-checkout.mjs`](file:///Users/cope/projects/fused-protective-services/api/stripe-checkout.mjs), shared code in `api/_lib/`
 
 ### Relational Tables & Triage Triggers
@@ -119,7 +141,9 @@ Both `js/modules/quote-form.mjs` and `js/modules/careers.mjs` still write the pa
    * Primary key: `id` (UUID), Unique Reference: `invoice_number` (`FPS-YYYY-####`).
    * Stores client name, dates, payment terms, tax calculations, and line items. `/api/stripe-checkout` reads `total` from this row by `id`; the request body never supplies an amount.
 
-4. **`intake_gate` (Abuse Controls)**
+4. **Platform tables** (Phase 1) — `profiles`, `clients`, `sites`, `quotes`, `proposals`, `jobs`, `shifts`, `officers`, `shift_assignments`, `payments`, `stripe_events`, `reviews`, `notifications`, `settings`, `sms_opt_outs`. State machines and columns are documented in each migration header and in [`context/data-model.md`](file:///Users/cope/projects/fused-protective-services/context/data-model.md).
+
+5. **`intake_gate` (Abuse Controls)**
    * Hashes only (`ip_hash`, `dedupe_hash`) plus the `ref_code` they map to; rows expire after a day. No RLS policies: only the service role touches it, through the `intake_gate()` function.
 
 ---

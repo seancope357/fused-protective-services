@@ -110,6 +110,17 @@ export const navItems = [
     { href: 'careers.html', label: 'Careers', drawerLabel: 'Careers & Recruiting' }
 ];
 
+/* The authenticated operations platform lives on its own host. Clients reach
+   their proposals, briefs and invoices there; staff run the business there. */
+export const portalUrl = 'https://app.fusedprotectiveservices.com';
+
+/* Footer-only links: generated legal pages from src/data/legal.mjs. */
+export const legalLinks = [
+    { href: 'privacy', label: 'Privacy' },
+    { href: 'terms', label: 'Terms' },
+    { href: 'sms-consent', label: 'SMS Terms' }
+];
+
 export const heroMetrics = [
     { value: '$2M+', label: 'Commercial & Armed Liability' },
     { value: '< 45 Min', label: 'Emergency Tactical Dispatch' },

@@ -17,6 +17,7 @@
 import { randomBytes } from 'node:crypto';
 import { cors, parseBody, clientIp, text } from './_lib/http.mjs';
 import { insertRow, supabaseConfigured } from './_lib/supabase.mjs';
+import { logSends } from './_lib/notify-log.mjs';
 import { sendEmail, internalSender, publicSender } from './_lib/email.mjs';
 import { sendSms, ownerSmsRecipients } from './_lib/sms.mjs';
 import { gate, isHoneypotTripped } from './_lib/gate.mjs';
@@ -57,7 +58,9 @@ function normalise(body) {
                 tops_number: text(body.appLicenseNumber, 40) || null,
                 service_branch: text(body.appServiceBranch) || 'civilian',
                 bio: text(body.appBio, 5000),
-                vetting_stage: 'application_received'
+                vetting_stage: 'application_received',
+                sms_consent: body.appSmsConsent === 'yes' || body.appSmsConsent === 'on',
+                sms_consent_at: body.appSmsConsent === 'yes' || body.appSmsConsent === 'on' ? new Date().toISOString() : null
             }
         };
     }
@@ -75,7 +78,9 @@ function normalise(body) {
             deployment_location: text(body.formLocation) || 'Austin, TX',
             schedule: text(body.formSchedule) || 'TBD',
             notes: text(body.formNotes, 2000) || null,
-            status: 'new'
+            status: 'new',
+            sms_consent: body.formSmsConsent === 'yes' || body.formSmsConsent === 'on',
+            sms_consent_at: body.formSmsConsent === 'yes' || body.formSmsConsent === 'on' ? new Date().toISOString() : null
         }
     };
 }
@@ -218,6 +223,10 @@ export default async function handler(req, res) {
             record
         })
     ]);
+
+    /* Every send becomes a row in the notification log (best effort; the
+       lead's fate does not depend on the log). */
+    await logSends({ isCandidate, record, priority, storedRow: stored.row, owner, confirmed });
 
     /* A lead counts as delivered when it reached storage or the owner. The
        visitor's own confirmation is reported but is not a delivery path. */

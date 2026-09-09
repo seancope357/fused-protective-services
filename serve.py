@@ -22,6 +22,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             path = '/careers.html'
         elif path == '/invoice':
             path = '/invoice.html'
+        elif path in ('/privacy', '/terms', '/sms-consent'):
+            path = f"{path}.html"
         return super().translate_path(path)
 
     def end_headers(self):

@@ -7,7 +7,7 @@ Welcome to the context repository for **Fused Protective Services** (Cameron Har
 ## ⚡ The Prime Directive (The One Rule)
 
 > [!CAUTION]
-> **`index.html`, `css/site.css`, `invoice.html`, and `css/invoice.css` are GENERATED. NEVER edit them by hand.**
+> **`index.html`, `careers.html`, `invoice.html`, `privacy.html`, `terms.html`, `sms-consent.html` and `css/*.css` are GENERATED. NEVER edit them by hand.** The operations portal in `app/` is a separate Next.js workspace (see `context/architecture.md` and `context/workflows.md`).
 >
 > All source code and copy live exclusively in `src/`. Whenever any file in `src/` is modified, regenerate the build output and verify it before committing:
 > ```bash

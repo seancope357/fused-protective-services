@@ -18,3 +18,45 @@ jobs:
         run: node build.mjs --check
       - name: Serverless function tests (no network)
         run: node --test 'tests/*.test.mjs'
+
+  portal:
+    name: Portal — typecheck, tests, RLS proof, build
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/fused_test
+      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Apply auth shim and every migration to a fresh database
+        run: node scripts/reset-test-db.mjs
+      - name: Unit, notification, Stripe, RLS and numbering tests
+        run: pnpm exec vitest run
+      - name: Next.js build
+        run: pnpm build

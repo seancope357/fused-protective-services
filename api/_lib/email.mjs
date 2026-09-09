@@ -25,6 +25,8 @@ export const publicSender = () => {
 /**
  * Sends one email. Resolves to { configured, ok, id?, error? } and never throws,
  * so a transport failure is a reported stage outcome rather than a crash.
+ * @param {{ from: string | null, to: string | string[], subject: string, text?: string, html?: string, replyTo?: string }} message
+ * @returns {Promise<{ configured: boolean, ok: boolean, id?: string, error?: string }>}
  */
 export async function sendEmail({ from, to, subject, text, html, replyTo }) {
     const key = process.env.RESEND_API_KEY;

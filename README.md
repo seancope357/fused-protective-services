@@ -98,17 +98,15 @@ email to the visitor → optional webhook. Every stage is reported; nothing fake
 success. Setup order and verification: [`docs/RUNBOOK.md`](docs/RUNBOOK.md).
 Blocked items: [`docs/OPEN_QUESTIONS.md`](docs/OPEN_QUESTIONS.md).
 
-## 🧾 Invoicing (internal tool)
+## 🏛️ Operations portal (`app/`)
 
-`/invoice` (generated `invoice.html`) is a branded invoice builder for Cameron:
-auto numbering (`FPS-YYYY-####`, counter advances only on save), auto issue/due
-dates from payment terms, line items priced from the same rate card as the
-estimator (`src/data/estimator.mjs`), tax, and a live gold-on-white document
-preview. **Print / Save PDF** uses the browser's print dialog — only the paper
-prints, one Letter page. Saved invoices live in the browser's localStorage only
-(clearing site data deletes them), and the page is `noindex` and linked from
-nowhere. Terms, tax default, numbering, and the remit-to wording live in
-[`src/data/invoice.mjs`](src/data/invoice.mjs).
+Everything after the lead — quotes, proposals with binding e-acceptance, jobs and
+shifts, invoices with Stripe card/ACH payment, the client portal, reviews, and a
+table-driven notification engine — lives in [`app/`](app/), a Next.js + Supabase
+workspace deployed as `fused-portal` (https://fused-portal.vercel.app). It reads the
+same `src/data` files this site is generated from. Setup order:
+[`docs/RUNBOOK.md`](docs/RUNBOOK.md). `/invoice` on this site now only exports the
+old browser-stored invoices for import into the portal.
 
 ## ☎️ Setting the real phone number and licence number
 
