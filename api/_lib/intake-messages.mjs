@@ -13,7 +13,13 @@ const CARBON = '#090a09';
 /* Response promises, mirrored from the intake handler's public copy. */
 export const responseWindow = (priority) => (priority === 'emergency' ? '45 minutes' : '2 hours');
 
-function shell({ title, intro, rows, outro }) {
+/**
+ * The one branded email layout. Also used by the portal's notification
+ * engine (app/src/lib/notifications), so every email the business sends
+ * shares a header, palette and footer.
+ * @param {{ title: string, intro: string, rows?: [string, string][], outro?: string }} parts
+ */
+export function emailShell({ title, intro, rows = [], outro = '' }) {
     const tableRows = rows
         .map(
             ([k, v]) =>
@@ -71,7 +77,7 @@ export function ownerAlert({ isCandidate, record, priority, persisted }) {
     const warning = persisted ? '' : '\n\nWARNING: database write failed — this email is the only record.';
     const text = rows.map(([k, v]) => `${k}: ${v}`).join('\n') + warning;
 
-    const html = shell({
+    const html = emailShell({
         title: subject,
         intro: persisted
             ? `Respond within ${escapeHtml(responseWindow(priority))} — that is what the site promised this contact.`
@@ -113,7 +119,7 @@ export function clientConfirmation({ isCandidate, record, priority }) {
         return {
             subject,
             text: `${firstName},\n\nYour application to ${site.name} was received.\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\n${next}\n\nQuestions: ${site.phone.display} · ${site.email}`,
-            html: shell({
+            html: emailShell({
                 title: 'Your application was received',
                 intro: `${escapeHtml(firstName)}, your officer application is on file with ${escapeHtml(site.name)}.`,
                 rows,
@@ -138,7 +144,7 @@ export function clientConfirmation({ isCandidate, record, priority }) {
     return {
         subject,
         text: `${firstName},\n\nYour security detail request was received by ${site.name}.\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nWhat happens next:\n${steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\n24/7 dispatch: ${site.phone.display}\n${site.email}`,
-        html: shell({
+        html: emailShell({
             title: 'Your request is with dispatch',
             intro: `${escapeHtml(firstName)}, your security detail request was received. Your dispatch reference is <strong style="color:${GOLD};font-family:'JetBrains Mono',monospace">${escapeHtml(r.ref_code)}</strong>.`,
             rows,

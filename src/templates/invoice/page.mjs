@@ -1,36 +1,15 @@
 /* ==========================================================================
-   INVOICE PAGE SHELL
-   The internal invoicing tool, assembled the same way the marketing page is:
-   markup from src/data, one JSON island carrying exactly the slice the
-   browser script needs. It reuses the island id #fps-config so the shared
-   config reader works unchanged. Rates and terms reach the script only
-   through the island — the same contract PROJECT_CONTEXT sets for the
-   marketing page holds here.
+   LEGACY INVOICE TOOL — EXPORT PAGE
+   Invoicing moved into the operations portal (app/), where numbers are
+   minted by the database and payment status comes from Stripe. This page
+   exists so the records the old browser-only builder saved in localStorage
+   can be carried across: it reads them, shows them, and offers the JSON the
+   portal's import page accepts. Nothing else on the old tool remains.
    ========================================================================== */
 
-import { html, json } from '../../lib/html.mjs';
-import { site } from '../../data/site.mjs';
-import { tiers, defaultTier } from '../../data/estimator.mjs';
-import { numbering, netTerms, defaultNetTerm, tax } from '../../data/invoice.mjs';
-
+import { html } from '../../lib/html.mjs';
+import { site, portalUrl } from '../../data/site.mjs';
 import { invoiceHead } from './head.mjs';
-import { builder } from './builder.mjs';
-import { invoiceDoc } from './document.mjs';
-
-/** Exactly what js/modules/invoice-form.mjs needs — no more. Company facts
-    are not here because the document renders them at build time. */
-const clientConfig = () => ({
-    invoice: {
-        numbering,
-        netTerms: Object.fromEntries(netTerms.map((t) => [t.id, { label: t.label, days: t.days }])),
-        defaultNetTerm: defaultNetTerm.id,
-        tax
-    },
-    estimator: {
-        tiers: Object.fromEntries(tiers.map((t) => [t.id, { name: t.name, rate: t.rate }])),
-        defaultTier: defaultTier.id
-    }
-});
 
 export const invoicePage = () => html`<!DOCTYPE html>
 <html lang="en">
@@ -39,26 +18,31 @@ ${invoiceHead()}
 </head>
 <body class="inv-body">
 
-    <a href="#invoice-builder" class="skip-link">Skip to invoice builder</a>
+    <a href="#invoice-export" class="skip-link">Skip to export</a>
 
-    <header class="inv-topbar">
-        <a class="inv-topbar__brand" href="/">
-            <img src="${site.logo}" alt="" width="40" height="40">
-            <span class="inv-topbar__name">${site.shortName} <span class="inv-topbar__sub">Invoicing</span></span>
-        </a>
-        <span class="inv-topbar__tag">Internal Tool — nothing leaves this browser</span>
-    </header>
+    <main class="inv-moved" id="invoice-export">
+        <img src="${site.logo}" alt="" width="64" height="64">
+        <h1>Invoicing has moved to the operations portal</h1>
+        <p>
+            Invoices are now created, sent and paid at <a href="${portalUrl}/portal/invoices">${portalUrl.replace(/^https?:\/\//, '')}/portal/invoices</a>.
+            Numbers are issued by the database, so two devices can never collide, and payment status comes from Stripe.
+        </p>
+        <p>
+            If this browser still holds invoices from the old tool, they are listed below. Copy the export and paste it into
+            <strong>Portal → Invoices → Import legacy</strong>. Nothing is transmitted from this page; the copy is yours to paste.
+        </p>
 
-    <main class="inv-layout" id="invoice-builder">
-${builder()}
-        <section class="inv-preview" aria-label="Invoice document">
-${invoiceDoc()}
-        </section>
+        <p class="form-status" id="invExportStatus" role="status" aria-live="polite"></p>
+        <div id="invExportSummary" hidden>
+            <p><span id="invExportCount"></span> saved in this browser.</p>
+            <pre id="invExportJson" tabindex="0" aria-label="Invoice export JSON"></pre>
+            <div class="inv-actions">
+                <button type="button" class="btn-gold" data-action="copy-export">Copy export to clipboard</button>
+                <a class="btn-secondary-glass" href="${portalUrl}/portal/invoices/import">Open the import page</a>
+            </div>
+        </div>
+        <p id="invExportEmpty" hidden>No invoices are saved in this browser. There is nothing to migrate.</p>
     </main>
-
-    <script type="application/json" id="fps-config">
-${json(clientConfig())}
-    </script>
 
     <script type="module" src="js/invoice.mjs"></script>
 </body>

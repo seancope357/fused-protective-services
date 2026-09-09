@@ -3,7 +3,7 @@
    ========================================================================== */
 
 import { html } from '../lib/html.mjs';
-import { site, navItems } from '../data/site.mjs';
+import { site, navItems, legalLinks, portalUrl } from '../data/site.mjs';
 import { callLink, placeholderFlag } from './partials.mjs';
 
 export const dispatchBar = () => html`
@@ -26,6 +26,10 @@ export const footer = (isCareers = false) => html`
                     return html`<a href="${href}">${item.drawerLabel}</a>`;
                 })}
                 <a href="tel:${site.phone.e164}"${site.phone.placeholder ? ' data-placeholder="phone"' : ''}>24/7 Dispatch</a>${placeholderFlag(site.phone, 'phone')}
+                <a href="${portalUrl}/login" rel="noopener">Client Portal</a>
+            </nav>
+            <nav class="footer-menu footer-menu--legal" aria-label="Legal">
+                ${legalLinks.map((l) => html`<a href="${l.href}">${l.label}</a>`)}
             </nav>
 
             <p class="footer-areas">

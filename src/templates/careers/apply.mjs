@@ -4,6 +4,7 @@
 
 import { html } from '../../lib/html.mjs';
 import { positions } from '../../data/careers.mjs';
+import { smsConsentLabel } from '../../data/legal.mjs';
 
 export const careersApply = () => html`
 <section class="careers-apply-section" id="candidate-application">
@@ -88,6 +89,10 @@ export const careersApply = () => html`
                     <textarea id="appBio" name="appBio" class="form-textarea" rows="4" placeholder="Outline your tactical assignments, firearms qualifications, defensive driving, medical certifications, or paste a link to your digital resume (Google Drive, LinkedIn)..." required></textarea>
                 </div>
 
+                <div class="form-consent">
+                    <input type="checkbox" id="appSmsConsent" name="appSmsConsent" value="yes">
+                    <label for="appSmsConsent">${smsConsentLabel.replace(/ See the SMS Program Terms and Privacy Policy\.$/, '')} See the <a href="sms-consent">SMS Program Terms</a> and <a href="privacy">Privacy Policy</a>.</label>
+                </div>
                 <!-- Honeypot: hidden from people, filled by bots, checked by /api/intake -->
                 <div class="hp-field" aria-hidden="true">
                     <label for="appWebsite">Leave this field empty</label>

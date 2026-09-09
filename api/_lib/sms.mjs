@@ -21,6 +21,8 @@ export const ownerSmsRecipients = () =>
 
 /**
  * Sends one SMS. Resolves to { configured, ok, sid?, error? } and never throws.
+ * @param {{ to: string, body: string }} message
+ * @returns {Promise<{ configured: boolean, ok: boolean, sid?: string, error?: string }>}
  */
 export async function sendSms({ to, body }) {
     if (!smsConfigured() || !to) return { configured: false, ok: false };

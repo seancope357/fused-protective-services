@@ -6,8 +6,8 @@
    There is no package.json, no lockfile, and nothing to install or keep
    current — the site still deploys by dragging the directory at a host.
 
-     node build.mjs           write index.html + css/site.css and
-                              invoice.html + css/invoice.css
+     node build.mjs           write index.html, careers.html, the legal pages,
+                              invoice.html (legacy export) and css/*.css
      node build.mjs --check   verify the committed output matches src/,
                               exit 1 if it drifted (for CI or a pre-push hook)
 
@@ -23,6 +23,8 @@ import { dirname, join } from 'node:path';
 import { page } from './src/templates/page.mjs';
 import { invoicePage } from './src/templates/invoice/page.mjs';
 import { careersPage } from './src/templates/careers/page.mjs';
+import { legalPage } from './src/templates/legal/page.mjs';
+import { legalPages } from './src/data/legal.mjs';
 import { site } from './src/data/site.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
@@ -49,6 +51,7 @@ const STYLE_ORDER = [
     'components/form.css',
     'components/faq.css',
     'components/careers.css',
+    'components/legal.css',
     'components/reveal.css',
     'components/placeholder.css',
     'components/dispatch-bar.css',
@@ -65,10 +68,8 @@ const INVOICE_STYLE_ORDER = [
     'base.css',
     'components/buttons.css',
     'components/form.css',
-    'components/invoice-builder.css',
-    'components/invoice-doc.css',
-    'utilities.css',
-    'components/invoice-print.css'
+    'components/legal.css',
+    'utilities.css'
 ];
 
 const BANNER = `/* ==========================================================================
@@ -93,7 +94,8 @@ const artefacts = () => [
     { path: join(ROOT, 'css', 'site.css'), contents: buildStyles(STYLE_ORDER) },
     { path: join(ROOT, 'invoice.html'), contents: String(invoicePage()) },
     { path: join(ROOT, 'css', 'invoice.css'), contents: buildStyles(INVOICE_STYLE_ORDER) },
-    { path: join(ROOT, 'careers.html'), contents: String(careersPage()) }
+    { path: join(ROOT, 'careers.html'), contents: String(careersPage()) },
+    ...legalPages.map((page) => ({ path: join(ROOT, page.file), contents: String(legalPage(page)) }))
 ];
 
 function write() {

@@ -11,6 +11,7 @@ import { html } from '../lib/html.mjs';
 import { divisions } from '../data/divisions.mjs';
 import { armedPreferences, armedPreferenceOrder } from '../data/intake.mjs';
 import { uiIcons } from '../data/icons.mjs';
+import { smsConsentLabel } from '../data/legal.mjs';
 import { sectionHead } from './partials.mjs';
 
 const field = ({ id, label, type = 'text', placeholder = '', required = false }) => html`
@@ -67,6 +68,10 @@ ${field({ id: 'formSchedule', label: 'Estimated Shift Schedule & Date(s)', place
                         <textarea id="formNotes" name="formNotes" rows="4" placeholder="Detail any VIP arrivals, high-value assets, crowd size, access control checkpoints, or specific security protocols required..."></textarea>
                     </div>
 
+                    <div class="form-consent">
+                        <input type="checkbox" id="formSmsConsent" name="formSmsConsent" value="yes">
+                        <label for="formSmsConsent">${smsConsentLabel.replace(/ See the SMS Program Terms and Privacy Policy\.$/, '')} See the <a href="sms-consent">SMS Program Terms</a> and <a href="privacy">Privacy Policy</a>.</label>
+                    </div>
                     <!-- Honeypot: hidden from people, filled by bots, checked by /api/intake -->
                     <div class="hp-field" aria-hidden="true">
                         <label for="formWebsite">Leave this field empty</label>

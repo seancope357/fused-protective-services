@@ -459,585 +459,104 @@ body {
 }
 }
 
-/* ── components/invoice-builder.css ──────────────────────────── */
+/* ── components/legal.css ────────────────────────────────────── */
 @layer components {
 /* ==========================================================================
-   INVOICE BUILDER — screen chrome for the internal invoicing tool
-   Two panes: the dark form on the left, the white paper preview on the
-   right. Field styling comes from form.css; this file only adds what the
-   marketing form never needed (line-item table, action bar, saved list).
+   LEGAL PAGES
    ========================================================================== */
-
-.inv-body {
-    background: var(--color-void);
-    min-height: 100vh;
+.legal-main {
+    padding: calc(var(--space-24) + 40px) 0 var(--space-20);
 }
 
-.inv-topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-    padding: var(--space-4) clamp(16px, 3vw, 32px);
-    border-bottom: 1px solid var(--border-gold-subtle);
-    background: var(--color-surface-base);
+.legal-doc {
+    max-width: 820px;
 }
 
-.inv-topbar__brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-    color: var(--text-primary);
+.legal-head {
+    margin-bottom: var(--space-10);
 }
 
-.inv-topbar__name {
-    font-family: 'Cinzel', serif;
-    font-weight: 800;
-    font-size: 18px;
-    letter-spacing: 1.5px;
-    color: var(--logo-gold-specular);
-}
-
-.inv-topbar__sub {
-    font-family: 'Outfit', sans-serif;
-    font-weight: 500;
-    font-size: 13px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-}
-
-.inv-topbar__tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+.legal-meta {
     color: var(--text-tertiary);
+    font-size: 13px;
+    margin-top: var(--space-2);
 }
 
-.inv-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 620px);
-    gap: clamp(16px, 2.5vw, 32px);
-    align-items: start;
-    padding: clamp(16px, 3vw, 32px);
-    max-width: 1680px;
-    margin: 0 auto;
+.legal-draft {
+    margin-top: var(--space-4);
+    padding: 12px 16px;
+    border: 1px dashed var(--color-crimson);
+    border-radius: var(--radius-md);
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--text-primary);
+    font-size: 14px;
 }
 
-.inv-builder {
-    background: var(--color-surface-card);
-    border: 1px solid var(--border-gold-subtle);
-    border-radius: var(--radius-2xl);
-    padding: clamp(20px, 3vw, 36px);
+.legal-section {
+    margin-bottom: var(--space-8);
 }
 
-.inv-builder__heading {
-    font-family: 'Cinzel', serif;
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--logo-gold-glint);
-    border-bottom: 1px solid var(--border-subtle);
-    padding-bottom: var(--space-2);
-    margin: var(--space-8) 0 var(--space-4);
+.legal-section h2 {
+    font-size: clamp(17px, 1.6vw, 20px);
+    color: var(--logo-gold-specular);
+    margin-bottom: var(--space-3);
 }
 
-.inv-builder__heading:first-child {
-    margin-top: 0;
-}
-
-.form-field--gap {
-    margin-bottom: var(--space-4);
-}
-
-/* Line-item table ------------------------------------------------------- */
-
-.inv-lines-scroll {
-    overflow-x: auto;
-}
-
-.inv-lines {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13.5px;
-}
-
-.inv-lines th {
-    text-align: left;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+.legal-section p {
     color: var(--text-secondary);
-    padding: var(--space-2) var(--space-2);
-    border-bottom: 1px solid var(--border-muted);
-    white-space: nowrap;
+    line-height: 1.75;
+    margin-bottom: var(--space-3);
 }
 
-.inv-lines td {
-    padding: var(--space-2);
-    border-bottom: 1px solid var(--border-subtle);
-    vertical-align: top;
+/* SMS consent checkbox on the intake forms. */
+.form-consent {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: start;
+    margin: 0 0 var(--space-5);
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.55;
 }
 
-.inv-lines input,
-.inv-lines select {
-    width: 100%;
+.form-consent input {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    accent-color: var(--logo-gold-glint);
+}
+
+.form-consent label {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.form-consent a {
+    color: var(--logo-gold-highlight);
+}
+
+/* Legacy invoice tool: the export page that replaced the browser builder. */
+.inv-moved {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: clamp(24px, 6vw, 64px) clamp(16px, 4vw, 32px);
+    display: grid;
+    gap: var(--space-5);
+}
+
+.inv-moved pre {
     background: #060706;
     border: 1px solid var(--border-subtle);
-    color: var(--text-primary);
-    padding: 8px 10px;
-    border-radius: var(--radius-sm);
-    font-size: 13.5px;
-}
-
-.inv-lines input:focus,
-.inv-lines select:focus {
-    border-color: var(--logo-gold-bevel);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(186, 152, 87, 0.25);
-}
-
-.inv-line__service {
-    min-width: 220px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.inv-line td:nth-child(2) input,
-.inv-line td:nth-child(3) input,
-.inv-line td:nth-child(4) input {
-    min-width: 72px;
-}
-
-.inv-line__amount {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    color: var(--logo-gold-highlight);
-    white-space: nowrap;
-    text-align: right;
-    padding-top: 16px;
-}
-
-.inv-line__tools {
-    text-align: right;
-}
-
-.inv-tool-btn {
-    background: transparent;
-    border: 1px solid var(--border-subtle);
-    color: var(--text-secondary);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
+    padding: 14px;
     font-size: 12px;
-    line-height: 1;
-    padding: 8px 10px;
-    cursor: pointer;
-    transition: all var(--duration-fast) ease;
-}
-
-.inv-tool-btn:hover {
-    border-color: var(--color-crimson);
-    color: var(--color-crimson);
-}
-
-.inv-add-line {
-    margin-top: var(--space-3);
-    padding: 10px 20px;
-    font-size: 13px;
-}
-
-.inv-tax-row {
-    margin-top: var(--space-6);
-}
-
-/* Action bar ------------------------------------------------------------ */
-
-.inv-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-    margin-top: var(--space-6);
-}
-
-.inv-actions .btn-gold,
-.inv-actions .btn-secondary-glass {
-    padding: 12px 22px;
-    font-size: 13.5px;
-    width: auto;
-}
-
-/* Saved invoices -------------------------------------------------------- */
-
-.inv-saved {
-    margin-top: var(--space-8);
-}
-
-.inv-saved__empty {
-    font-size: 13px;
-    color: var(--text-tertiary);
-}
-
-.inv-saved__table td {
-    vertical-align: middle;
-    white-space: nowrap;
-}
-
-.inv-saved__actions {
-    display: flex;
-    gap: 6px;
-    justify-content: flex-end;
-}
-
-.inv-status-chip {
-    display: inline-block;
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 3px 10px;
-    border-radius: var(--radius-full);
-    border: 1px solid var(--border-muted);
+    overflow: auto;
+    max-height: 260px;
     color: var(--text-secondary);
-}
-
-.inv-status-chip[data-status='sent'] {
-    border-color: var(--border-gold-subtle);
-    color: var(--logo-gold-glint);
-}
-
-.inv-status-chip[data-status='paid'] {
-    border-color: var(--color-emerald);
-    color: var(--color-emerald);
-}
-
-/* Preview pane ---------------------------------------------------------- */
-
-.inv-preview {
-    position: sticky;
-    top: clamp(16px, 3vw, 32px);
-}
-
-@media (max-width: 1100px) {
-    .inv-layout {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-    .inv-preview {
-        position: static;
-    }
-
-    .inv-topbar__tag {
-        display: none;
-    }
-}
-}
-
-/* ── components/invoice-doc.css ──────────────────────────────── */
-@layer components {
-/* ==========================================================================
-   INVOICE DOCUMENT — the paper itself
-   Rendered gold-on-white on screen so the preview and the printed PDF are
-   the same artwork. Gold here is the dark end of the logo ramp: the light
-   specular tones vanish on white paper, the shadow tones hold.
-   ========================================================================== */
-
-.inv-doc {
-    --paper-ink: #1c1917;
-    --paper-muted: #57534e;
-    --paper-faint: #a8a29e;
-    --paper-gold: #72542b;
-    --paper-gold-soft: rgba(114, 84, 43, 0.28);
-    --paper-emerald: #047857;
-
-    background: #ffffff;
-    color: var(--paper-ink);
-    font-family: 'Outfit', -apple-system, sans-serif;
-    font-size: 12.5px;
-    line-height: 1.5;
-    border-radius: var(--radius-sm);
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
-    padding: clamp(24px, 3vw, 48px);
-    width: 100%;
-}
-
-/* Brand header ---------------------------------------------------------- */
-
-.inv-doc__brand {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding-bottom: 18px;
-    border-bottom: 3px solid var(--paper-gold);
-}
-
-.inv-doc__logo {
-    width: 64px;
-    height: 64px;
-    object-fit: contain;
-}
-
-.inv-doc__identity {
-    flex: 1;
-}
-
-.inv-doc__name {
-    font-family: 'Cinzel', serif;
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    color: var(--paper-gold);
-}
-
-.inv-doc__motto {
-    font-size: 9.5px;
-    font-weight: 600;
-    letter-spacing: 2.5px;
-    color: var(--paper-muted);
-    margin-top: 2px;
-}
-
-.inv-doc__contact {
-    font-style: normal;
-    font-size: 11px;
-    text-align: right;
-    color: var(--paper-muted);
-    line-height: 1.6;
-}
-
-/* Title + status -------------------------------------------------------- */
-
-.inv-doc__title-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-top: 22px;
-}
-
-.inv-doc__title {
-    font-family: 'Cinzel', serif;
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: var(--paper-ink);
-}
-
-.inv-doc__badge {
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 4px 14px;
-    border-radius: var(--radius-full);
-    border: 1.5px solid var(--paper-faint);
-    color: var(--paper-muted);
-}
-
-.inv-doc__badge[data-status='sent'] {
-    border-color: var(--paper-gold);
-    color: var(--paper-gold);
-}
-
-.inv-doc__badge[data-status='paid'] {
-    border-color: var(--paper-emerald);
-    color: var(--paper-emerald);
-}
-
-/* Bill-to + facts ------------------------------------------------------- */
-
-.inv-doc__meta {
-    display: flex;
-    justify-content: space-between;
-    gap: 24px;
-    margin-top: 18px;
-}
-
-.inv-doc__label {
-    font-size: 9.5px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--paper-gold);
-    margin-bottom: 4px;
-}
-
-.inv-doc__billto p {
-    color: var(--paper-muted);
-}
-
-.inv-doc__billto p:empty {
-    display: none;
-}
-
-.inv-doc__client-name {
-    font-weight: 700;
-    color: var(--paper-ink);
-}
-
-.inv-doc__facts {
-    min-width: 220px;
-}
-
-.inv-doc__facts div {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 3px 0;
-    border-bottom: 1px solid rgba(28, 25, 23, 0.08);
-}
-
-.inv-doc__facts dt {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--paper-muted);
-}
-
-.inv-doc__facts dd {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11.5px;
-    font-weight: 600;
-}
-
-/* Line items ------------------------------------------------------------ */
-
-.inv-doc__table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 22px;
-}
-
-.inv-doc__table th {
-    font-size: 9.5px;
-    font-weight: 800;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: #ffffff;
-    background: var(--paper-gold);
-    padding: 7px 10px;
-    text-align: left;
-}
-
-.inv-doc__table td {
-    padding: 8px 10px;
-    border-bottom: 1px solid rgba(28, 25, 23, 0.12);
-    vertical-align: top;
-}
-
-.inv-doc__col-num,
-.inv-doc__table td:nth-child(n + 2) {
-    text-align: right;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11.5px;
-    white-space: nowrap;
-}
-
-.inv-doc__table td:first-child {
-    text-align: left;
-    font-family: 'Outfit', sans-serif;
-    font-size: 12.5px;
-    white-space: normal;
-}
-
-.inv-doc__col-desc {
-    width: 44%;
-}
-
-.inv-doc__col-amt {
-    text-align: right;
-}
-
-/* Totals ---------------------------------------------------------------- */
-
-.inv-doc__totals {
-    margin-left: auto;
-    margin-top: 14px;
-    width: min(280px, 100%);
-}
-
-.inv-doc__totals > div {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 5px 10px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-}
-
-.inv-doc__totals > div > span:first-child {
-    font-family: 'Outfit', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--paper-muted);
-}
-
-.inv-doc__total-due {
-    border-top: 2px solid var(--paper-gold);
-    margin-top: 4px;
-    padding-top: 8px !important;
-}
-
-.inv-doc__total-due > span {
-    font-size: 15px !important;
-    font-weight: 800;
-    color: var(--paper-gold) !important;
-}
-
-/* Footer ---------------------------------------------------------------- */
-
-.inv-doc__foot {
-    margin-top: 26px;
-    padding-top: 16px;
-    border-top: 1px solid var(--paper-gold-soft);
-    display: grid;
-    gap: 14px;
-}
-
-.inv-doc__foot-block p {
-    font-size: 11px;
-    color: var(--paper-muted);
-}
-
-.inv-doc__foot-block[hidden] {
-    display: none;
-}
-
-.inv-doc__payment-block {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 16px;
-}
-
-.inv-doc__payment-text {
-    flex: 1;
-}
-
-.inv-doc__payment-qr {
-    width: 80px;
-    height: 80px;
-    object-fit: contain;
-    background: #fff;
-    border: 1px solid var(--paper-faint);
-    border-radius: 4px;
-}
-
-.inv-doc__link-wrap {
-    margin-top: 6px;
-}
-
-.inv-doc__payment-link {
-    color: var(--paper-gold);
-    font-weight: 600;
-    text-decoration: none;
-    border-bottom: 1px solid var(--paper-gold);
 }
 }
 
@@ -1071,64 +590,5 @@ body {
     clip-path: inset(50%);
     white-space: nowrap;
     border: 0;
-}
-}
-
-/* ── components/invoice-print.css ────────────────────────────── */
-@layer utilities {
-/* ==========================================================================
-   INVOICE PRINT RULES
-   Print keeps exactly one thing: the paper. Everything else on the page is
-   builder chrome. Sits in the utilities layer and last in the bundle so it
-   outranks every component rule without a specificity fight. Letter, not
-   A4 — the company is in Texas.
-   ========================================================================== */
-
-@media print {
-    @page {
-        size: letter;
-        margin: 0.5in;
-    }
-
-    html,
-    body.inv-body {
-        background: #ffffff !important;
-    }
-
-    .skip-link,
-    .inv-topbar,
-    .inv-builder {
-        display: none !important;
-    }
-
-    .inv-layout {
-        display: block;
-        padding: 0;
-        max-width: none;
-    }
-
-    .inv-preview {
-        position: static;
-    }
-
-    .inv-doc {
-        box-shadow: none;
-        border-radius: 0;
-        padding: 0;
-        font-size: 12px;
-    }
-
-    /* The gold header bar and rules are the brand — keep them on paper. */
-    .inv-doc,
-    .inv-doc * {
-        print-color-adjust: exact;
-        -webkit-print-color-adjust: exact;
-    }
-
-    .inv-doc__table tr,
-    .inv-doc__totals,
-    .inv-doc__foot-block {
-        break-inside: avoid;
-    }
 }
 }
