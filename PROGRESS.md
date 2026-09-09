@@ -121,6 +121,12 @@
 - [x] Form controllers now show a failure message instead of a fake success when delivery fails.
 - [x] Verified on preview and production: rows land in Supabase, DB trigger escalates emergency divisions.
 
+### Security hardening (2026-09-09)
+- [x] Staff MFA (TOTP) enrolled at Portal → Security, challenged at sign-in, and enforced by `is_staff()` in the database (migration `20260910000008`; proved in `tests/db/rls.test.ts`).
+- [x] Login rate limiting per address and per email through the shared `intake_gate` function.
+- [x] Session lifetime policy in the proxy: 8 h idle, 72 h absolute, with a plain reason on the login page.
+- [x] Nonce-based Content Security Policy (`strict-dynamic`, no unsafe script sources, `frame-ancestors 'none'`) and HSTS.
+
 ### Phase 1: Lead to cash — the operations platform (2026-09-09)
 - [x] **Data model** — seven additive migrations (`20260910000001` … `07`): `profiles` with roles, `clients`, `sites`, `quotes`, `proposals`, `jobs`, `shifts`, `officers` + `shift_assignments` (Phase 2 seams), reshaped `invoices` (cents columns, generated dollar columns, sequence-minted numbers, pay tokens), `payments`, `stripe_events`, `reviews`, append-only `notifications`, `settings`, SMS consent columns, `sms_opt_outs`. Every table has RLS; cross-table policies go through SECURITY DEFINER helpers so the policy graph is acyclic. Applied to the hosted project with versions aligned to filenames.
 - [x] **Auth** — Supabase Auth; owner/staff by password, clients and officers by magic link minted server-side and emailed through Resend (branded, deliverable to anyone once the sender is verified). Roles enforced in RLS: `tests/db/rls.test.ts` proves a client cannot read another client's invoice, drafts are invisible, an officer sees only assigned shifts, anon sees nothing.

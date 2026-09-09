@@ -190,6 +190,8 @@ returns `{"ok":true,"report":{…}}`. Without the header: 401.
 
 ## 6. Accounts
 
+Command staff must enroll an authenticator app (TOTP) on first sign-in; the database refuses staff data to a password-only session once a factor exists. Sign-in attempts are limited (10 per address, 5 per email, per 15 minutes). Sessions end after 8 hours idle or 72 hours total. A nonce-based Content Security Policy and HSTS are set by the proxy and `next.config.ts`.
+
 - **Owner (Sean)** exists: `seancope357@gmail.com`, role `owner`. The initial password is
   in `~/.fused-portal-owner-initial-password` on the build Mac (mode 600); change it at
   Portal → Settings → *Change my password*, then delete the file.

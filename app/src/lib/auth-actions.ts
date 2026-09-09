@@ -7,6 +7,8 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { sendEmail, publicSender } from '@/lib/transports';
 import { appUrl, site } from '@/lib/shared';
 import { logNotification } from '@/lib/notifications/log';
+import { loginAllowed } from '@/lib/security/login-gate';
+import { requestIp } from '@/lib/http';
 
 export type AuthState = { error?: string; message?: string };
 
@@ -22,11 +24,19 @@ export async function signInWithPassword(_prev: AuthState, formData: FormData): 
         password: formData.get('password')
     });
     if (!parsed.success) return { error: 'Enter your email and password.' };
+    if (!(await loginAllowed(await requestIp(), parsed.data.email))) {
+        return { error: 'Too many sign-in attempts. Wait 15 minutes and try again.' };
+    }
 
     const supabase = await createSupabaseServerClient();
     const { error } = await supabase.auth.signInWithPassword(parsed.data);
     if (error) return { error: 'That email and password do not match.' };
-    redirect(safeNext(formData.get('next')));
+    /* Staff with an authenticator go to the challenge; the proxy enforces the
+       rest, this only makes the first hop direct. */
+    const { data: factors } = await supabase.auth.mfa.listFactors();
+    const next = safeNext(formData.get('next'));
+    if (factors?.totp?.some((f) => f.status === 'verified')) redirect(`/login/mfa?next=${encodeURIComponent(next)}`);
+    redirect(next);
 }
 
 /**
@@ -38,6 +48,7 @@ export async function requestMagicLink(_prev: AuthState, formData: FormData): Pr
     const parsed = z.object({ email: z.email() }).safeParse({ email: String(formData.get('email') || '').trim().toLowerCase() });
     const generic = { message: 'If that address has portal access, a sign-in link is on its way. It expires in one hour.' };
     if (!parsed.success) return { error: 'Enter a valid email address.' };
+    if (!(await loginAllowed(await requestIp(), parsed.data.email))) return { error: 'Too many requests. Wait 15 minutes and try again.' };
 
     const from = publicSender();
     if (!from) {

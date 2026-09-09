@@ -51,3 +51,20 @@ GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO anon, authenticated, service_role
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO anon, authenticated, service_role;
+
+-- MFA factors, as far as the policies read them.
+CREATE TABLE IF NOT EXISTS auth.mfa_factors (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES auth.users (id) ON DELETE CASCADE,
+    status TEXT NOT NULL DEFAULT 'unverified',
+    factor_type TEXT NOT NULL DEFAULT 'totp'
+);
+
+-- auth.jwt() as PostgREST provides it: the claims JSON from the request setting.
+CREATE OR REPLACE FUNCTION auth.jwt()
+RETURNS JSONB
+LANGUAGE sql
+STABLE
+AS $$
+    SELECT COALESCE(NULLIF(current_setting('request.jwt.claims', true), '')::jsonb, '{}'::jsonb);
+$$;

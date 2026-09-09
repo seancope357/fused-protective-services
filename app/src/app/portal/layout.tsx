@@ -18,7 +18,8 @@ export default async function PortalLayout({ children }: { children: React.React
         { href: '/portal/clients', label: 'Clients & sites' },
         { href: '/portal/reviews', label: 'Reviews' },
         { href: '/portal/notifications', label: 'Message log' },
-        { href: '/portal/settings', label: 'Settings' }
+        { href: '/portal/settings', label: 'Settings' },
+        { href: '/portal/security', label: 'Security' }
     ];
     return (
         <Shell session={session} items={items} area="Command">

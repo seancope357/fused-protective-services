@@ -4,7 +4,7 @@ import { LoginForms } from './forms';
 
 export const metadata: Metadata = { title: 'Sign in' };
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; unscoped?: string }> }) {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; unscoped?: string; reason?: string; error?: string }> }) {
     const params = await searchParams;
     const next = params.next && params.next.startsWith('/') ? params.next : '/';
     return (
@@ -17,6 +17,9 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
                         <div className="shell__brand-sub">Operations Portal</div>
                     </div>
                 </div>
+                {params.reason === 'idle_expired' ? <p className="alert alert--warn">You were signed out after 8 hours of inactivity. Sign in again.</p> : null}
+                {params.reason === 'absolute_expired' ? <p className="alert alert--warn">Sessions last 72 hours at most. Sign in again.</p> : null}
+                {params.error === 'expired_link' ? <p className="alert alert--warn">That sign-in link has expired or was already used. Request a new one.</p> : null}
                 {params.unscoped ? (
                     <p className="alert alert--warn">Your account is not linked to a client yet. Contact dispatch at {site.phone.display}.</p>
                 ) : null}
