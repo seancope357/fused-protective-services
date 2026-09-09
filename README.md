@@ -92,7 +92,7 @@ Drag and drop the `/Users/cope/projects/fused-protective-services` directory int
 
 ## 📧 Lead delivery
 
-Both forms post to `/api/intake` (`api/intake.js`, a zero-dependency Vercel
+Both forms post to `/api/intake` (`api/intake.mjs`, a zero-dependency Vercel
 function): persist to Supabase → email and emergency SMS to dispatch → confirmation
 email to the visitor → optional webhook. Every stage is reported; nothing fakes
 success. Setup order and verification: [`docs/RUNBOOK.md`](docs/RUNBOOK.md).

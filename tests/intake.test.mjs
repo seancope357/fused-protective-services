@@ -4,7 +4,7 @@
 
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import handler from '../api/intake.js';
+import handler from '../api/intake.mjs';
 import { makeReq, makeRes, stubFetch, withEnv } from './helpers/http.mjs';
 
 const CLEAR = {

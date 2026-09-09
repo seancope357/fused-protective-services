@@ -1,6 +1,6 @@
 -- ==============================================================================
 -- Intake abuse controls: shared per-IP rate limit and duplicate suppression.
--- Called by api/intake.js through PostgREST with the service role; never by a
+-- Called by api/intake.mjs through PostgREST with the service role; never by a
 -- browser. Only hashes are stored — no raw addresses, no payloads.
 -- ==============================================================================
 

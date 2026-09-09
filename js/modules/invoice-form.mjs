@@ -248,7 +248,7 @@ export function initInvoiceBuilder() {
     }
 
     /* A payment link is shown only when one was minted server-side for an
-       invoice that exists in the database (see api/stripe-checkout.js). This
+       invoice that exists in the database (see api/stripe-checkout.mjs). This
        browser-only builder cannot create one; the operations portal does. The
        QR image is never fetched from a third party. */
     function showPaymentLink(url) {

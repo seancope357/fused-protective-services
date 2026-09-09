@@ -16,7 +16,7 @@
 | **Careers & Recruiting Portal** | 🟢 **Production Ready** | `/careers` live with filterable jobs, 5-stage vetting, & pre-qual. |
 | **Context Engineering** | 🟢 **Complete (7 Modules)** | Modular domain documentation live in [`context/`](file:///Users/cope/projects/fused-protective-services/context/index.md). |
 | **Lead Persistence** | 🟢 **Live (hosted Supabase)** | `/api/intake` on production writes to the hosted `fused-protective-services` Supabase project; verified end to end 2026-09-08. |
-| **Dispatch Alerts** | 🟡 **Code shipped, Resend not installed** | Owner email, emergency SMS, and visitor confirmation are all wired in `api/intake.js`; `RESEND_API_KEY` and the Twilio variables are absent. Steps in `docs/RUNBOOK.md`. Until then leads persist and nobody is notified. |
+| **Dispatch Alerts** | 🟡 **Code shipped, Resend not installed** | Owner email, emergency SMS, and visitor confirmation are all wired in `api/intake.mjs`; `RESEND_API_KEY` and the Twilio variables are absent. Steps in `docs/RUNBOOK.md`. Until then leads persist and nobody is notified. |
 | **Intake Abuse Controls** | 🟢 **Live** | Same-origin CORS, honeypot, per-IP rate limit and duplicate window (`public.intake_gate`). |
 | **Stripe Checkout** | 🟢 **Honest** | Amount read from the stored invoice by id; 503 without a key. No mock links anywhere. |
 | **Phone Line** | 🔴 **Placeholder, flagged** | `(512) 555-0199` still ships; flagged in red on every non-production host and on every build. `docs/OPEN_QUESTIONS.md` §1. |
@@ -90,7 +90,7 @@
 - [x] Created automated PostgreSQL threat triage triggers (`trg_triage_quote`) escalating `priority` to `'emergency'` for rapid dispatch and Level IV PPO requests.
 - [x] Implemented Row Level Security (RLS) policies allowing public anon insertion while securing all read/update access.
 - [x] Created Supabase Deno Edge Function [`supabase/functions/intake-dispatcher/index.ts`](file:///Users/cope/projects/fused-protective-services/supabase/functions/intake-dispatcher/index.ts).
-- [x] Created zero-dependency Vercel Serverless Function [`api/intake.js`](file:///Users/cope/projects/fused-protective-services/api/intake.js) for instant production deployment.
+- [x] Created zero-dependency Vercel Serverless Function [`api/intake.mjs`](file:///Users/cope/projects/fused-protective-services/api/intake.mjs) for instant production deployment.
 - [x] Updated local preview engine ([`serve.py`](file:///Users/cope/projects/fused-protective-services/serve.py)) with `/api/intake` routing and direct persistence to local PostgreSQL (`fused_protective_services`).
 - [x] Wired client controllers ([`quote-form.mjs`](file:///Users/cope/projects/fused-protective-services/js/modules/quote-form.mjs) and [`careers.mjs`](file:///Users/cope/projects/fused-protective-services/js/modules/careers.mjs)) to `/api/intake` with local offline resilience.
 - [x] Completed full automated browser submission validation and verified row insertions in PostgreSQL.
@@ -112,7 +112,7 @@
 ### Phase 11: Hosted Backend & Real Lead Delivery (2026-09-08)
 - [x] Provisioned the hosted Supabase project through the Vercel Marketplace; env vars auto-injected into all Vercel environments.
 - [x] Applied the core schema and a `search_path` hardening migration; migration history aligned to the committed file names.
-- [x] Rewrote `api/intake.js` as a three-stage delivery chain (persist → Resend email → webhook) that reports per-stage success and returns 503 when nothing was delivered.
+- [x] Rewrote `api/intake.mjs` as a three-stage delivery chain (persist → Resend email → webhook) that reports per-stage success and returns 503 when nothing was delivered.
 - [x] Server-generated collision-safe reference codes; user text escaped in alert emails.
 - [x] Form controllers now show a failure message instead of a fake success when delivery fails.
 - [x] Verified on preview and production: rows land in Supabase, DB trigger escalates emergency divisions.

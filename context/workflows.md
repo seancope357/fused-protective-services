@@ -58,7 +58,7 @@ Submissions from the Security Detail Quote form (`#securityQuoteForm`) and Candi
          ▼
 [Ingestion Layer]
   • Local: serve.py Handler (persists directly to PostgreSQL `fused_protective_services`)
-  • Production: api/intake.js (Vercel Function, zero dependencies)
+  • Production: api/intake.mjs (Vercel Function, zero dependencies)
          │
          ├── 0. Gate     → same-origin CORS · honeypot (`website` field) · per-IP limit
          │                 (5 / 10 min) · duplicate window (15 min) via `public.intake_gate`
@@ -99,7 +99,7 @@ Both `js/modules/quote-form.mjs` and `js/modules/careers.mjs` still write the pa
 ## 🗄️ Supabase Backend & Database Architecture
 
 * **PostgreSQL Schema Location:** [`supabase/migrations/`](file:///Users/cope/projects/fused-protective-services/supabase/migrations/) — `20260904000000_fused_core_schema.sql`, `20260908000000_harden_function_search_path.sql`, `20260909000000_intake_gate.sql`
-* **Vercel Serverless Functions:** [`api/intake.js`](file:///Users/cope/projects/fused-protective-services/api/intake.js), [`api/stripe-checkout.js`](file:///Users/cope/projects/fused-protective-services/api/stripe-checkout.js), shared code in `api/_lib/`
+* **Vercel Serverless Functions:** [`api/intake.mjs`](file:///Users/cope/projects/fused-protective-services/api/intake.mjs), [`api/stripe-checkout.mjs`](file:///Users/cope/projects/fused-protective-services/api/stripe-checkout.mjs), shared code in `api/_lib/`
 
 ### Relational Tables & Triage Triggers
 

@@ -5,7 +5,7 @@
 
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import handler, { toCents } from '../api/stripe-checkout.js';
+import handler, { toCents } from '../api/stripe-checkout.mjs';
 import { makeReq, makeRes, stubFetch, withEnv } from './helpers/http.mjs';
 
 const INVOICE_ID = '11111111-2222-4333-8444-555555555555';
