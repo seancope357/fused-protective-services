@@ -142,3 +142,38 @@ d('RLS isolation', () => {
         }
     });
 });
+
+const d2 = url ? describe : describe.skip;
+d2('MFA enforced in the database', () => {
+    let pool: Pool;
+    const STAFF = '66666666-0000-4000-8000-000000000006';
+    beforeAll(async () => {
+        pool = new Pool({ connectionString: url });
+        await pool.query(`DELETE FROM auth.users WHERE id = $1`, [STAFF]);
+        await pool.query(`INSERT INTO auth.users (id, email, raw_user_meta_data) VALUES ($1, 'staff-mfa@example.com', '{"role":"staff"}')`, [STAFF]);
+    });
+    afterAll(async () => { await pool?.end(); });
+
+    async function count(aal: string | null) {
+        const c = await pool.connect();
+        try {
+            await c.query('BEGIN');
+            await c.query('SET LOCAL ROLE authenticated');
+            await c.query(`SELECT set_config('request.jwt.claim.sub', $1, true)`, [STAFF]);
+            if (aal) await c.query(`SELECT set_config('request.jwt.claims', $1, true)`, [JSON.stringify({ sub: STAFF, aal })]);
+            const r = await c.query('SELECT count(*)::int AS n FROM public.clients');
+            return r.rows[0].n as number;
+        } finally {
+            await c.query('ROLLBACK').catch(() => {});
+            c.release();
+        }
+    }
+
+    it('staff without a factor sees rows at aal1; with a verified factor only at aal2', async () => {
+        expect(await count('aal1')).toBeGreaterThan(0);
+        await pool.query(`INSERT INTO auth.mfa_factors (user_id, status) VALUES ($1, 'verified')`, [STAFF]);
+        expect(await count('aal1')).toBe(0);
+        expect(await count(null)).toBe(0);
+        expect(await count('aal2')).toBeGreaterThan(0);
+    });
+});
