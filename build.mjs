@@ -6,14 +6,28 @@
    There is no package.json, no lockfile, and nothing to install or keep
    current — the site still deploys by dragging the directory at a host.
 
-     node build.mjs           write index.html + css/site.css and
-                              invoice.html + css/invoice.css
+     node build.mjs           write index.html + css/site.css,
+                              invoice.html + css/invoice.css, and careers.html
      node build.mjs --check   verify the committed output matches src/,
                               exit 1 if it drifted (for CI or a pre-push hook)
+     node build.mjs --strict  as above, but ALSO exit 1 while any placeholder
+                              value remains in src/data/site.mjs (combines
+                              with --check; use it in the deploy pipeline)
 
    Both artefacts are generated AND committed. Committing them keeps the
    drag-and-drop deploy honest; --check is what stops a hand-edit of a
    generated file from silently surviving.
+
+   Placeholders. site.mjs exports `placeholders()`, an audit of values that
+   are still stand-ins: today the 555 dispatch number and the missing Texas
+   DPS license number. After every successful build or check this script
+   prints a warning block naming each one, the file:line to edit, and what
+   it costs while it ships (a 555 number means every tel: link on the site
+   dials a dead line). The warning alone never fails the build, because a
+   contributor should still be able to build the site; `--strict` is what
+   turns it into a refusal, so a deploy job that runs
+   `node build.mjs --check --strict` cannot publish the placeholder by
+   accident. Both are documented for Cameron next to the values themselves.
    ========================================================================== */
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -23,6 +37,7 @@ import { dirname, join } from 'node:path';
 import { page } from './src/templates/page.mjs';
 import { invoicePage } from './src/templates/invoice/page.mjs';
 import { careersPage } from './src/templates/careers/page.mjs';
+import { placeholders } from './src/data/site.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const STYLES = join(ROOT, 'src', 'styles');
@@ -131,6 +146,90 @@ function check() {
     console.log('\nGenerated output is up to date.');
 }
 
+/* ---------------------------------------------------------------------------
+   PLACEHOLDER REPORT
+   Runs after a build or check has succeeded, never instead of one: the point
+   is that the site builds fine and is still not fit to publish. The line
+   number is found by searching the data file for the entry's `anchor` text
+   rather than being hard-coded in site.mjs, so it stays right as that file
+   is edited above the definition.
+   --------------------------------------------------------------------------- */
+
+/* Folds `text` under `label` with a hanging indent, no line wider than
+   `width`, so a two-sentence consequence reads as a paragraph in a terminal
+   and its label lines up with the `value:` and `edit:` rows above it. */
+function wrap(label, text, indent, width = 78) {
+    const hang = ' '.repeat(label.length);
+    const lines = [];
+    let line = '';
+    for (const word of text.split(/\s+/)) {
+        const prefix = indent + (lines.length ? hang : label);
+        if (line && (prefix + line + ' ' + word).length > width) {
+            lines.push(prefix + line);
+            line = word;
+        } else {
+            line = line ? `${line} ${word}` : word;
+        }
+    }
+    if (line) lines.push(indent + (lines.length ? hang : label) + line);
+    return lines.join('\n');
+}
+
+function locate(file, anchor) {
+    try {
+        const lines = readFileSync(join(ROOT, file), 'utf8').split('\n');
+        const index = lines.findIndex((l) => l.includes(anchor));
+        return index === -1 ? file : `${file}:${index + 1}`;
+    } catch {
+        return file;
+    }
+}
+
+function reportPlaceholders(strict) {
+    const unresolved = placeholders();
+
+    if (unresolved.length === 0) {
+        if (strict) console.log('\n--strict: no placeholder values remain in src/data/site.mjs.');
+        return;
+    }
+
+    const rule = '='.repeat(78);
+    const noun = unresolved.length === 1 ? 'PLACEHOLDER VALUE IS' : 'PLACEHOLDER VALUES ARE';
+    const out = [
+        '',
+        rule,
+        `  WARNING: ${unresolved.length} ${noun} STILL IN THE GENERATED SITE`,
+        rule
+    ];
+
+    unresolved.forEach((item, i) => {
+        out.push(
+            '',
+            `  ${i + 1}. ${item.label}`,
+            `     value:        ${item.value}`,
+            `     edit:         ${locate(item.file, item.anchor)}`,
+            /* The consequence is a sentence or two; fold it under its label. */
+            wrap('consequence:  ', item.consequence, '     ')
+        );
+    });
+
+    out.push(
+        '',
+        '  The site built, but it is not ready to publish. Fix the values above in',
+        '  src/data/site.mjs, rebuild, and commit the regenerated output.',
+        strict
+            ? '  --strict is set: exiting 1 so this build cannot be deployed as it stands.'
+            : '  Run `node build.mjs --strict` to make this a hard failure in a deploy job.',
+        rule,
+        ''
+    );
+
+    console.error(out.join('\n'));
+    if (strict) process.exit(1);
+}
+
+const strict = process.argv.includes('--strict');
+
 if (process.argv.includes('--check')) {
     console.log('Checking generated output...');
     check();
@@ -139,3 +238,7 @@ if (process.argv.includes('--check')) {
     write();
     console.log('\nDone. Preview with: python3 serve.py');
 }
+
+/* Only reached when the build or check above succeeded: check() has already
+   exited 1 on drift, and a template error has already thrown. */
+reportPlaceholders(strict);

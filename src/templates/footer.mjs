@@ -33,6 +33,15 @@ export const footer = (isCareers = false) => html`
                 ${site.areaServed.map((a) => (a.type === 'State' ? `Statewide ${a.name}` : a.name)).join(' \u2022 ')}
             </p>
 
+            ${/* Occupations Code 1702 requires the DPS license number in
+                  advertising. The line renders only once Cameron has set
+                  `licenseNumber` in site.mjs: printing a stand-in on a live
+                  security site would be worse than printing nothing, so
+                  `html` drops the null and the paragraph does not exist. */
+            site.licenseNumber !== null
+                ? html`<p class="footer-disclaimer footer-license">Texas DPS Private Security Bureau License No. ${site.licenseNumber}</p>`
+                : null}
+
             <p class="footer-disclaimer">
                 ${site.name} is a licensed and insured private security company operating in full compliance with the Texas Department of Public Safety Private Security Bureau (PSB). All rights reserved.
             </p>

@@ -11,6 +11,35 @@ import { site } from '../data/site.mjs';
 import { divisions } from '../data/divisions.mjs';
 import { faqs } from '../data/faq.mjs';
 
+/* Both of these are spread into the organization record below, and each is
+   `false` until its data is real, so a missing value leaves no key behind:
+   JSON.stringify never sees an `undefined` and the JSON-LD stays valid.
+
+   A rating is only claimed when reviews exist. `site.rating` is null today
+   (see site.mjs for the review-snippet policy reasoning), and the count check
+   means an empty review table can never publish a rating of nothing. */
+const aggregateRating = () =>
+    Boolean(site.rating) &&
+    Number(site.rating.count) > 0 && {
+        aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: site.rating.value,
+            reviewCount: site.rating.count,
+            bestRating: site.rating.best
+        }
+    };
+
+/* Occupations Code 1702 wants the DPS license number in advertising; when
+   Cameron supplies it in site.mjs it appears here as well as in the footer. */
+const licenseIdentifier = () =>
+    site.licenseNumber !== null && {
+        identifier: {
+            '@type': 'PropertyValue',
+            propertyID: 'Texas DPS Private Security Bureau License',
+            value: site.licenseNumber
+        }
+    };
+
 const structuredData = () => ({
     '@context': 'https://schema.org',
     '@graph': [
@@ -24,6 +53,7 @@ const structuredData = () => ({
             description: site.seo.organizationDescription,
             telephone: site.phone.e164,
             email: site.email,
+            ...licenseIdentifier(),
             priceRange: '$$$',
             address: {
                 '@type': 'PostalAddress',
@@ -49,12 +79,7 @@ const structuredData = () => ({
                     }
                 }))
             },
-            aggregateRating: {
-                '@type': 'AggregateRating',
-                ratingValue: site.rating.value,
-                reviewCount: site.rating.count,
-                bestRating: site.rating.best
-            }
+            ...aggregateRating()
         },
         {
             '@type': 'FAQPage',
