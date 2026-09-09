@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import '../../shared/src/styles/tokens.css';
 import '@/styles/app.css';
-import { site } from '@/lib/shared';
+import { site, logoSrc } from '@/lib/shared';
 
 export const metadata: Metadata = {
     title: { default: `${site.shortName} Portal`, template: `%s — ${site.shortName} Portal` },
     description: `${site.name} operations platform.`,
     robots: { index: false, follow: false },
-    icons: { icon: `${site.url}/${site.logo}` }
+    icons: { icon: logoSrc }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

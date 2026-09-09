@@ -4,13 +4,11 @@ Every item here is a business fact the code cannot invent, or an account only a 
 can open. Each names the file or setting and what happens if it is left alone.
 Placeholders are flagged in red on every non-production host so none can ship quietly.
 
-## 1. Dispatch phone number
+## 1. Dispatch phone number — resolved 2026-09-09
 
-- **TODO(cameron):** the real 24/7 dispatch line.
-- **File:** `src/data/site.mjs` → `phone.display`, `phone.e164`, set `placeholder: false`.
-- **Renders in:** nav, drawer, dispatch bar, footer, schema.org, every email and SMS the
-  platform sends, every proposal and invoice document.
-- **If left:** every call button dials `(512) 555-0199`, a number reserved for fiction.
+`(512) 555-0199` confirmed by Sean as the dispatch line; `placeholder` is now false in
+`src/data/site.mjs`. Note: 555-01xx is the block reserved for fiction in the North
+American numbering plan; if the line does not ring, edit `display` and `e164` there.
 
 ## 2. Texas DPS Private Security licence number
 

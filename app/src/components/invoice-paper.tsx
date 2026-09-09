@@ -1,4 +1,4 @@
-import { site, invoiceDefaults } from '@/lib/shared';
+import { site, invoiceDefaults, logoSrc } from '@/lib/shared';
 import { formatMoney } from '@/lib/money';
 import { fmtDateOnly } from '@/lib/format';
 import type { Invoice } from '@/lib/db/types';
@@ -10,7 +10,7 @@ export function InvoicePaper({ invoice, payUrl, qrSvg }: { invoice: Invoice; pay
         <article className="paper" aria-label={`Invoice ${invoice.invoice_number}`}>
             <header className="paper__brand">
                 <div className="row" style={{ gap: 12 }}>
-                    <img src={`${site.url}/${site.logo}`} alt="" width={56} height={56} />
+                    <img src={logoSrc} alt="" width={56} height={56} />
                     <div><div className="paper__name">{site.name}</div><div className="paper__motto">{site.motto}</div></div>
                 </div>
                 <address className="paper__contact" style={{ fontStyle: 'normal' }}>

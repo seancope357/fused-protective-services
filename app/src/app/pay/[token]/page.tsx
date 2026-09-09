@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { InvoicePaper } from '@/components/invoice-paper';
 import { PayPanel } from '@/components/pay-panel';
 import { PrintButton } from '@/components/print-button';
-import { appUrl, site } from '@/lib/shared';
+import { appUrl, site, logoSrc } from '@/lib/shared';
 import { qrSvg } from '@/lib/qr';
 import type { Invoice, Payment } from '@/lib/db/types';
 
@@ -31,7 +31,7 @@ export default async function PayPage({ params, searchParams }: { params: Promis
             <a href="#main" className="skip-link">Skip to content</a>
             <header className="row row--between mb-4 no-print">
                 <div className="row" style={{ gap: 10 }}>
-                    <img src={`${site.url}/${site.logo}`} alt="" width={36} height={36} style={{ borderRadius: 8 }} />
+                    <img src={logoSrc} alt="" width={36} height={36} style={{ borderRadius: 8 }} />
                     <div><div className="shell__brand-title">{site.shortName}</div><div className="shell__brand-sub">Invoice {invoice.invoice_number}</div></div>
                 </div>
                 <div className="row"><PrintButton /><a className="btn btn--ghost" href="/login">Client portal</a></div>

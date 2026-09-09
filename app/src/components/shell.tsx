@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { site } from '@/lib/shared';
+import { site, logoSrc } from '@/lib/shared';
 import type { Session } from '@/lib/auth';
 
 export type NavItem = { href: string; label: string; count?: number };
@@ -10,7 +10,7 @@ export function Shell({ session, items, area, children }: { session: Session; it
             <a href="#main" className="skip-link">Skip to content</a>
             <nav className="shell__nav no-print" aria-label={`${area} navigation`}>
                 <Link href={items[0]?.href ?? '/'} className="shell__brand">
-                    <img src={`${site.url}/${site.logo}`} alt="" width={36} height={36} />
+                    <img src={logoSrc} alt="" width={36} height={36} />
                     <div>
                         <div className="shell__brand-title">{site.shortName}</div>
                         <div className="shell__brand-sub">{area}</div>

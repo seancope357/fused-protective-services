@@ -21,6 +21,8 @@ const sources = [
     ['src/styles/tokens.css', 'src/styles/tokens.css'],
     ['api/_lib', 'api/_lib']
 ];
+/* Brand plate: served from this app's own origin so it renders before DNS exists. */
+const LOGO = ['assets/logo.png', 'public/logo.png'];
 
 for (const [from] of sources) {
     if (!existsSync(join(repo, from))) {
@@ -33,4 +35,6 @@ for (const [from, to] of sources) {
     mkdirSync(dirname(join(out, to)), { recursive: true });
     cpSync(join(repo, from), join(out, to), { recursive: true });
 }
+mkdirSync(join(app, 'public'), { recursive: true });
+cpSync(join(repo, LOGO[0]), join(app, LOGO[1]));
 console.log(`sync-shared: mirrored ${sources.length} sources into app/shared/`);

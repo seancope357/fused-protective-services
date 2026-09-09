@@ -5,7 +5,7 @@ import { StatusFromSearch, type SearchStatus } from '@/components/status-from-se
 import { Field } from '@/components/ui';
 import { submitReview } from '@/lib/actions/reviews';
 import { fmtDateOnly } from '@/lib/format';
-import { site } from '@/lib/shared';
+import { site, logoSrc } from '@/lib/shared';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Leave a review' };
@@ -22,7 +22,7 @@ export default async function ReviewPage({ params, searchParams }: { params: Pro
         <div className="auth-shell">
             <div className="card card--gold stack" style={{ width: 'min(560px, 100%)' }}>
                 <div className="row" style={{ gap: 10 }}>
-                    <img src={`${site.url}/${site.logo}`} alt="" width={40} height={40} style={{ borderRadius: 8 }} />
+                    <img src={logoSrc} alt="" width={40} height={40} style={{ borderRadius: 8 }} />
                     <div><div className="shell__brand-title">{site.shortName}</div><div className="shell__brand-sub">How did we do?</div></div>
                 </div>
                 <p>{job?.title} · {fmtDateOnly(job?.starts_at.slice(0, 10))} · {client?.name}</p>

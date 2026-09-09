@@ -69,5 +69,8 @@ export const armedLevels: { id: 'level-2' | 'level-3' | 'level-4' | 'mixed'; lab
 
 export const netTermById = (id: string | null | undefined): NetTerm => netTerms.find((t) => t.id === id) ?? defaultNetTerm;
 
+/** The brand plate, served by this app (mirrored from assets/logo.png by scripts/sync-shared.mjs). */
+export const logoSrc = '/logo.png';
+
 /** Absolute URL of this app, for links in email and SMS. */
 export const appUrl = (): string => (process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')).replace(/\/$/, '');

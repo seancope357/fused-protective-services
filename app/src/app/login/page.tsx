@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { site } from '@/lib/shared';
+import { site, logoSrc } from '@/lib/shared';
 import { LoginForms } from './forms';
 
 export const metadata: Metadata = { title: 'Sign in' };
@@ -11,7 +11,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <div className="auth-shell">
             <div className="card card--gold auth-card stack">
                 <div className="row" style={{ gap: 12 }}>
-                    <img src={`${site.url}/${site.logo}`} alt="" width={44} height={44} style={{ borderRadius: 8 }} />
+                    <img src={logoSrc} alt="" width={44} height={44} style={{ borderRadius: 8 }} />
                     <div>
                         <div className="shell__brand-title">{site.shortName}</div>
                         <div className="shell__brand-sub">Operations Portal</div>

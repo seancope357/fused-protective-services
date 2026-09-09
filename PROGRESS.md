@@ -23,7 +23,7 @@
 | **Dispatch Alerts** | 🟡 **Code shipped, Resend not installed** | Owner email, emergency SMS, and visitor confirmation are all wired in `api/intake.mjs`; `RESEND_API_KEY` and the Twilio variables are absent. Steps in `docs/RUNBOOK.md`. Until then leads persist and nobody is notified. |
 | **Intake Abuse Controls** | 🟢 **Live** | Same-origin CORS, honeypot, per-IP rate limit and duplicate window (`public.intake_gate`). |
 | **Stripe Checkout** | 🟢 **Honest** | Amount read from the stored invoice by id; 503 without a key. No mock links anywhere. |
-| **Phone Line** | 🔴 **Placeholder, flagged** | `(512) 555-0199` still ships; flagged in red on every non-production host and on every build. `docs/OPEN_QUESTIONS.md` §1. |
+| **Phone Line** | 🟢 **Confirmed** | `(512) 555-0199` confirmed by Sean 2026-09-09; placeholder flag cleared. |
 | **DPS Licence Number** | 🔴 **Placeholder, flagged** | Footer and schema carry `B00000` until Cameron supplies the number. `docs/OPEN_QUESTIONS.md` §2. |
 | **Review Markup** | 🟢 **Removed** | No rating is claimed. `src/data/reviews.mjs` re-enables it only from real reviews. |
 | **CI** | 🟢 **GitHub Actions** | `node build.mjs --check` and `node --test` on every push and PR. |

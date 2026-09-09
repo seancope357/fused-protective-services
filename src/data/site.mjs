@@ -9,16 +9,14 @@
    Both now derive from `phone` below, so the number a visitor reads is the
    number their handset dials.
 
-   TODO(cameron): 555-0199 sits in the block reserved for fiction, so it is a
-   stand-in, not a line that rings. Replace `display` and `e164` with the real
-   dispatch line and set `placeholder` to false. While `placeholder` is true,
-   every build prints a warning and every non-production host shows a visible
-   PLACEHOLDER flag next to the number (see src/templates/partials.mjs and
-   js/modules/env.mjs), so it cannot ship unnoticed again. */
+   Confirmed as the dispatch line by Sean on 2026-09-09. If it ever changes,
+   edit `display` and `e164` here; nothing else needs to move. Setting
+   `placeholder` back to true re-enables the build warning and the red flag on
+   non-production hosts (see src/templates/partials.mjs and js/modules/env.mjs). */
 const phone = {
     display: '(512) 555-0199',
     e164: '+15125550199',
-    placeholder: true
+    placeholder: false
 };
 
 /* TODO(cameron): Texas Occupations Code §1702.284 requires a licensed security

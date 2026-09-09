@@ -1,4 +1,4 @@
-import { site, divisionByQuoteValue, armedLevels } from '@/lib/shared';
+import { site, divisionByQuoteValue, armedLevels, logoSrc } from '@/lib/shared';
 import { formatMoney } from '@/lib/money';
 import { fmtDateOnly, fmtDateTime } from '@/lib/format';
 import type { Client, Proposal, Quote } from '@/lib/db/types';
@@ -12,7 +12,7 @@ export function ProposalPaper({ proposal, quote, client, signature }: { proposal
         <article className="paper" aria-label={`Proposal ${quote.quote_number}`}>
             <header className="paper__brand">
                 <div className="row" style={{ gap: 12 }}>
-                    <img src={`${site.url}/${site.logo}`} alt="" width={56} height={56} />
+                    <img src={logoSrc} alt="" width={56} height={56} />
                     <div>
                         <div className="paper__name">{site.name}</div>
                         <div className="paper__motto">{site.motto}</div>
