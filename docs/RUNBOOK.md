@@ -20,7 +20,7 @@ Only the portal needs Stripe webhook and cron secrets.
 
 1. **Supabase** — provisioned (`zphyvnouierjwjqjvahs`, via Vercel Marketplace). All ten
    migrations are applied. Apply any new migration before deploying code that needs it.
-2. **Portal project** — created and deployed (§5). Two dashboard settings remain (§5b).
+2. **Portal project** — created, Git-connected, deploys on push (§5).
 3. **Owner account** — created for Sean (§6). Create Cameron's from Settings once signed in.
 4. **Resend** — verify the domain, install, set `DISPATCH_ALERT_FROM`. Until this is done
    nobody but the Resend account owner receives email, and client magic links cannot be
@@ -169,15 +169,12 @@ vercel deploy --prebuilt --prod --yes
 `api/_lib` into `app/shared/` (gitignored) so the portal reads the same business facts
 the static site is generated from without importing above its root.
 
-### 5b. Automatic Git deploys — two dashboard settings (TODO(sean))
+### 5b. Automatic Git deploys — configured 2026-09-09
 
-The `fused-portal` project was created from the CLI, which cannot set these:
-
-1. Vercel → fused-portal → Settings → General → **Root Directory** = `app`, and enable
-   **Include source files outside of the Root Directory in the Build Step**.
-2. Settings → Git → connect `seancope357/fused-protective-services`, production branch `main`.
-
-Once set, every push to `main` deploys both projects. Until then, deploy with §5a.
+`fused-portal` has Root Directory `app`, framework Next.js, "include source files outside
+the root directory" on, and the GitHub repo connected with production branch `main`.
+Every push to `main` deploys both projects; pull requests get previews of both. §5a
+remains available for a manual deploy.
 
 ### 5c. Portal-only variables
 

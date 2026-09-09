@@ -58,11 +58,9 @@ American numbering plan; if the line does not ring, edit `display` and `e164` th
 - **If left:** no client-facing email at all — no confirmations, proposals, briefs,
   invoices, receipts, and **no client sign-in links** (clients cannot use the portal).
 
-## 9. Portal Git settings
+## 9. Portal Git settings — resolved 2026-09-09
 
-- **TODO(sean):** Vercel → fused-portal → Root Directory `app` + include files outside
-  root; connect the GitHub repo (`docs/RUNBOOK.md` §5b).
-- **If left:** the portal deploys only by the CLI prebuilt command, never on push.
+Root directory, outside-root files and the Git connection are set; the portal deploys on every push to `main`.
 
 ## 10. Twilio account and 10DLC registration
 
