@@ -60,13 +60,19 @@ Submissions from the Security Detail Quote form (`#securityQuoteForm`) and Candi
   • Local: serve.py Handler (persists directly to PostgreSQL `fused_protective_services`)
   • Production: api/intake.js (Vercel Function, zero dependencies)
          │
+         ├── 0. Gate     → same-origin CORS · honeypot (`website` field) · per-IP limit
+         │                 (5 / 10 min) · duplicate window (15 min) via `public.intake_gate`
          ├── 1. Persist  → Supabase REST insert into `client_quotes` / `candidate_applications`
          │                 (DB trigger `trg_triage_quote` sets priority; the row's answer wins)
-         ├── 2. Alert    → Resend email to DISPATCH_ALERT_TO (subject carries 🚨 EMERGENCY / ⚠️ PRIORITY)
-         └── 3. Forward  → Optional JSON webhook (HubSpot / Zapier / Slack)
+         ├── 2. Alert    → Resend email to DISPATCH_ALERT_TO; Twilio SMS to DISPATCH_ALERT_SMS_TO
+         │                 when priority = emergency
+         ├── 3. Confirm  → Resend email to the visitor (reference code, next steps, dispatch line)
+         └── 4. Forward  → Optional JSON webhook (Zapier / Slack)
 ```
 
-The three stages are independent. The response reports `delivery: { persisted, alerted, forwarded }`. If **every configured stage fails** the function returns `503 { ok: false, error: 'not_delivered' }` and both form controllers show a "call dispatch directly" message instead of a success screen. The server generates the reference code (`TX-FPS-XXXXXX` / `TX-CAND-XXXXXX`, 6 chars, no 0/O/1/I) and both forms display whatever the server returns.
+Stages 1–4 are independent. The response reports `delivery: { persisted, alerted, smsAlerted, confirmed, forwarded }`. If **no delivery stage** (persist, owner email, owner SMS, webhook) succeeds, the function returns `503 { ok: false, error: 'not_delivered' }` and both form controllers show a "call dispatch directly" message instead of a success screen. A duplicate submission answers `200 { duplicate: true, refCode }` with the original reference; a rate-limited caller gets `429` with `Retry-After`. A tripped honeypot gets a plausible 200 and nothing is delivered — the one deliberate exception, never reachable by a person. The server generates the reference code (`TX-FPS-XXXXXX` / `TX-CAND-XXXXXX`, 6 chars, no 0/O/1/I) and both forms display whatever the server returns.
+
+Shared transports live in `api/_lib/` (`http.mjs`, `supabase.mjs`, `email.mjs`, `sms.mjs`, `gate.mjs`, `intake-messages.mjs`). Message bodies read every fact from `src/data/site.mjs`. Tests: `node --test 'tests/*.test.mjs'` (fetch stubbed, no network).
 
 #### Production environment variables (Vercel)
 
@@ -75,8 +81,13 @@ The three stages are independent. The response reports `delivery: { persisted, a
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Vercel Marketplace (Supabase integration) | Stage 1 persistence. Service role bypasses RLS on the server only. |
 | `RESEND_API_KEY` | Vercel Marketplace (Resend integration) | Stage 2 email. **Not yet installed — Sean must accept Resend's marketplace terms in the browser, then `vercel integration add resend --name fused-dispatch-alerts`.** |
 | `DISPATCH_ALERT_TO` | Manual (`vercel env add`) | Comma-separated recipients. Currently Sean's inbox; switch to Cameron's dispatch address when known. |
-| `DISPATCH_ALERT_FROM` | Manual, optional | Defaults to `Fused Dispatch <onboarding@resend.dev>`, which Resend only delivers to the account owner. Set to a verified `@fusedprotectiveservices.com` sender once the domain is connected. |
-| `DISPATCH_ALERT_WEBHOOK` / `HUBSPOT_WEBHOOK_URL` | Manual, optional | Stage 3 forward. |
+| `DISPATCH_ALERT_FROM` | Manual | Verified `@fusedprotectiveservices.com` sender. Without it, owner alerts fall back to `onboarding@resend.dev` (delivers only to the Resend account owner) and the visitor confirmation is skipped. |
+| `DISPATCH_ALERT_SMS_TO`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_MESSAGING_SERVICE_SID` or `TWILIO_FROM` | Manual | Emergency SMS. |
+| `INTAKE_HASH_SALT` | Manual, optional | Salts the IP / payload hashes stored in `intake_gate`. |
+| `STRIPE_SECRET_KEY` | Manual | `/api/stripe-checkout`. Without it the function answers 503; there is no mock. |
+| `DISPATCH_ALERT_WEBHOOK` / `HUBSPOT_WEBHOOK_URL` | Manual, optional | Stage 4 forward. |
+
+Full setup order and verification steps: [`docs/RUNBOOK.md`](file:///Users/cope/projects/fused-protective-services/docs/RUNBOOK.md).
 
 Hosted Supabase project: `fused-protective-services` (ref `zphyvnouierjwjqjvahs`, us-east-1), provisioned 2026-09-08 through the Vercel Marketplace. Migrations in `supabase/migrations/` are applied there and the migration history matches the file names, so `supabase db push` will not try to re-apply them.
 
@@ -87,9 +98,8 @@ Both `js/modules/quote-form.mjs` and `js/modules/careers.mjs` still write the pa
 
 ## 🗄️ Supabase Backend & Database Architecture
 
-* **PostgreSQL Schema Location:** [`supabase/migrations/20260904000000_fused_core_schema.sql`](file:///Users/cope/projects/fused-protective-services/supabase/migrations/20260904000000_fused_core_schema.sql)
-* **Edge Function Dispatcher:** [`supabase/functions/intake-dispatcher/index.ts`](file:///Users/cope/projects/fused-protective-services/supabase/functions/intake-dispatcher/index.ts)
-* **Vercel Serverless Function:** [`api/intake.js`](file:///Users/cope/projects/fused-protective-services/api/intake.js)
+* **PostgreSQL Schema Location:** [`supabase/migrations/`](file:///Users/cope/projects/fused-protective-services/supabase/migrations/) — `20260904000000_fused_core_schema.sql`, `20260908000000_harden_function_search_path.sql`, `20260909000000_intake_gate.sql`
+* **Vercel Serverless Functions:** [`api/intake.js`](file:///Users/cope/projects/fused-protective-services/api/intake.js), [`api/stripe-checkout.js`](file:///Users/cope/projects/fused-protective-services/api/stripe-checkout.js), shared code in `api/_lib/`
 
 ### Relational Tables & Triage Triggers
 
@@ -107,7 +117,10 @@ Both `js/modules/quote-form.mjs` and `js/modules/careers.mjs` still write the pa
 
 3. **`invoices` (Operational Billing)**
    * Primary key: `id` (UUID), Unique Reference: `invoice_number` (`FPS-YYYY-####`).
-   * Stores client name, dates, payment terms, tax calculations, and line items.
+   * Stores client name, dates, payment terms, tax calculations, and line items. `/api/stripe-checkout` reads `total` from this row by `id`; the request body never supplies an amount.
+
+4. **`intake_gate` (Abuse Controls)**
+   * Hashes only (`ip_hash`, `dedupe_hash`) plus the `ref_code` they map to; rows expire after a day. No RLS policies: only the service role touches it, through the `intake_gate()` function.
 
 ---
 
@@ -161,24 +174,4 @@ Cameron uses `/invoice` (`invoice.html`) to draft and issue branded client invoi
 
 ## ⚠️ Known Gaps — Cameron's Action Items
 
-These three items require operational decisions by Cameron Harrell:
-
-### 1. Placeholder Phone Number
-* **Current Value:** `(512) 555-0199` (sits in the range reserved for fictional media).
-* **Fix Procedure:** Update `phone` in `src/data/site.mjs`:
-  ```javascript
-  const phone = {
-      display: '(512) 555-0199', // Replace with real line
-      e164: '+15125550199'       // Replace with real E.164 line
-  };
-  ```
-* **Impact:** Rebuilding via `node build.mjs` updates the header nav, mobile drawer, dispatch emergency bar, footer, and schema.org structured data simultaneously.
-
-### 2. Dispatch Alert Recipient
-* **Current State:** Leads persist to the hosted Supabase project and, once Resend is installed, email `DISPATCH_ALERT_TO` (currently Sean).
-* **Fix Procedure:** Get Cameron's dispatch email and update `DISPATCH_ALERT_TO` in Vercel for all three environments. For SMS on emergency priority, add Twilio (see Backlog).
-
-### 3. Review Authenticity Policy
-* **Current State:** The schema.org metadata claims an aggregate rating of `5.0` based on `28` reviews in `src/data/site.mjs`.
-* **Policy Warning:** Major search engines (Google, Bing) penalize unverified review markup.
-* **Fix Procedure:** Back the claim with real verified customer reviews, or remove `rating` from `src/data/site.mjs` until verified reviews are collected.
+Maintained in one place: [`docs/OPEN_QUESTIONS.md`](file:///Users/cope/projects/fused-protective-services/docs/OPEN_QUESTIONS.md). Facts that are still placeholders carry `placeholder: true` in `src/data/site.mjs`; the build prints a warning for each, and `js/modules/env.mjs` + `components/placeholder.css` flag them in red on any host not listed in `site.productionHosts`.

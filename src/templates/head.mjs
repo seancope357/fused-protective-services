@@ -10,6 +10,23 @@ import { html, json } from '../lib/html.mjs';
 import { site } from '../data/site.mjs';
 import { divisions } from '../data/divisions.mjs';
 import { faqs } from '../data/faq.mjs';
+import { aggregateRating } from '../data/reviews.mjs';
+
+/* The rating block exists only when src/data/reviews.mjs holds real reviews;
+   an empty list yields null and the key is omitted rather than claimed. */
+const ratingBlock = () => {
+    const rating = aggregateRating();
+    return rating
+        ? {
+            aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: rating.value,
+                reviewCount: rating.count,
+                bestRating: rating.best
+            }
+        }
+        : {};
+};
 
 const structuredData = () => ({
     '@context': 'https://schema.org',
@@ -24,6 +41,11 @@ const structuredData = () => ({
             description: site.seo.organizationDescription,
             telephone: site.phone.e164,
             email: site.email,
+            identifier: {
+                '@type': 'PropertyValue',
+                propertyID: site.licenseNumber.label,
+                value: site.licenseNumber.value
+            },
             priceRange: '$$$',
             address: {
                 '@type': 'PostalAddress',
@@ -49,12 +71,7 @@ const structuredData = () => ({
                     }
                 }))
             },
-            aggregateRating: {
-                '@type': 'AggregateRating',
-                ratingValue: site.rating.value,
-                reviewCount: site.rating.count,
-                bestRating: site.rating.best
-            }
+            ...ratingBlock()
         },
         {
             '@type': 'FAQPage',

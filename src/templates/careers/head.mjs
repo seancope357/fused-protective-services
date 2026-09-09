@@ -16,7 +16,12 @@ const structuredData = () => ({
             url: site.url,
             logo: `${site.url}/${site.logo}`,
             telephone: site.phone.e164,
-            email: site.email
+            email: site.email,
+            identifier: {
+                '@type': 'PropertyValue',
+                propertyID: site.licenseNumber.label,
+                value: site.licenseNumber.value
+            }
         },
         ...positions.map((pos) => ({
             '@type': 'JobPosting',

@@ -9,12 +9,27 @@
    Both now derive from `phone` below, so the number a visitor reads is the
    number their handset dials.
 
-   NOTE FOR CAMERON: 555-0199 sits in the block reserved for fiction, so it is
-   a stand-in, not a line that rings. Set `phone` once here and the nav, the
-   drawer, the dispatch bar, the footer, and the schema.org record all follow. */
+   TODO(cameron): 555-0199 sits in the block reserved for fiction, so it is a
+   stand-in, not a line that rings. Replace `display` and `e164` with the real
+   dispatch line and set `placeholder` to false. While `placeholder` is true,
+   every build prints a warning and every non-production host shows a visible
+   PLACEHOLDER flag next to the number (see src/templates/partials.mjs and
+   js/modules/env.mjs), so it cannot ship unnoticed again. */
 const phone = {
     display: '(512) 555-0199',
-    e164: '+15125550199'
+    e164: '+15125550199',
+    placeholder: true
+};
+
+/* TODO(cameron): Texas Occupations Code §1702.284 requires a licensed security
+   contractor to show its DPS license number in advertising, which includes this
+   website. Replace `value` with the company licence number (format B12345 or
+   C12345) and set `placeholder` to false. Until then the footer and the
+   schema.org record carry a labelled placeholder. */
+const licenseNumber = {
+    label: 'Texas DPS Private Security Licence',
+    value: 'B00000',
+    placeholder: true
 };
 
 export const site = {
@@ -31,7 +46,18 @@ export const site = {
     copyrightYear: 2026,
 
     phone,
+    licenseNumber,
     email: 'dispatch@fusedprotectiveservices.com',
+
+    /* Hosts that serve the real site. Any other host (localhost, a Vercel
+       preview URL) is treated as non-production by js/modules/env.mjs, which
+       reveals the placeholder flags. The production alias on Vercel is listed
+       because it is the public address until the custom domain is connected. */
+    productionHosts: [
+        'fusedprotectiveservices.com',
+        'www.fusedprotectiveservices.com',
+        'fused-protective-services.vercel.app'
+    ],
 
     address: {
         locality: 'Austin',
@@ -49,8 +75,6 @@ export const site = {
         { type: 'City', name: 'Houston' },
         { type: 'State', name: 'Texas' }
     ],
-
-    rating: { value: '5.0', count: '28', best: '5' },
 
     seo: {
         title: 'Fused Protective Services — Texas Executive Protection & Armed Security Contractor',

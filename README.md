@@ -90,14 +90,13 @@ Drag and drop the `/Users/cope/projects/fused-protective-services` directory int
 
 ---
 
-## 📧 Connecting the Lead Form to Email / SMS
+## 📧 Lead delivery
 
-Submissions are currently recorded in the visitor's own browser only — **nothing is
-transmitted anywhere yet.** Point the `deliver()` function in
-[`js/modules/quote-form.mjs`](js/modules/quote-form.mjs) at any form processor
-([Formspree](https://formspree.io), [Web3Forms](https://web3forms.com), or a custom
-endpoint) to route leads to Cameron's phone or email. That function is the only seam
-that needs to change.
+Both forms post to `/api/intake` (`api/intake.js`, a zero-dependency Vercel
+function): persist to Supabase → email and emergency SMS to dispatch → confirmation
+email to the visitor → optional webhook. Every stage is reported; nothing fakes
+success. Setup order and verification: [`docs/RUNBOOK.md`](docs/RUNBOOK.md).
+Blocked items: [`docs/OPEN_QUESTIONS.md`](docs/OPEN_QUESTIONS.md).
 
 ## 🧾 Invoicing (internal tool)
 
@@ -111,8 +110,11 @@ prints, one Letter page. Saved invoices live in the browser's localStorage only
 nowhere. Terms, tax default, numbering, and the remit-to wording live in
 [`src/data/invoice.mjs`](src/data/invoice.mjs).
 
-## ☎️ Setting the real phone number
+## ☎️ Setting the real phone number and licence number
 
-`(512) 555-0199` is a placeholder from the range reserved for fiction. Set `phone` once
-in [`src/data/site.mjs`](src/data/site.mjs), run `node build.mjs`, and the nav, drawer,
-dispatch bar, footer, and schema.org record all follow.
+`(512) 555-0199` is a placeholder from the range reserved for fiction, and `B00000`
+stands in for the DPS licence number. Set `phone` and `licenseNumber` once in
+[`src/data/site.mjs`](src/data/site.mjs), flip each `placeholder` to `false`, run
+`node build.mjs`, and the nav, drawer, dispatch bar, footer, schema.org record, and
+confirmation emails all follow. Until then the build warns and every non-production
+host shows a red PLACEHOLDER flag beside each value.

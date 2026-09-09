@@ -3,6 +3,7 @@
    ========================================================================== */
 
 import { html, json } from '../../lib/html.mjs';
+import { site } from '../../data/site.mjs';
 import { positions, prequalQuestions } from '../../data/careers.mjs';
 import { careersHead } from './head.mjs';
 import { nav, drawer } from '../nav.mjs';
@@ -64,6 +65,9 @@ ${careersApply()}
 ${dispatchBar()}
 ${footer(true)}
 
+    <script type="application/json" id="fps-config">
+${json({ site: { productionHosts: site.productionHosts } })}
+    </script>
     <script type="application/json" id="fps-careers-config">
 ${json(clientCareersConfig())}
     </script>

@@ -88,6 +88,11 @@ export const careersApply = () => html`
                     <textarea id="appBio" name="appBio" class="form-textarea" rows="4" placeholder="Outline your tactical assignments, firearms qualifications, defensive driving, medical certifications, or paste a link to your digital resume (Google Drive, LinkedIn)..." required></textarea>
                 </div>
 
+                <!-- Honeypot: hidden from people, filled by bots, checked by /api/intake -->
+                <div class="hp-field" aria-hidden="true">
+                    <label for="appWebsite">Leave this field empty</label>
+                    <input type="text" id="appWebsite" name="website" tabindex="-1" autocomplete="off">
+                </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-gold btn-block" id="submitCandidateBtn">
                         Transmit Candidate Application &rarr;

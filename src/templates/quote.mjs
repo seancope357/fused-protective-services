@@ -36,7 +36,7 @@ ${field({ id: 'formCompany', label: 'Company / Organization Name', placeholder: 
                     </div>
 
                     <div class="form-row-2col">
-${field({ id: 'formPhone', label: 'Direct Phone Number', type: 'tel', placeholder: '(512) 555-0199', required: true })}
+${field({ id: 'formPhone', label: 'Direct Phone Number', type: 'tel', placeholder: '(512) 000-0000', required: true })}
 ${field({ id: 'formEmail', label: 'Email Address', type: 'email', placeholder: 'name@company.com', required: true })}
                     </div>
 
@@ -67,6 +67,11 @@ ${field({ id: 'formSchedule', label: 'Estimated Shift Schedule & Date(s)', place
                         <textarea id="formNotes" name="formNotes" rows="4" placeholder="Detail any VIP arrivals, high-value assets, crowd size, access control checkpoints, or specific security protocols required..."></textarea>
                     </div>
 
+                    <!-- Honeypot: hidden from people, filled by bots, checked by /api/intake -->
+                    <div class="hp-field" aria-hidden="true">
+                        <label for="formWebsite">Leave this field empty</label>
+                        <input type="text" id="formWebsite" name="website" tabindex="-1" autocomplete="off">
+                    </div>
                     <button type="submit" class="btn-gold btn-gold--block btn-gold--lg">
                         Submit Confidential Security Request
                     </button>
