@@ -324,6 +324,48 @@ export function initInvoiceBuilder() {
         }
     }
 
+    /* ── Payment link ──────────────────────────────────────────────────── */
+
+    /* Only a Stripe-hosted URL may ever land in record.paymentUrl; anything
+       else the server might say (or a mock) stays out of the saved record. */
+    const isStripeUrl = (url) =>
+        typeof url === 'string' && /^https:\/\/(?:[a-z0-9-]+\.)*stripe\.com\//i.test(url);
+
+    /* Asks /api/stripe-checkout for a hosted pay link. The server recomputes
+       the total from the line items and refuses anything it disagrees with,
+       so a non-2xx is a message for Cameron, not an error to swallow.
+       Resolves to { url } or { message }; never throws, so the invoice saves
+       either way. */
+    async function requestPaymentLink(record) {
+        const NO_LINK = 'the invoice saved without a pay link.';
+        let res;
+        try {
+            res = await fetch('/api/stripe-checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(record)
+            });
+        } catch (err) {
+            console.error('Stripe link generation failed:', err);
+            return { message: `Could not reach the payment service — ${NO_LINK}` };
+        }
+
+        let data = null;
+        try {
+            data = await res.json();
+        } catch {
+            /* A non-JSON body (proxy error page, empty 502): fall through to the generic notice. */
+        }
+        if (res.ok && isStripeUrl(data?.url)) return { url: data.url };
+
+        console.error('Stripe link refused:', res.status, data);
+        return {
+            message: typeof data?.message === 'string' && data.message
+                ? data.message
+                : `Payment link unavailable (HTTP ${res.status}) — ${NO_LINK}`
+        };
+    }
+
     /* ── Actions ───────────────────────────────────────────────────────── */
 
     async function save() {
@@ -335,28 +377,19 @@ export function initInvoiceBuilder() {
         if (!$('invNumber').value.trim()) $('invNumber').value = peekInvoiceNumber(invoiceCfg.numbering);
 
         const record = serialize();
-        
+        let linkNotice = '';
+
         if (!record.paymentUrl && record.totals.totalCents > 0) {
             announce('Generating secure Stripe checkout link...');
-            try {
-                const res = await fetch('/api/stripe-checkout', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(record)
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    record.paymentUrl = data.url;
-                }
-            } catch (err) {
-                console.error('Stripe link generation failed:', err);
-            }
+            const outcome = await requestPaymentLink(record);
+            if (outcome.url) record.paymentUrl = outcome.url;
+            else linkNotice = ` ${outcome.message}`;
         }
 
         if (saveInvoice(record)) {
             commitInvoiceNumber(record.number, invoiceCfg.numbering);
             renderSaved();
-            
+
             if (record.paymentUrl) {
                 const qr = $('docPaymentQR');
                 const link = $('docPaymentLink');
@@ -366,8 +399,8 @@ export function initInvoiceBuilder() {
                 qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(record.paymentUrl)}`;
                 qr.hidden = false;
             }
-            
-            announce(`Saved ${record.number} — ${money(record.totals.totalCents)} (${record.status}).`);
+
+            announce(`Saved ${record.number} — ${money(record.totals.totalCents)} (${record.status}).${linkNotice}`);
         } else {
             announce('This browser is blocking storage — the invoice was NOT saved. Print or PDF it instead.');
         }
