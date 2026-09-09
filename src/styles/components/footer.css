@@ -53,6 +53,32 @@
     margin-bottom: 4px;
 }
 
+/* The DPS licence number, required in advertising by Tex. Occ. Code §1702.
+   Rendered from site.licenseNumber alongside the schema.org identifier. */
+.footer-license {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(11px, 1.05vw, 13px);
+    color: var(--text-secondary);
+    letter-spacing: 0.06em;
+    margin: 0 auto var(--space-4);
+}
+
+.footer-license-label {
+    display: block;
+    font-family: 'Outfit', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--logo-gold-bevel);
+    margin-bottom: 4px;
+}
+
+.footer-license-value {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
 .footer-disclaimer {
     font-size: clamp(10.5px, 1vw, 12px);
     color: var(--text-tertiary);

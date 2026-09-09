@@ -432,6 +432,18 @@ body {
     margin-top: 14px;
 }
 
+/* Honeypot container: removed from the visual flow and the tab order, kept
+   in the DOM so an automated filler sees a real input. Not display:none on
+   purpose — some bots skip hidden inputs. */
+.hp-field {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
 .form-status {
     text-align: center;
     font-size: 14px;

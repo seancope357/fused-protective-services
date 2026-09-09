@@ -23,6 +23,7 @@ import { dirname, join } from 'node:path';
 import { page } from './src/templates/page.mjs';
 import { invoicePage } from './src/templates/invoice/page.mjs';
 import { careersPage } from './src/templates/careers/page.mjs';
+import { site } from './src/data/site.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const STYLES = join(ROOT, 'src', 'styles');
@@ -49,6 +50,7 @@ const STYLE_ORDER = [
     'components/faq.css',
     'components/careers.css',
     'components/reveal.css',
+    'components/placeholder.css',
     'components/dispatch-bar.css',
     'components/footer.css',
     'utilities.css'
@@ -130,6 +132,21 @@ function check() {
     }
     console.log('\nGenerated output is up to date.');
 }
+
+/* Facts Cameron has not supplied yet. Printed on every build and every check
+   so a placeholder can never ship quietly; the page itself flags them on any
+   non-production host (see src/styles/components/placeholder.css). */
+function warnPlaceholders() {
+    const pending = [
+        site.phone.placeholder && 'phone number (src/data/site.mjs → phone)',
+        site.licenseNumber.placeholder && 'DPS licence number (src/data/site.mjs → licenseNumber)'
+    ].filter(Boolean);
+    for (const item of pending) {
+        console.warn(`  WARNING  placeholder still in place: ${item}`);
+    }
+}
+
+warnPlaceholders();
 
 if (process.argv.includes('--check')) {
     console.log('Checking generated output...');

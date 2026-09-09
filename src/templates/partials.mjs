@@ -16,7 +16,13 @@ export const sectionHead = ({ tag, title, desc }) => html`
                 ${desc ? html`<p class="section-desc">${desc}</p>` : ''}
             </div>`;
 
+/** Visible only on non-production hosts (see placeholder.css): marks a fact
+    Cameron has not supplied yet so it cannot ship unnoticed. Renders nothing
+    once the fact's `placeholder` flag is false. */
+export const placeholderFlag = (fact, what) =>
+    fact?.placeholder ? html`<span class="placeholder-flag" role="note">Placeholder ${what}</span>` : '';
+
 /** The 24/7 line. One definition, so the label and the href cannot diverge. */
-export const callLink = ({ className, label, iconClass = '' }) => html`<a href="tel:${site.phone.e164}" class="${className}">
+export const callLink = ({ className, label, iconClass = '' }) => html`<a href="tel:${site.phone.e164}" class="${className}"${site.phone.placeholder ? ' data-placeholder="phone"' : ''}>
                     ${uiIcons.phone(iconClass ? `class="ui-icon ${iconClass}"` : '')} ${label ?? site.phone.display}
-                </a>`;
+                </a>${placeholderFlag(site.phone, 'phone')}`;

@@ -4,7 +4,7 @@
 
 import { html } from '../lib/html.mjs';
 import { site, navItems } from '../data/site.mjs';
-import { callLink } from './partials.mjs';
+import { callLink, placeholderFlag } from './partials.mjs';
 
 export const dispatchBar = () => html`
     <div class="floating-dispatch-bar">
@@ -25,7 +25,7 @@ export const footer = (isCareers = false) => html`
                     const href = isCareers && item.href.startsWith('#') ? `index.html${item.href}` : item.href;
                     return html`<a href="${href}">${item.drawerLabel}</a>`;
                 })}
-                <a href="tel:${site.phone.e164}">24/7 Dispatch</a>
+                <a href="tel:${site.phone.e164}"${site.phone.placeholder ? ' data-placeholder="phone"' : ''}>24/7 Dispatch</a>${placeholderFlag(site.phone, 'phone')}
             </nav>
 
             <p class="footer-areas">
@@ -33,6 +33,10 @@ export const footer = (isCareers = false) => html`
                 ${site.areaServed.map((a) => (a.type === 'State' ? `Statewide ${a.name}` : a.name)).join(' \u2022 ')}
             </p>
 
+            <p class="footer-license"${site.licenseNumber.placeholder ? ' data-placeholder="license"' : ''}>
+                <span class="footer-license-label">${site.licenseNumber.label}</span>
+                <span class="footer-license-value">${site.licenseNumber.value}</span>${placeholderFlag(site.licenseNumber, 'licence number')}
+            </p>
             <p class="footer-disclaimer">
                 ${site.name} is a licensed and insured private security company operating in full compliance with the Texas Department of Public Safety Private Security Bureau (PSB). All rights reserved.
             </p>

@@ -12,13 +12,17 @@
 | **Compiler & Build Pipeline** | 🟢 **Passing (Zero Drift)** | `node build.mjs --check` validates byte-identical output. |
 | **Dependencies** | 🟢 **Zero Dependencies** | Pure Node.js ESM. No `package.json` or `node_modules`. |
 | **Marketing Web Platform** | 🟢 **Production Ready** | All 7 divisions, estimator, assessment quiz, and intake live. |
-| **Internal Invoicing Engine** | 🟢 **Production Ready** | `/invoice` generating Letter-formatted PDF invoices. |
+| **Internal Invoicing Engine** | 🟡 **Browser-only** | `/invoice` builds and prints; records live in one browser's localStorage. Server-side invoices arrive with the operations portal (Phase 1). |
 | **Careers & Recruiting Portal** | 🟢 **Production Ready** | `/careers` live with filterable jobs, 5-stage vetting, & pre-qual. |
 | **Context Engineering** | 🟢 **Complete (7 Modules)** | Modular domain documentation live in [`context/`](file:///Users/cope/projects/fused-protective-services/context/index.md). |
 | **Lead Persistence** | 🟢 **Live (hosted Supabase)** | `/api/intake` on production writes to the hosted `fused-protective-services` Supabase project; verified end to end 2026-09-08. |
-| **Dispatch Alerts** | 🟡 **Code shipped, Resend not installed** | Email alert stage is live in `api/intake.js` but `RESEND_API_KEY` is absent until Sean accepts Resend's marketplace terms. Until then leads sit in the database unannounced. |
-| **Phone Line** | 🟡 **Placeholder** | Needs Cameron's real line to replace `(512) 555-0199`. |
-| **Review Markup** | 🟡 **Policy Risk** | Aggregate rating claims 5.0 from 28 reviews; needs audit. |
+| **Dispatch Alerts** | 🟡 **Code shipped, Resend not installed** | Owner email, emergency SMS, and visitor confirmation are all wired in `api/intake.mjs`; `RESEND_API_KEY` and the Twilio variables are absent. Steps in `docs/RUNBOOK.md`. Until then leads persist and nobody is notified. |
+| **Intake Abuse Controls** | 🟢 **Live** | Same-origin CORS, honeypot, per-IP rate limit and duplicate window (`public.intake_gate`). |
+| **Stripe Checkout** | 🟢 **Honest** | Amount read from the stored invoice by id; 503 without a key. No mock links anywhere. |
+| **Phone Line** | 🔴 **Placeholder, flagged** | `(512) 555-0199` still ships; flagged in red on every non-production host and on every build. `docs/OPEN_QUESTIONS.md` §1. |
+| **DPS Licence Number** | 🔴 **Placeholder, flagged** | Footer and schema carry `B00000` until Cameron supplies the number. `docs/OPEN_QUESTIONS.md` §2. |
+| **Review Markup** | 🟢 **Removed** | No rating is claimed. `src/data/reviews.mjs` re-enables it only from real reviews. |
+| **CI** | 🟢 **GitHub Actions** | `node build.mjs --check` and `node --test` on every push and PR. |
 
 ---
 
@@ -86,7 +90,7 @@
 - [x] Created automated PostgreSQL threat triage triggers (`trg_triage_quote`) escalating `priority` to `'emergency'` for rapid dispatch and Level IV PPO requests.
 - [x] Implemented Row Level Security (RLS) policies allowing public anon insertion while securing all read/update access.
 - [x] Created Supabase Deno Edge Function [`supabase/functions/intake-dispatcher/index.ts`](file:///Users/cope/projects/fused-protective-services/supabase/functions/intake-dispatcher/index.ts).
-- [x] Created zero-dependency Vercel Serverless Function [`api/intake.js`](file:///Users/cope/projects/fused-protective-services/api/intake.js) for instant production deployment.
+- [x] Created zero-dependency Vercel Serverless Function [`api/intake.mjs`](file:///Users/cope/projects/fused-protective-services/api/intake.mjs) for instant production deployment.
 - [x] Updated local preview engine ([`serve.py`](file:///Users/cope/projects/fused-protective-services/serve.py)) with `/api/intake` routing and direct persistence to local PostgreSQL (`fused_protective_services`).
 - [x] Wired client controllers ([`quote-form.mjs`](file:///Users/cope/projects/fused-protective-services/js/modules/quote-form.mjs) and [`careers.mjs`](file:///Users/cope/projects/fused-protective-services/js/modules/careers.mjs)) to `/api/intake` with local offline resilience.
 - [x] Completed full automated browser submission validation and verified row insertions in PostgreSQL.
@@ -108,26 +112,27 @@
 ### Phase 11: Hosted Backend & Real Lead Delivery (2026-09-08)
 - [x] Provisioned the hosted Supabase project through the Vercel Marketplace; env vars auto-injected into all Vercel environments.
 - [x] Applied the core schema and a `search_path` hardening migration; migration history aligned to the committed file names.
-- [x] Rewrote `api/intake.js` as a three-stage delivery chain (persist → Resend email → webhook) that reports per-stage success and returns 503 when nothing was delivered.
+- [x] Rewrote `api/intake.mjs` as a three-stage delivery chain (persist → Resend email → webhook) that reports per-stage success and returns 503 when nothing was delivered.
 - [x] Server-generated collision-safe reference codes; user text escaped in alert emails.
 - [x] Form controllers now show a failure message instead of a fake success when delivery fails.
 - [x] Verified on preview and production: rows land in Supabase, DB trigger escalates emergency divisions.
+
+### Phase 0: Stop the bleeding (2026-09-09)
+- [x] Phone number and DPS licence number carry `placeholder: true` in `src/data/site.mjs`; the build warns on every run and every non-production host shows a red PLACEHOLDER flag (`components/placeholder.css`, `js/modules/env.mjs`).
+- [x] `licenseNumber` rendered in the footer and as the schema.org `identifier` (Tex. Occ. Code §1702.284).
+- [x] False `aggregateRating` removed. `src/data/reviews.mjs` derives the rating from real reviews only; an empty list emits no markup.
+- [x] `/api/intake` rewritten around `api/_lib/`: same-origin CORS, honeypot, per-IP rate limit and duplicate window backed by `public.intake_gate` (migration `20260909000000`), owner email, emergency Twilio SMS, branded visitor confirmation with reference code and dispatch line, honest per-stage `delivery` report.
+- [x] `/api/stripe-checkout` reads the amount from `public.invoices` by id; returns 503 without a key; no mock URL. The browser invoice tool no longer calls Stripe or `api.qrserver.com`.
+- [x] `serve.py` no longer fakes success: local inserts are parameterised and a failed insert answers 503; the Stripe stub answers 503.
+- [x] Dead `supabase/functions/intake-dispatcher` removed (a parallel intake with wildcard CORS and client-minted codes).
+- [x] `tests/` (node --test, fetch stubbed) cover the intake chain, honeypot, duplicates, rate limit, and Stripe amount authority. CI workflow added.
+- [x] `docs/RUNBOOK.md` (Resend domain verification, Twilio 10DLC, Stripe, env index) and `docs/OPEN_QUESTIONS.md` (everything blocked on Cameron).
 
 ---
 
 ## ⚠️ Known Gaps & Immediate Operational Decisions (Cameron's Call)
 
-These 2 action items require direct operational input from Cameron Harrell:
-
-### 1. Update Live Phone Number
-* **Problem:** `(512) 555-0199` is a fictional placeholder.
-* **File to Edit:** [`src/data/site.mjs`](file:///Users/cope/projects/fused-protective-services/src/data/site.mjs) (lines 15–18).
-* **Action Required:** Provide the real business line (display format and E.164 international format). Rebuilding will automatically update the header nav, mobile drawer, dispatch bar, footer, and schema.org markup.
-
-### 2. Review Authenticity Audit
-* **Problem:** `src/data/site.mjs` declares an `aggregateRating` of 5.0 from 28 reviews for search engine rich snippets.
-* **File to Edit:** [`src/data/site.mjs`](file:///Users/cope/projects/fused-protective-services/src/data/site.mjs) (line 53).
-* **Action Required:** Verify if 28 genuine collected reviews exist. If not, temporarily remove the rating block to protect the domain from Google schema policy penalties.
+Tracked in [`docs/OPEN_QUESTIONS.md`](file:///Users/cope/projects/fused-protective-services/docs/OPEN_QUESTIONS.md): dispatch phone, DPS licence number, alert recipients, sales-tax confirmation, Resend terms, Twilio 10DLC, custom domain.
 
 ---
 
@@ -139,7 +144,8 @@ These 2 action items require direct operational input from Cameron Harrell:
 | **P1** | **Point alerts at Cameron** | Set `DISPATCH_ALERT_TO` to Cameron's dispatch inbox. | Cameron's email |
 | **P1** | **HubSpot CRM Activation** | Input Cameron's HubSpot Access Token / Webhook into Vercel env. | Cameron's HubSpot account |
 | **P1** | **Set Real Phone Line** | Update `phone` in `site.mjs` with Cameron's active dispatch line. | Cameron's phone number |
-| **P2** | **Twilio SMS Dispatch Alerts** | Add Twilio API credentials to fire real-time SMS to Cameron on emergency dispatch. | Twilio Account SID & Auth Token |
-| **P2** | **Client Testimonials Section** | Add verified client quotes to support the 5.0-star schema claim. | Verified reviews |
+| **P1** | **Twilio credentials** | Code is live; set the four Twilio variables and `DISPATCH_ALERT_SMS_TO` (`docs/RUNBOOK.md` §3). | Twilio account, 10DLC |
+| **P1** | **Operations platform (Phase 1)** | Next.js + Supabase app at `app.fusedprotectiveservices.com`: leads → quotes → proposals → jobs → invoices → Stripe webhook → reviews, notification engine, legal pages. | Phase 0 merged |
+| **P2** | **Client Testimonials Section** | Render `src/data/reviews.mjs` once real reviews exist; the rating markup follows automatically. | Verified reviews |
 | **P3** | **Client-Side PDF Generator** | Add standalone PDF export library as alternative to browser print. | Invoicing module |
 | **P3** | **DIV-08 Expansion (K9 Unit)** | Implement 8th division following the data-model runbook if K9 units are launched. | Operational division spec |

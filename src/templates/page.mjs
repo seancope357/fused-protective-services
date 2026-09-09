@@ -30,6 +30,7 @@ import { dispatchBar, footer } from './footer.mjs';
     their quoteValue in their own data-deploy attribute), and unread keys
     are how this island's contract drifts. */
 const clientConfig = () => ({
+    site: { productionHosts: site.productionHosts },
     assessment: {
         recommendations,
         environment: Object.fromEntries(

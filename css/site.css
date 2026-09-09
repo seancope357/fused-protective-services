@@ -1928,6 +1928,18 @@ html[data-forge-fallback] .forge-cue {
     margin-top: 14px;
 }
 
+/* Honeypot container: removed from the visual flow and the tab order, kept
+   in the DOM so an automated filler sees a real input. Not display:none on
+   purpose — some bots skip hidden inputs. */
+.hp-field {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
 .form-status {
     text-align: center;
     font-size: 14px;
@@ -2737,6 +2749,45 @@ html[data-forge-fallback] .forge-cue {
 }
 }
 
+/* ── components/placeholder.css ──────────────────────────────── */
+@layer components {
+/* ==========================================================================
+   PLACEHOLDER FLAGS
+   A business fact that Cameron has not supplied yet (the dispatch line, the
+   DPS licence number) renders with a `.placeholder-flag` beside it. The flag
+   is invisible on production hosts and impossible to miss everywhere else:
+   js/modules/env.mjs sets `data-env="preview"` on <html> when the hostname is
+   not in site.productionHosts. A visitor on the live site never sees this;
+   a developer on localhost or a Vercel preview cannot avoid it.
+   ========================================================================== */
+
+.placeholder-flag {
+    display: none;
+    margin-left: 6px;
+    padding: 2px 7px;
+    border: 1px dashed var(--color-crimson);
+    border-radius: var(--radius-sm);
+    color: var(--color-crimson);
+    background: rgba(239, 68, 68, 0.12);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+html[data-env="preview"] .placeholder-flag {
+    display: inline-block;
+}
+
+html[data-env="preview"] [data-placeholder] {
+    outline: 2px dashed var(--color-crimson);
+    outline-offset: 2px;
+}
+}
+
 /* ── components/dispatch-bar.css ─────────────────────────────── */
 @layer components {
 .floating-dispatch-bar {
@@ -2858,6 +2909,32 @@ html[data-forge-fallback] .forge-cue {
     text-transform: uppercase;
     color: var(--logo-gold-bevel);
     margin-bottom: 4px;
+}
+
+/* The DPS licence number, required in advertising by Tex. Occ. Code §1702.
+   Rendered from site.licenseNumber alongside the schema.org identifier. */
+.footer-license {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(11px, 1.05vw, 13px);
+    color: var(--text-secondary);
+    letter-spacing: 0.06em;
+    margin: 0 auto var(--space-4);
+}
+
+.footer-license-label {
+    display: block;
+    font-family: 'Outfit', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--logo-gold-bevel);
+    margin-bottom: 4px;
+}
+
+.footer-license-value {
+    color: var(--text-primary);
+    font-weight: 700;
 }
 
 .footer-disclaimer {

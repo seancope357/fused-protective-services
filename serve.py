@@ -31,10 +31,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
     def do_OPTIONS(self):
-        self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
+        # Same-origin only, like the production functions.
+        self.send_response(204)
         self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
 
     def do_POST(self):
@@ -51,39 +51,65 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 f"TX-CAND-{random.randint(1000, 9999)}" if is_candidate else f"TX-FPS-{random.randint(1000, 9999)}"
             )
 
-            # Persist to local PostgreSQL if available
+            # Persist to local PostgreSQL. Values travel as psql variables, never
+            # by string interpolation, and a failed insert is reported as a
+            # failure — the preview server does not fake a delivery either.
+            if is_candidate:
+                fields = {
+                    'ref_code': ref_code,
+                    'position_id': data.get('appPosition') or 'general-roster',
+                    'license_level': data.get('appLicenseLevel') or 'unspecified',
+                    'full_name': data.get('appFullName') or 'Anonymous Candidate',
+                    'phone': data.get('appPhone') or '',
+                    'email': data.get('appEmail') or '',
+                    'tops_number': data.get('appLicenseNumber') or '',
+                    'service_branch': data.get('appServiceBranch') or 'civilian',
+                    'bio': data.get('appBio') or ''
+                }
+                table = 'candidate_applications'
+            else:
+                fields = {
+                    'ref_code': ref_code,
+                    'full_name': data.get('formName') or 'Anonymous Client',
+                    'company': data.get('formCompany') or '',
+                    'phone': data.get('formPhone') or '',
+                    'email': data.get('formEmail') or '',
+                    'service_division': data.get('formDivision') or '',
+                    'armed_preference': data.get('formArmedPreference') or '',
+                    'deployment_location': data.get('formLocation') or '',
+                    'schedule': data.get('formSchedule') or '',
+                    'notes': data.get('formNotes') or ''
+                }
+                table = 'client_quotes'
+
+            columns = ', '.join(fields)
+            values = ', '.join(f":'{k}'" for k in fields)
+            args = ['psql', '-d', 'fused_protective_services', '-q', '-X']
+            for k, v in fields.items():
+                args += ['-v', f'{k}={v}']
+            args += ['-c', f'INSERT INTO {table} ({columns}) VALUES ({values});']
+            persisted = False
             try:
-                if is_candidate:
-                    pos = (data.get('appPosition') or '').replace("'", "''")
-                    lic = (data.get('appLicenseLevel') or '').replace("'", "''")
-                    name = (data.get('appFullName') or '').replace("'", "''")
-                    phone = (data.get('appPhone') or '').replace("'", "''")
-                    email = (data.get('appEmail') or '').replace("'", "''")
-                    tops = (data.get('appLicenseNumber') or '').replace("'", "''")
-                    branch = (data.get('appServiceBranch') or '').replace("'", "''")
-                    bio = (data.get('appBio') or '').replace("'", "''")
-                    subprocess.run([
-                        'psql', '-d', 'fused_protective_services', '-c',
-                        f"INSERT INTO candidate_applications (ref_code, position_id, license_level, full_name, phone, email, tops_number, service_branch, bio) "
-                        f"VALUES ('{ref_code}', '{pos}', '{lic}', '{name}', '{phone}', '{email}', '{tops}', '{branch}', '{bio}');"
-                    ], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                else:
-                    name = (data.get('formName') or '').replace("'", "''")
-                    comp = (data.get('formCompany') or '').replace("'", "''")
-                    phone = (data.get('formPhone') or '').replace("'", "''")
-                    email = (data.get('formEmail') or '').replace("'", "''")
-                    div = (data.get('formDivision') or '').replace("'", "''")
-                    armed = (data.get('formArmedPreference') or '').replace("'", "''")
-                    loc = (data.get('formLocation') or '').replace("'", "''")
-                    sched = (data.get('formSchedule') or '').replace("'", "''")
-                    notes = (data.get('formNotes') or '').replace("'", "''")
-                    subprocess.run([
-                        'psql', '-d', 'fused_protective_services', '-c',
-                        f"INSERT INTO client_quotes (ref_code, full_name, company, phone, email, service_division, armed_preference, deployment_location, schedule, notes) "
-                        f"VALUES ('{ref_code}', '{name}', '{comp}', '{phone}', '{email}', '{div}', '{armed}', '{loc}', '{sched}', '{notes}');"
-                    ], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                result = subprocess.run(args, check=False, capture_output=True, text=True)
+                persisted = result.returncode == 0
+                if not persisted:
+                    print(f"[Local Intake] DB insert failed: {result.stderr.strip()}")
             except Exception as e:
-                print(f"[Local Intake] Note: DB insert skipped ({e})")
+                print(f"[Local Intake] DB insert failed ({e})")
+
+            if not persisted:
+                res_body = json.dumps({
+                    "ok": False,
+                    "refCode": ref_code,
+                    "error": "not_delivered",
+                    "message": "Local database write failed; nothing was recorded. See the serve.py console."
+                }).encode('utf-8')
+                self.send_response(503)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Content-Length', str(len(res_body)))
+                self.end_headers()
+                self.wfile.write(res_body)
+                return
 
             is_emergency = not is_candidate and (
                 'Emergency' in str(data.get('formDivision')) or
@@ -105,20 +131,22 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
             self.send_header('Content-Length', str(len(res_body)))
             self.end_headers()
             self.wfile.write(res_body)
             return
 
         if self.path == '/api/stripe-checkout':
+            # No mock links, locally or anywhere. The real function needs a
+            # Stripe key and a stored invoice; run `vercel dev` to exercise it.
             res_body = json.dumps({
-                "url": "https://buy.stripe.com/test_mock_link_local_serve"
+                "ok": False,
+                "error": "payments_not_configured",
+                "message": "Online payment is not available from the local preview server."
             }).encode('utf-8')
-            
-            self.send_response(200)
+
+            self.send_response(503)
             self.send_header('Content-Type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
             self.send_header('Content-Length', str(len(res_body)))
             self.end_headers()
             self.wfile.write(res_body)
