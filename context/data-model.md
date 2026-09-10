@@ -375,6 +375,7 @@ Money is integer cents everywhere; the `invoices` dollar columns are generated. 
 | `invoices` | server-minted `FPS-YYYY-####`, line items from shifts, `kind` standard/deposit/balance, `pay_token` | `draft → sent → partially_paid → paid \| overdue \| void` |
 | `payments`, `stripe_events` | one row per payment; one row per Stripe event id (idempotency) | `pending → succeeded \| failed \| refunded` |
 | `reviews` | post-job request with public token; rating, text, permission to publish | `requested → submitted` |
+| `audit_log` | append-only, trigger-fed: actor, action, per-column diff, summary, parent grouping; staff read only | — |
 | `notifications` | append-only log of every send: trigger, channel, recipient, outcome, `dedupe_key` | — |
 | `settings` | key/value: owner recipients, defaults | — |
 | `sms_opt_outs` | numbers that replied STOP; never texted again | — |

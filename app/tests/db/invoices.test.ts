@@ -79,3 +79,33 @@ d('invoice numbering and payment idempotency', () => {
         expect(pays.rows.map((r) => r.status)).toEqual(['failed', 'succeeded']);
     });
 });
+
+const d3 = url ? describe : describe.skip;
+d3('audit log', () => {
+    let pool: Pool;
+    beforeAll(async () => { pool = new Pool({ connectionString: url }); });
+    afterAll(async () => { await pool?.end(); });
+
+    it('records who changed what, skips no-op writes, and is readable by staff only', async () => {
+        const client = 'cccccccc-0000-4000-8000-000000000003';
+        const inv = (await pool.query(`INSERT INTO public.invoices (client_id, client_name, status, total_cents) VALUES ($1, 'Audit', 'draft', 500) RETURNING id`, [client])).rows[0].id;
+        await pool.query(`UPDATE public.invoices SET status = 'sent', notes = 'n1' WHERE id = $1`, [inv]);
+        await pool.query(`UPDATE public.invoices SET updated_at = now() WHERE id = $1`, [inv]);
+        const rows = (await pool.query(`SELECT action, actor_role, summary, changes FROM public.audit_log WHERE record_id = $1 ORDER BY id`, [inv])).rows;
+        expect(rows.map((r) => r.action)).toEqual(['insert', 'update']);
+        expect(rows[1].summary).toMatch(/draft → sent \(\+1 more\)/);
+        expect(rows[1].changes).toEqual({ status: { old: 'draft', new: 'sent' }, notes: { old: null, new: 'n1' } });
+        expect(rows[1].actor_role).toBe('system');
+
+        const c = await pool.connect();
+        try {
+            await c.query('BEGIN; SET LOCAL ROLE authenticated');
+            await c.query(`SELECT set_config('request.jwt.claim.sub', '11111111-0000-4000-8000-000000000001', true)`);
+            expect((await c.query('SELECT id FROM public.audit_log')).rowCount).toBe(0);
+            await expect(c.query(`DELETE FROM public.audit_log WHERE record_id = $1`, [inv])).rejects.toThrow(/permission denied/);
+        } finally {
+            await c.query('ROLLBACK').catch(() => {});
+            c.release();
+        }
+    });
+});

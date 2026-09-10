@@ -8,6 +8,8 @@ import { ClientFields } from '@/components/client-form';
 import { updateClient, saveSite, invitePortalUser } from '@/lib/actions/clients';
 import { fmtDateTime } from '@/lib/format';
 import type { Site } from '@/lib/db/types';
+import { timelineFor } from '@/lib/domain/timeline';
+import { Timeline } from '@/components/timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,6 +49,7 @@ export default async function ClientPage({ params, searchParams }: { params: Pro
         supabase.from('profiles').select('email, created_at').eq('client_id', id)
     ]);
 
+    const events = await timelineFor({ entityType: 'client', id, related: [...(quotes ?? []).map((q) => ({ entityType: 'quote', id: q.id })), ...(jobs ?? []).map((j) => ({ entityType: 'job', id: j.id })), ...(invoices ?? []).map((i) => ({ entityType: 'invoice', id: i.id }))] });
     return (
         <>
             <PageHead eyebrow="Client" title={client.name} actions={<><LinkButton href={`/portal/quotes/new?client=${id}`} variant="gold">New quote</LinkButton><LinkButton href={`/portal/jobs/new?client=${id}`}>New job</LinkButton></>}>
@@ -76,6 +79,7 @@ export default async function ClientPage({ params, searchParams }: { params: Pro
                             <div><strong>Invoices</strong> {invoices?.length ? invoices.map((i) => <span key={i.id}> · <Link href={`/portal/invoices/${i.id}`}>{i.invoice_number}</Link> <Money cents={i.total_cents} /> <Badge status={i.status} /></span>) : ' — none'}</div>
                         </div>
                     </section>
+                    <Timeline events={events} />
                 </div>
                 <form action={updateClient} className="card stack">
                     <input type="hidden" name="id" value={id} />

@@ -7,6 +7,8 @@ import { StatusFromSearch, type SearchStatus } from '@/components/status-from-se
 import { updateLeadStatus, convertLeadToQuote, markLeadResponded } from '@/lib/actions/leads';
 import { fmtDateTime } from '@/lib/format';
 import { divisionByQuoteValue } from '@/lib/shared';
+import { timelineFor } from '@/lib/domain/timeline';
+import { Timeline } from '@/components/timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +21,7 @@ export default async function LeadPage({ params, searchParams }: { params: Promi
     const supabase = await createSupabaseServerClient();
     const { data: quotes } = await supabase.from('quotes').select('id, quote_number, status, total_cents').eq('source_quote_id', id);
     const division = divisionByQuoteValue(lead.service_division);
+    const events = await timelineFor({ entityType: 'client_quote', id, related: (quotes ?? []).map((q) => ({ entityType: 'quote', id: q.id })) });
 
     return (
         <>
@@ -69,6 +72,7 @@ export default async function LeadPage({ params, searchParams }: { params: Promi
                     ) : null}
                     {lead.client_id ? <p className="small"><Link href={`/portal/clients/${lead.client_id}`}>Open client record →</Link></p> : null}
                 </section>
+                <div style={{ gridColumn: '1 / -1' }}><Timeline events={events} /></div>
             </div>
         </>
     );

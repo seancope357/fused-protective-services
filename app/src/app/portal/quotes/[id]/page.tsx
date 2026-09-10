@@ -9,6 +9,8 @@ import { updateQuote, saveProposal, sendProposal, setQuoteStatus } from '@/lib/a
 import { fmtDateTime } from '@/lib/format';
 import { invoiceDefaults } from '@/lib/shared';
 import { ProposalPaper } from '@/components/proposal-paper';
+import { timelineFor } from '@/lib/domain/timeline';
+import { Timeline } from '@/components/timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,6 +22,7 @@ export default async function QuotePage({ params, searchParams }: { params: Prom
     const supabase = await createSupabaseServerClient();
     const { data: job } = await supabase.from('jobs').select('id, job_number').eq('quote_id', id).maybeSingle();
     const editable = quote.status === 'draft';
+    const events = await timelineFor({ entityType: 'quote', id, related: [...(proposal ? [{ entityType: 'proposal', id: proposal.id }] : []), ...(quote.source_quote_id ? [{ entityType: 'client_quote', id: quote.source_quote_id }] : [])] });
 
     return (
         <>
@@ -75,6 +78,7 @@ export default async function QuotePage({ params, searchParams }: { params: Prom
                         </div>
                     ) : null}
                 </section>
+                <Timeline events={events} />
             </div>
         </>
     );

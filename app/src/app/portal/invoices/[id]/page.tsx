@@ -9,6 +9,8 @@ import { fmtDateTime } from '@/lib/format';
 import { netTerms, appUrl } from '@/lib/shared';
 import { qrSvg } from '@/lib/qr';
 import { PrintButton } from '@/components/print-button';
+import { timelineFor } from '@/lib/domain/timeline';
+import { Timeline } from '@/components/timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,6 +22,7 @@ export default async function InvoicePage({ params, searchParams }: { params: Pr
     const editable = invoice.status === 'draft';
     const payUrl = `${appUrl()}/pay/${invoice.pay_token}`;
     const qr = invoice.status !== 'draft' && invoice.status !== 'void' ? await qrSvg(payUrl) : null;
+    const events = await timelineFor({ entityType: 'invoice', id, related: payments.map((p) => ({ entityType: 'payment', id: p.id })) });
     const lines = editable && invoice.line_items.length === 0 ? [{ description: '', officers: 1, hours: 8, rate_cents: 6500, amount_cents: 0 }] : invoice.line_items;
 
     return (
@@ -99,6 +102,7 @@ export default async function InvoicePage({ params, searchParams }: { params: Pr
                         ) : null}
                         {invoice.status !== 'draft' ? <p className="small mt-4">Pay link: <a href={payUrl} className="mono">{payUrl}</a></p> : null}
                     </section>
+                    <Timeline events={events} />
                 </div>
                 <InvoicePaper invoice={invoice} payUrl={invoice.status !== 'draft' ? payUrl : null} qrSvg={qr} />
             </div>
