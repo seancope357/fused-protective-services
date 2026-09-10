@@ -10,6 +10,8 @@ import { fmtDateTime, fmtTime } from '@/lib/format';
 import { armedLevels } from '@/lib/shared';
 import { isoToLocal } from '@/lib/actions/util';
 import { lineCents } from '@/lib/money';
+import { timelineFor } from '@/lib/domain/timeline';
+import { Timeline } from '@/components/timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,6 +25,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
     const billable = shifts.filter((s) => s.status !== 'cancelled');
     const estimate = billable.reduce((sum, s) => sum + lineCents(s.officers_required, (new Date(s.ends_at).getTime() - new Date(s.starts_at).getTime()) / 3600000, s.bill_rate_cents), 0);
     const hasDeposit = invoices.some((i) => i.kind === 'deposit' && i.status !== 'void');
+    const events = await timelineFor({ entityType: 'job', id, related: [...invoices.map((i) => ({ entityType: 'invoice', id: i.id })), ...(review ? [{ entityType: 'review', id: review.id }] : []), ...(job.quote_id ? [{ entityType: 'quote', id: job.quote_id }] : [])] });
     const open = job.status === 'scheduled' || job.status === 'in_progress';
 
     return (
@@ -110,6 +113,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
                         <div className="row"><button className="btn btn--gold" type="submit">Save job</button></div>
                     </form>
                 </details>
+                <Timeline events={events} />
                 {site ? <section className="card"><h2 className="mb-2">Site</h2><dl className="kv"><dt>Name</dt><dd>{site.name}</dd><dt>Address</dt><dd>{[site.address_line1, site.address_line2, site.city && `${site.city}, ${site.state} ${site.postal_code ?? ''}`].filter(Boolean).join('\n')}</dd><dt>Access</dt><dd>{site.access_notes ?? '—'}</dd><dt>Parking</dt><dd>{site.parking_notes ?? '—'}</dd><dt>Gear</dt><dd>{site.gear_notes ?? '—'}</dd></dl></section> : null}
             </div>
         </>

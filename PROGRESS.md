@@ -121,6 +121,10 @@
 - [x] Form controllers now show a failure message instead of a fake success when delivery fails.
 - [x] Verified on preview and production: rows land in Supabase, DB trigger escalates emergency divisions.
 
+### Audit log and timelines (2026-09-09)
+- [x] `public.audit_log`: trigger-fed, append-only record of every insert/update/delete on clients, sites, leads, quotes, proposals, jobs, shifts, invoices, payments, reviews and settings — actor, per-column old/new diff, one-line summary, parent grouping (migration `20260910000009`; DB test covers diff, no-op suppression, staff-only read, no delete).
+- [x] Timeline on every job, invoice, quote, client and lead page merging changes with the message log; global feed at Portal → Activity.
+
 ### Security hardening (2026-09-09)
 - [x] Staff MFA (TOTP) enrolled at Portal → Security, challenged at sign-in, and enforced by `is_staff()` in the database (migration `20260910000008`; proved in `tests/db/rls.test.ts`).
 - [x] Login rate limiting per address and per email through the shared `intake_gate` function.
