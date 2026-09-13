@@ -104,6 +104,11 @@ What must be true before the custom domain is pointed at this and Cameron starts
 work through it — ordered gates, each with an owner and a verification step:
 **[`docs/GO_LIVE.md`](docs/GO_LIVE.md)**.
 
+About half of those gates are accounts, DNS and legal review that no agent can do. The
+other half — the engineering work — is specified one spec per branch in
+**[`specs/`](specs/README.md)**, with the invariants, acceptance criteria and definition
+of done each one inherits.
+
 ## 🏛️ Operations portal (`app/`)
 
 Everything after the lead — quotes, proposals with binding e-acceptance, jobs and

@@ -12,6 +12,9 @@
 | Marketing site + intake | `fused-protective-services.vercel.app` | `fusedprotectiveservices.com` |
 | Operations portal | `fused-portal.vercel.app` | `app.fusedprotectiveservices.com` |
 
+The engineering half of this list is specified for the agent team in
+[`specs/`](../specs/README.md) — one spec per buildable item, tagged below as **→ SPEC-0NN**.
+
 Setup procedures are in [`RUNBOOK.md`](RUNBOOK.md). The business facts nobody but Cameron
 can supply are in [`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md). **This file is the ordered
 gate list** — what must be true before traffic, and who owns each item.
@@ -51,6 +54,8 @@ statement the site makes that must be true.
       `B00000` is rendering unflagged on the live URL right now, in the footer and in the
       schema.org `identifier`. Connecting the custom domain (C1) before fixing this hides
       the guardrail rather than the problem. Fix A1 first.
+      The guardrail itself is made fail-closed by [**SPEC-001**](../specs/SPEC-001-placeholder-guardrail.md);
+      the number still has to come from Cameron.
 - [ ] **A2 · Prove the dispatch line rings.** `(512) 555-0199` is marked confirmed in
       `src/data/site.mjs`, but `555-01xx` is the North American block reserved for fiction.
       Dial it from an outside phone. If it does not connect, edit `display` and `e164`.
@@ -118,12 +123,12 @@ done until that step passes.
       at a hostname that does not resolve. **Owner: Cameron** (registrar) **/ Sean** (Vercel).
 - [ ] **C2 · `APP_URL` set to the app subdomain and redeployed.** Every emailed link is
       built from it. **Owner: Sean.**
-- [ ] **C3 · Stop preview deploys writing to the production database.** The Supabase
+- [ ] **C3 · Stop preview deploys writing to the production database.** → [**SPEC-002**](../specs/SPEC-002-environment-separation.md) The Supabase
       variables are injected into *all* Vercel environments, so every pull-request preview
       of either project reads and writes live client data — and a preview submission lands
       in Cameron's real leads inbox. Point preview at a Supabase branch (or a second
       project) and keep `sk_test_` keys scoped to preview. **Owner: engineering.**
-- [ ] **C4 · Add the production domain to `productionHosts`** in `src/data/site.mjs` and
+- [ ] **C4 · Add the production domain to `productionHosts`** → [**SPEC-001**](../specs/SPEC-001-placeholder-guardrail.md) in `src/data/site.mjs` and
       consider dropping the `.vercel.app` alias from that list, so preview-style hosts show
       placeholder flags again. **Owner: engineering.**
 
@@ -134,19 +139,19 @@ done until that step passes.
 None of this exists today. It is the difference between software that works and software
 you can run a business on.
 
-- [ ] **D1 · Error monitoring.** There is no Sentry, no error reporting, nothing. A failed
+- [ ] **D1 · Error monitoring.** → [**SPEC-003**](../specs/SPEC-003-error-reporting.md) There is no Sentry, no error reporting, nothing. A failed
       Stripe webhook, a broken cron tick or a 500 on the intake function is currently
       discovered by a customer. Wire one project-wide handler for both Vercel projects and
       alert to a channel someone reads. **Owner: engineering.**
-- [ ] **D2 · Uptime checks** on `/`, `/careers`, `POST /api/intake` (synthetic, honeypot-
+- [ ] **D2 · Uptime checks** → [**SPEC-004**](../specs/SPEC-004-health-and-heartbeat.md) on `/`, `/careers`, `POST /api/intake` (synthetic, honeypot-
       tripped so it delivers nothing), the portal login page, and the hourly
       `/api/cron/tick`. A silently dead cron means no reminders, no overdue chasers and no
       7am digest — with no symptom until revenue is missing. **Owner: engineering.**
-- [ ] **D3 · Analytics and conversion measurement.** Also absent. Without it nobody can say
+- [ ] **D3 · Analytics and conversion measurement.** → [**SPEC-005**](../specs/SPEC-005-conversion-analytics.md) Also absent. Without it nobody can say
       whether the assessment quiz, the estimator or the WebGL intro help or hurt, or what a
       lead costs. Privacy-first and cookieless keeps the privacy policy accurate as written.
       **Owner: Sean.**
-- [ ] **D4 · Database backups — and one restore drill.** Confirm the Supabase plan's backup
+- [ ] **D4 · Database backups — and one restore drill.** → [**SPEC-011**](../specs/SPEC-011-incident-and-restore.md) Confirm the Supabase plan's backup
       cadence and point-in-time recovery window, then actually restore into a scratch
       project once. An untested backup is a hypothesis. **Owner: engineering.**
 - [ ] **D5 · Secrets inventory and rotation.** ~18 variables across two projects
@@ -160,7 +165,7 @@ you can run a business on.
       password-only session once a factor exists — so enrolment is also what proves the
       control works. Create Cameron's account at Portal → Settings → *Add command staff*.
       **Owner: Sean + Cameron.**
-- [ ] **D8 · Rollback and incident procedure, written down.** Which Vercel deployment to
+- [ ] **D8 · Rollback and incident procedure, written down.** → [**SPEC-011**](../specs/SPEC-011-incident-and-restore.md) Which Vercel deployment to
       promote back to, how to disable the cron, who to call when payments misbehave, and
       the fact that migrations are additive and applied by hand through the dashboard.
       One page in `docs/`. **Owner: engineering.**
@@ -169,22 +174,22 @@ you can run a business on.
 
 ## Gate E — Quality before spending money on traffic
 
-- [ ] **E1 · Content-Security-Policy on the marketing site.** The portal has a nonce-based
+- [ ] **E1 · Content-Security-Policy on the marketing site.** → [**SPEC-006**](../specs/SPEC-006-marketing-site-csp.md) The portal has a nonce-based
       CSP and HSTS; `vercel.json` at the repo root sets four headers and no CSP — on the
       surface that actually collects names, phone numbers and emails. The code standards
       already forbid inline handlers and inline styles, so a strict policy
       (`self` + the two three.js CDNs + Google Fonts) is mostly a matter of writing it.
       Add HSTS there too. **Owner: engineering.**
-- [ ] **E2 · Real social and favicon assets.** `assets/logo.png` is 1.07 MB at 1000×1000 and
+- [ ] **E2 · Real social and favicon assets.** → [**SPEC-007**](../specs/SPEC-007-brand-assets.md) `assets/logo.png` is 1.07 MB at 1000×1000 and
       is simultaneously the brand plate, the WebGL voxel source, the favicon and the
       `og:image` — while the page declares `twitter:card: summary_large_image`, which wants
       1200×630. Every share preview is currently a 1 MB square in a wide frame. Ship a
       dedicated OG card and a small favicon set. **Owner: engineering.**
-- [ ] **E3 · Mobile performance budget.** The intro assembles ~65,000 voxel cubes over
+- [ ] **E3 · Mobile performance budget.** → [**SPEC-009**](../specs/SPEC-009-performance-budget.md) The intro assembles ~65,000 voxel cubes over
       WebGL, with three.js pulled from jsDelivr (unpkg fallback). Measure Core Web Vitals
       on a mid-range Android over 4G and set a budget. The reduced-motion and
       no-WebGL fallbacks exist; confirm they look deliberate. **Owner: engineering.**
-- [ ] **E4 · Accessibility pass against the stated WCAG 2.1 AA baseline.** `context/ui-standards.md`
+- [ ] **E4 · Accessibility pass against the stated WCAG 2.1 AA baseline.** → [**SPEC-008**](../specs/SPEC-008-accessibility-gate.md) `context/ui-standards.md`
       claims AA; CI checks drift and unit tests, not accessibility. Run axe over both pages
       plus the portal's forms, and keyboard-walk the quote form, the bookshelf, the protocol
       tablist and the drawer. Add the check to CI so the claim stays true. **Owner: engineering.**
@@ -205,7 +210,7 @@ you can run a business on.
 - [ ] **F2 · Portal → Settings populated:** alert recipients, default deposit %
       ([§7](OPEN_QUESTIONS.md)), tax defaults and any exempt clients, integrations check all
       green. **Owner: Cameron.**
-- [ ] **F3 · Decide what happens to candidate applications.** `/careers` writes to
+- [ ] **F3 · Decide what happens to candidate applications.** → [**SPEC-010**](../specs/SPEC-010-candidate-ats.md) `/careers` writes to
       `candidate_applications` and emails dispatch, but **the portal has no screen for
       them** — there is no way to review, stage or reject a candidate except in email and
       the Supabase table editor. Either build the ATS inbox or agree explicitly that

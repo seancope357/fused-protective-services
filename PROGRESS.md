@@ -173,6 +173,12 @@ production database, no CSP on the marketing site, no accessibility check in CI,
 portal screen for `candidate_applications`. Every box names an owner and a verification
 step.
 
+The buildable half is broken into eleven specs in
+[`specs/`](file:///Users/cope/projects/fused-protective-services/specs/README.md) — one
+branch and one pull request each, with a status table, a dependency order, the invariants
+every spec inherits, and a shared definition of done. 001, 006, 007, 008 and 011 are
+independent and can start at once; 002 unblocks 003, 004, 005 and 010.
+
 ---
 
 ## 🔮 Backlog & Future Workstreams
