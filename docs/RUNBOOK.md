@@ -1,7 +1,10 @@
 # RUNBOOK — Fused Protective Services
 
 Environment variables, third-party accounts, the order to configure them, and how
-to verify each one end to end. Every value below is set in Vercel
+to verify each one end to end. For *what must be true before launch* — including the
+operational items this file does not cover — see [`GO_LIVE.md`](GO_LIVE.md).
+
+ Every value below is set in Vercel
 (`vercel env add NAME production` or the dashboard), never committed.
 
 Two Vercel projects, one repository:

@@ -98,6 +98,12 @@ email to the visitor → optional webhook. Every stage is reported; nothing fake
 success. Setup order and verification: [`docs/RUNBOOK.md`](docs/RUNBOOK.md).
 Blocked items: [`docs/OPEN_QUESTIONS.md`](docs/OPEN_QUESTIONS.md).
 
+## 🚀 Going live
+
+What must be true before the custom domain is pointed at this and Cameron starts taking
+work through it — ordered gates, each with an owner and a verification step:
+**[`docs/GO_LIVE.md`](docs/GO_LIVE.md)**.
+
 ## 🏛️ Operations portal (`app/`)
 
 Everything after the lead — quotes, proposals with binding e-acceptance, jobs and

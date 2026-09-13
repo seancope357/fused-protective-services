@@ -162,6 +162,17 @@
 
 Tracked in [`docs/OPEN_QUESTIONS.md`](file:///Users/cope/projects/fused-protective-services/docs/OPEN_QUESTIONS.md): dispatch phone, DPS licence number, alert recipients, sales-tax confirmation, Resend terms, Twilio 10DLC, custom domain.
 
+## 🚀 Go-live gates
+
+[`docs/GO_LIVE.md`](file:///Users/cope/projects/fused-protective-services/docs/GO_LIVE.md)
+is the ordered launch gate list — legal and licensing, the lead-to-cash delivery chain,
+domains and environment separation, operational readiness, site quality, and Cameron's
+day-one dry run. It adds the items this tracker did not carry: error monitoring, uptime
+checks, analytics, a backup restore drill, preview deploys currently writing to the
+production database, no CSP on the marketing site, no accessibility check in CI, and no
+portal screen for `candidate_applications`. Every box names an owner and a verification
+step.
+
 ---
 
 ## 🔮 Backlog & Future Workstreams
