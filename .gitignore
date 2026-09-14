@@ -8,3 +8,8 @@ Thumbs.db
 .idea/
 .vercel
 .env*
+
+# Agent worktrees — transient working copies created by the build team,
+# never project content. Each is a full checkout; committing one would
+# duplicate the entire repository.
+.claude/worktrees/
