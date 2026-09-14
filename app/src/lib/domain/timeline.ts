@@ -74,30 +74,39 @@ export async function timelineFor(scope: TimelineScope, limit = 80): Promise<Tim
 }
 
 /** The global feed for /portal/activity. */
-export async function recentActivity(limit = 200): Promise<(TimelineEvent & { entityType: string; recordId: string })[]> {
+export async function recentActivity(limit = 200): Promise<(TimelineEvent & { entityType: string; recordId: string; parentId: string | null })[]> {
     const supabase = await createSupabaseServerClient();
     const [{ data: audits }, { data: profiles }] = await Promise.all([
-        supabase.from('audit_log').select('id, at, actor_id, actor_role, action, entity_type, record_id, summary').order('at', { ascending: false }).limit(limit),
+        supabase.from('audit_log').select('id, at, actor_id, actor_role, action, entity_type, record_id, parent_id, summary').order('at', { ascending: false }).limit(limit),
         supabase.from('profiles').select('id, full_name, email')
     ]);
     const names = new Map((profiles ?? []).map((p) => [p.id, p.full_name || p.email || 'staff']));
     return (audits ?? []).map((a) => ({
         id: `a${a.id}`, at: a.at, kind: 'change' as const,
         actor: a.actor_id ? (names.get(a.actor_id) ?? a.actor_role) : a.actor_role,
-        summary: a.summary, entityType: a.entity_type, recordId: a.record_id
+        summary: a.summary, entityType: a.entity_type, recordId: a.record_id, parentId: a.parent_id ?? null
     }));
 }
 
-/** Where a record lives in the portal, for links in the feed. */
-export function entityHref(entityType: string, id: string): string | null {
+/**
+ * Where a record lives in the portal, for links in the feed. Child records
+ * have no page of their own, so they link to the parent audit_log recorded
+ * (payment → invoice, shift and review → job, site → client, proposal →
+ * quote) by the parent's id. Null when there is no page to link to.
+ */
+export function entityHref(entityType: string, id: string, parentId?: string | null): string | null {
     switch (entityType) {
         case 'client_quote': return `/portal/leads/${id}`;
-        case 'client': case 'site': return `/portal/clients/${id}`;
-        case 'quote': case 'proposal': return `/portal/quotes/${id}`;
-        case 'job': case 'shift': case 'review': return `/portal/jobs/${id}`;
-        case 'invoice': case 'payment': return `/portal/invoices/${id}`;
+        case 'client': return `/portal/clients/${id}`;
+        case 'quote': return `/portal/quotes/${id}`;
+        case 'job': return `/portal/jobs/${id}`;
+        case 'invoice': return `/portal/invoices/${id}`;
         case 'candidate': return `/portal/candidates/${id}`;
         case 'setting': return '/portal/settings';
+        case 'site': return parentId ? `/portal/clients/${parentId}` : null;
+        case 'proposal': return parentId ? `/portal/quotes/${parentId}` : null;
+        case 'shift': case 'review': return parentId ? `/portal/jobs/${parentId}` : null;
+        case 'payment': return parentId ? `/portal/invoices/${parentId}` : null;
         default: return null;
     }
 }

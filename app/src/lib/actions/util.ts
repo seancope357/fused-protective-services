@@ -58,6 +58,22 @@ export const str = (fd: FormData, key: string, max = 2000): string => String(fd.
 export const optStr = (fd: FormData, key: string, max = 2000): string | null => str(fd, key, max) || null;
 export const bool = (fd: FormData, key: string): boolean => fd.get(key) === 'on' || fd.get(key) === 'true' || fd.get(key) === '1';
 
+/**
+ * The client-portal path a payer may be sent back to after checkout, or null.
+ * `return_to` arrives in a form, so it is untrusted: only a plain path under
+ * /client/ passes — non-empty segments of letters, digits, `-` and `_`, with
+ * no query, fragment, dots, backslashes, percent-escapes or whitespace. Our
+ * own origin spelled out (the client invoice page renders
+ * `${appUrl()}/client/…`) is reduced to its path; every other absolute or
+ * protocol-relative URL is refused, so this cannot become an open redirect.
+ */
+export function safeReturnTo(value: string | null | undefined, origin: string): string | null {
+    if (!value) return null;
+    const base = origin.replace(/\/+$/, '');
+    const path = base && value.startsWith(`${base}/`) ? value.slice(base.length) : value;
+    return /^\/client(?:\/[A-Za-z0-9_-]+)+$/.test(path) ? path : null;
+}
+
 /** Reads a datetime-local value entered in the business timezone and returns ISO. */
 export function localToIso(value: string, offsetHint = '-05:00'): string | null {
     if (!value) return null;

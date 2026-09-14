@@ -61,6 +61,13 @@ describe('supabaseProjectRef', () => {
         expect(supabaseProjectRef()).toBe('abcdefghijklmnopqrst');
     });
 
+    it('labels a local stack instead of reporting "127" as a project', () => {
+        process.env.NEXT_PUBLIC_SUPABASE_URL = 'http://127.0.0.1:54621';
+        expect(supabaseProjectRef()).toBe('local');
+        process.env.NEXT_PUBLIC_SUPABASE_URL = 'http://localhost:54321';
+        expect(supabaseProjectRef()).toBe('local');
+    });
+
     it('returns null rather than inventing a project', () => {
         delete process.env.NEXT_PUBLIC_SUPABASE_URL;
         delete process.env.SUPABASE_URL;

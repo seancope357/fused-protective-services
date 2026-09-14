@@ -1,10 +1,17 @@
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { PageHead, Badge, Empty } from '@/components/ui';
+import { DataTable, type Column } from '@/components/data-table';
 import { fmtDateTime } from '@/lib/format';
 import type { Proposal } from '@/lib/db/types';
 
 export const dynamic = 'force-dynamic';
+
+const columns: Column<Proposal>[] = [
+    { key: 'title', header: 'Proposal', primary: true, cell: (p) => <Link href={`/client/proposals/${p.id}`}>{p.title}</Link> },
+    { key: 'sent', header: 'Sent', cell: (p) => <span className="small">{fmtDateTime(p.sent_at)}</span> },
+    { key: 'status', header: 'Status', cell: (p) => <Badge status={p.status} /> }
+];
 
 export default async function ClientProposals() {
     const supabase = await createSupabaseServerClient();
@@ -12,8 +19,8 @@ export default async function ClientProposals() {
     const proposals = (data ?? []) as Proposal[];
     return (
         <>
-            <PageHead eyebrow="Documents" title="Proposals" />
-            {proposals.length ? <div className="card table-wrap"><table><thead><tr><th>Proposal</th><th>Sent</th><th>Status</th></tr></thead><tbody>{proposals.map((p) => <tr key={p.id}><td><Link href={`/client/proposals/${p.id}`}>{p.title}</Link></td><td className="small">{fmtDateTime(p.sent_at)}</td><td><Badge status={p.status} /></td></tr>)}</tbody></table></div> : <Empty>No proposals yet.</Empty>}
+            <PageHead eyebrow="Documents" title="Proposals">Open a proposal to read the scope and terms, then accept it right on the page.</PageHead>
+            {proposals.length ? <DataTable caption="Proposals" columns={columns} rows={proposals} rowKey={(p) => p.id} /> : <Empty>No proposals yet.</Empty>}
         </>
     );
 }

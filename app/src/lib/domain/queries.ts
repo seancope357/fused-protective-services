@@ -164,3 +164,32 @@ export async function getSettings(): Promise<Record<string, unknown>> {
     const { data } = await (await db()).from('settings').select('key, value');
     return Object.fromEntries((data ?? []).map((r) => [r.key, r.value]));
 }
+
+/* ---------- Getting started (SPEC-012 §4) ----------
+
+   Head counts only: the checklist needs "has this ever happened", never the
+   rows. Alerts count as set only when the owner has saved both an email and a
+   phone in Settings — the environment fallbacks were set up by Sean at install
+   and prove nothing about where Cameron wants to be woken up. "Sent" means past
+   draft; a voided invoice is excluded because a draft can be voided unsent.
+   Clients, quotes, jobs and invoices carry no source_env (only intake tables
+   do, SPEC-002), so no production scope applies here. */
+export async function gettingStartedFacts(): Promise<import('@/lib/domain/getting-started').StartFacts> {
+    const supabase = await db();
+    const head = { count: 'exact', head: true } as const;
+    const [{ data: owner }, clients, quotes, jobs, invoices] = await Promise.all([
+        supabase.from('settings').select('key, value').in('key', ['owner_email', 'owner_phone']),
+        supabase.from('clients').select('id', head),
+        supabase.from('quotes').select('id', head).in('status', ['sent', 'accepted', 'declined', 'expired']),
+        supabase.from('jobs').select('id', head),
+        supabase.from('invoices').select('id', head).in('status', ['sent', 'partially_paid', 'paid', 'overdue'])
+    ]);
+    const has = (key: string) => Boolean(String(owner?.find((r) => r.key === key)?.value ?? '').trim());
+    return {
+        alertsSet: has('owner_email') && has('owner_phone'),
+        clients: clients.count ?? 0,
+        quotesSent: quotes.count ?? 0,
+        jobs: jobs.count ?? 0,
+        invoicesSent: invoices.count ?? 0
+    };
+}

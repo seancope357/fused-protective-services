@@ -13,9 +13,14 @@ export default async function NewQuotePage({ searchParams }: { searchParams: Pro
     const client = clients.find((c) => c.id === params.client);
     return (
         <>
-            <PageHead eyebrow="Sales" title="New quote">Totals are computed on save: officers × hours × rate, plus tax.</PageHead>
+            {/* The form is long, so its submit lives in the page head: pinned
+                above the tab bar on a phone, reachable without scrolling. The
+                in-form button stays for anyone who has just reached the end. */}
+            <PageHead eyebrow="Sales" title="New quote" primary={<button type="submit" form="quote-new" className="btn btn--gold">Create draft quote</button>}>
+                The total is worked out when you save: officers × hours × hourly rate, plus tax.
+            </PageHead>
             <StatusFromSearch params={params} />
-            <form action={createQuote} className="card stack mt-4">
+            <form id="quote-new" action={createQuote} className="card stack mt-4">
                 <QuoteFields clients={clients} sites={sites} clientId={params.client} defaultTaxRate={client?.tax_exempt ? 0 : client?.default_tax_rate_pct} />
                 <div className="row"><button className="btn btn--gold" type="submit">Create draft quote</button></div>
             </form>

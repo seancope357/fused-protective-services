@@ -12,9 +12,13 @@ export default async function NewJobPage({ searchParams }: { searchParams: Promi
     const sites = params.client ? await listSites(params.client) : [];
     return (
         <>
-            <PageHead eyebrow="Operations" title="New job">For work that did not come through a proposal. Shifts are generated from the first window and the recurrence.</PageHead>
+            {/* The form is long, so its submit is the page's primary action: pinned
+                under the thumb on phone and tablet, via the form attribute. */}
+            <PageHead eyebrow="Operations" title="New job" primary={<button type="submit" form="new-job" className="btn btn--gold">Create job</button>}>
+                For work that did not come through a proposal. Shifts are made from the first shift&apos;s times, repeated on the days you choose.
+            </PageHead>
             <StatusFromSearch params={params} />
-            <form action={createJob} className="card stack mt-4">
+            <form id="new-job" action={createJob} className="card stack mt-4">
                 <JobFields clients={clients} sites={sites} clientId={params.client} />
                 <div className="row"><button className="btn btn--gold" type="submit">Create job</button></div>
             </form>

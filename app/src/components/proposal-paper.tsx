@@ -44,18 +44,21 @@ export function ProposalPaper({ proposal, quote, client, signature }: { proposal
                 </dl>
             </div>
 
-            <table className="mt-4">
-                <thead><tr><th>Service</th><th className="num">Officers</th><th className="num">Hours</th><th className="num">Rate</th><th className="num">Amount</th></tr></thead>
-                <tbody>
-                    <tr>
-                        <td>{division?.heading ?? quote.division_quote_value}<div className="small">{level}{quote.starts_at ? ` · ${fmtDateTime(quote.starts_at)}${quote.ends_at ? ` – ${fmtDateTime(quote.ends_at)}` : ''}` : ''}</div></td>
-                        <td className="num">{quote.officer_count}</td>
-                        <td className="num">{quote.hours}</td>
-                        <td className="num">{formatMoney(quote.bill_rate_cents)}/hr</td>
-                        <td className="num">{formatMoney(quote.subtotal_cents)}</td>
-                    </tr>
-                </tbody>
-            </table>
+            {/* Only the line items scroll sideways on a narrow phone; the paper never does. */}
+            <div className="table-wrap mt-4" role="region" aria-label="Line items" tabIndex={0}>
+                <table>
+                    <thead><tr><th>Service</th><th className="num">Officers</th><th className="num">Hours</th><th className="num">Rate</th><th className="num">Amount</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td>{division?.heading ?? quote.division_quote_value}<div className="small">{level}{quote.starts_at ? ` · ${fmtDateTime(quote.starts_at)}${quote.ends_at ? ` – ${fmtDateTime(quote.ends_at)}` : ''}` : ''}</div></td>
+                            <td className="num">{quote.officer_count}</td>
+                            <td className="num">{quote.hours}</td>
+                            <td className="num">{formatMoney(quote.bill_rate_cents)}/hr</td>
+                            <td className="num">{formatMoney(quote.subtotal_cents)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <div className="paper__totals">
                 <div><span>Subtotal</span><span>{formatMoney(quote.subtotal_cents)}</span></div>
                 {quote.tax_cents > 0 ? <div><span>Sales tax ({quote.tax_rate_pct}%)</span><span>{formatMoney(quote.tax_cents)}</span></div> : null}

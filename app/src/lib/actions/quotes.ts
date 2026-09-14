@@ -58,7 +58,7 @@ export async function updateQuote(formData: FormData): Promise<void> {
     const row = readQuote(formData);
     const supabase = await createSupabaseServerClient();
     const { data: current } = await supabase.from('quotes').select('status').eq('id', id).maybeSingle();
-    if (!current || current.status !== 'draft') done(`/portal/quotes/${id}`, 'Only draft quotes can be edited. Duplicate it to revise.', 'warn');
+    if (!current || current.status !== 'draft') done(`/portal/quotes/${id}`, 'Only draft quotes can be edited. To revise it, mark it declined and start a new quote.', 'warn');
     const { error } = await supabase.from('quotes').update(row).eq('id', id);
     if (error) done(`/portal/quotes/${id}`, `Could not save: ${error.message}`, 'bad');
     done(`/portal/quotes/${id}`, `Quote saved — total ${formatMoney(row.total_cents)}.`);
@@ -113,7 +113,7 @@ export async function sendProposal(formData: FormData): Promise<void> {
     if (quote.source_quote_id) await supabaseAdmin().from('client_quotes').update({ status: 'proposal_sent' }).eq('id', quote.source_quote_id);
 
     const summary = await dispatch('proposal_sent', { client: client as Client, quote: quote as Quote, proposal: proposal as Proposal, link: `${appUrl()}/client/proposals/${proposal.id}` }, { entityType: 'proposal', entityId: proposal.id });
-    if (summary.sent === 0) done(`/portal/quotes/${quoteId}`, 'Proposal marked sent, but the email did not go out (check the notification log and the sender configuration).', 'warn');
+    if (summary.sent === 0) done(`/portal/quotes/${quoteId}`, "Proposal marked sent, but the email didn't go out. Email may not be set up yet — the message log shows why.", 'warn');
     done(`/portal/quotes/${quoteId}`, `Proposal sent to ${client.billing_email}.`);
 }
 

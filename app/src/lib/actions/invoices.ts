@@ -168,7 +168,7 @@ export async function sendInvoice(formData: FormData): Promise<void> {
     if (invoice.status === 'draft') await supabase.from('invoices').update({ status: 'sent', sent_at: new Date().toISOString() }).eq('id', id);
     const ctxClient = (client as Client | null) ?? ({ billing_email: invoice.client_email, billing_contact_name: invoice.client_name, name: invoice.client_company || invoice.client_name } as Client);
     const summary = await dispatch('invoice_sent', { client: ctxClient, invoice: { ...(invoice as Invoice), status: invoice.status === 'draft' ? 'sent' : invoice.status }, link: `${appUrl()}/pay/${invoice.pay_token}` }, { entityType: 'invoice', entityId: id });
-    done(`/portal/invoices/${id}`, summary.sent ? `Invoice emailed to ${invoice.client_email} with a pay link.` : 'Invoice marked sent, but the email did not go out (check the notification log and sender configuration).', summary.sent ? 'good' : 'warn');
+    done(`/portal/invoices/${id}`, summary.sent ? `Invoice emailed to ${invoice.client_email} with a pay link.` : "Invoice marked sent, but the email didn't go out. Email may not be set up yet — the message log shows why.", summary.sent ? 'good' : 'warn');
 }
 
 export async function voidInvoice(formData: FormData): Promise<void> {

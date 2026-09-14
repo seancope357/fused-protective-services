@@ -2,16 +2,48 @@ import Link from 'next/link';
 import { formatMoney } from '@/lib/money';
 import { statusLabel } from '@/lib/format';
 
-export function PageHead({ eyebrow, title, actions, children }: { eyebrow?: string; title: string; actions?: React.ReactNode; children?: React.ReactNode }) {
+/** `primary` is the one thing the screen exists to do. From 1024px it sits
+    last in the actions row; below that it is pinned in an action bar above the
+    tab bar, so it is always under the thumb (SPEC-012). */
+export function PageHead({ eyebrow, title, actions, primary, children }: { eyebrow?: string; title: string; actions?: React.ReactNode; primary?: React.ReactNode; children?: React.ReactNode }) {
     return (
         <header className="page-head">
             <div>
                 {eyebrow ? <div className="page-head__eyebrow">{eyebrow}</div> : null}
                 <h1>{title}</h1>
-                {children ? <p className="mt-2">{children}</p> : null}
+                {children ? <p className="mt-2 page-head__lede">{children}</p> : null}
             </div>
-            {actions ? <div className="page-head__actions">{actions}</div> : null}
+            {actions || primary ? (
+                <div className="page-head__actions">
+                    {actions}
+                    {primary ? <div className="page-head__primary">{primary}</div> : null}
+                </div>
+            ) : null}
         </header>
+    );
+}
+
+/** A filter strip: one scrolling row on a phone, wrapping rows from 600px. */
+export function Chips({ label, caption, items }: { label: string; caption?: string; items: { href: string; label: string; active: boolean }[] }) {
+    return (
+        <nav className="chips" aria-label={label}>
+            {caption ? <span className="chips__label">{caption}</span> : null}
+            {items.map((item) => (
+                <Link key={item.href} href={item.href} className="chip" aria-current={item.active ? 'true' : undefined}>
+                    {item.label}
+                </Link>
+            ))}
+        </nav>
+    );
+}
+
+/** A styled <details>. Use it for anything Cameron rarely needs: technical detail, exports, long edit forms. */
+export function Disclosure({ summary, children, open, className }: { summary: React.ReactNode; children: React.ReactNode; open?: boolean; className?: string }) {
+    return (
+        <details className={`disclosure${className ? ` ${className}` : ''}`} open={open}>
+            <summary>{summary}</summary>
+            <div className="disclosure__body">{children}</div>
+        </details>
     );
 }
 

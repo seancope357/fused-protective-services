@@ -1,28 +1,49 @@
 import Link from 'next/link';
 import { site, logoSrc } from '@/lib/shared';
 import type { Session } from '@/lib/auth';
+import type { NavItem } from '@/lib/nav';
+import { SidebarLinks, TabBar } from '@/components/nav';
 
-export type NavItem = { href: string; label: string; count?: number };
+export type { NavItem };
 
+/* The application frame (SPEC-012). Both navigations are rendered and CSS
+   shows exactly one: the tab bar and More sheet below 1024px, the sidebar
+   from 1024px. The frame itself stays a server component; only the pieces
+   that need the current path live in components/nav.tsx. */
 export function Shell({ session, items, area, children }: { session: Session; items: NavItem[]; area: string; children: React.ReactNode }) {
+    const root = items[0]?.href ?? '/';
+    const account = { name: session.fullName || session.email || 'Signed in', role: session.role.charAt(0).toUpperCase() + session.role.slice(1) };
+    /* With no More sheet (the client portal), sign-out has to live in the top bar. */
+    const everyItemIsATab = items.every((item) => item.tab);
+
+    const brand = (
+        <Link href={root} className="brand">
+            <img src={logoSrc} alt="" width={34} height={34} />
+            <div>
+                <div className="brand__title">{site.shortName}</div>
+                <div className="brand__sub">{area}</div>
+            </div>
+        </Link>
+    );
+
     return (
         <div className="shell">
             <a href="#main" className="skip-link">Skip to content</a>
-            <nav className="shell__nav no-print" aria-label={`${area} navigation`}>
-                <Link href={items[0]?.href ?? '/'} className="shell__brand">
-                    <img src={logoSrc} alt="" width={36} height={36} />
+            <header className="topbar no-print">
+                {brand}
+                {everyItemIsATab ? (
+                    <form action="/auth/signout" method="post" style={{ marginLeft: 'auto' }}>
+                        <button type="submit" className="btn btn--ghost btn--sm">Sign out</button>
+                    </form>
+                ) : null}
+            </header>
+            <nav className="sidebar no-print" aria-label={`${area} navigation`}>
+                {brand}
+                <SidebarLinks items={items} root={root} />
+                <div className="sidebar__foot">
                     <div>
-                        <div className="shell__brand-title">{site.shortName}</div>
-                        <div className="shell__brand-sub">{area}</div>
-                    </div>
-                </Link>
-                {items.map((item) => (
-                    <NavLink key={item.href} item={item} />
-                ))}
-                <div className="shell__foot">
-                    <div>
-                        <strong style={{ color: 'var(--text-secondary)' }}>{session.fullName || session.email}</strong>
-                        <div className="mono" style={{ fontSize: 11 }}>{session.role}</div>
+                        <strong>{account.name}</strong>
+                        <div>{account.role}</div>
                     </div>
                     <form action="/auth/signout" method="post">
                         <button type="submit" className="btn btn--ghost btn--sm">Sign out</button>
@@ -32,15 +53,7 @@ export function Shell({ session, items, area, children }: { session: Session; it
             <main id="main" className="shell__main">
                 {children}
             </main>
+            <TabBar items={items} root={root} area={area} account={account} />
         </div>
-    );
-}
-
-function NavLink({ item }: { item: NavItem }) {
-    return (
-        <Link href={item.href} className="shell__link">
-            <span>{item.label}</span>
-            {item.count ? <span className="shell__link-count" aria-label={`${item.count} needing attention`}>{item.count}</span> : null}
-        </Link>
     );
 }

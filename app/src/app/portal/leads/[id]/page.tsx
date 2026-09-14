@@ -5,7 +5,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { PageHead, Badge, Field } from '@/components/ui';
 import { StatusFromSearch, type SearchStatus } from '@/components/status-from-search';
 import { updateLeadStatus, convertLeadToQuote, markLeadResponded } from '@/lib/actions/leads';
-import { fmtDateTime } from '@/lib/format';
+import { fmtDateTime, statusLabel, titleCase } from '@/lib/format';
 import { divisionByQuoteValue } from '@/lib/shared';
 import { timelineFor } from '@/lib/domain/timeline';
 import { Timeline } from '@/components/timeline';
@@ -19,23 +19,31 @@ export default async function LeadPage({ params, searchParams }: { params: Promi
     const lead = await getLead(id);
     if (!lead) notFound();
     const supabase = await createSupabaseServerClient();
-    const { data: quotes } = await supabase.from('quotes').select('id, quote_number, status, total_cents').eq('source_quote_id', id);
+    const { data: quotes } = await supabase.from('quotes').select('id, quote_number, status, total_cents').eq('source_quote_id', id).order('created_at', { ascending: false });
     const division = divisionByQuoteValue(lead.service_division);
     const events = await timelineFor({ entityType: 'client_quote', id, related: (quotes ?? []).map((q) => ({ entityType: 'quote', id: q.id })) });
+    /* A lead can be converted more than once; link the newest quote. */
+    const quote = quotes && quotes.length ? quotes[0] : null;
 
     return (
         <>
+            {/* Turning the lead into a quote is what this screen is for, so it is
+                the pinned action. Calling back is the most common thing done
+                from a phone, so Call and Email are full-size buttons right under
+                the name rather than links buried in the details. */}
             <PageHead eyebrow={`Lead ${lead.ref_code}`} title={lead.company ? `${lead.company} — ${lead.full_name}` : lead.full_name}
                 actions={
                     <>
-                        <a className="btn btn--ghost" href={`tel:${lead.phone}`}>Call {lead.phone}</a>
-                        <a className="btn btn--ghost" href={`mailto:${lead.email}`}>Email</a>
-                        {quotes && quotes.length ? (
-                            <Link className="btn btn--gold" href={`/portal/quotes/${quotes[0].id}`}>Open quote {quotes[0].quote_number}</Link>
-                        ) : (
-                            <form action={convertLeadToQuote}><input type="hidden" name="id" value={lead.id} /><button className="btn btn--gold" type="submit">Convert to quote</button></form>
-                        )}
+                        {lead.phone ? <a className="btn btn--ghost" href={`tel:${lead.phone}`}>Call {lead.phone}</a> : null}
+                        {lead.email ? <a className="btn btn--ghost" href={`mailto:${lead.email}`}>Email</a> : null}
                     </>
+                }
+                primary={
+                    quote ? (
+                        <Link className="btn btn--gold" href={`/portal/quotes/${quote.id}`}>Open quote {quote.quote_number}</Link>
+                    ) : (
+                        <form action={convertLeadToQuote}><input type="hidden" name="id" value={lead.id} /><button className="btn btn--gold" type="submit">Convert to quote</button></form>
+                    )
                 }>
                 Received {fmtDateTime(lead.created_at)} · <Badge status={lead.priority} /> · <Badge status={lead.status} />
                 {lead.status === 'new' && !lead.first_response_at ? ' · not yet responded' : ''}
@@ -51,9 +59,9 @@ export default async function LeadPage({ params, searchParams }: { params: Promi
                         <dt>Location</dt><dd>{lead.deployment_location}</dd>
                         <dt>Schedule</dt><dd>{lead.schedule}</dd>
                         <dt>Notes</dt><dd>{lead.notes ?? '—'}</dd>
-                        <dt>Phone</dt><dd>{lead.phone}</dd>
-                        <dt>Email</dt><dd>{lead.email}</dd>
-                        <dt>SMS consent</dt><dd>{lead.sms_consent ? `Yes, ${fmtDateTime(lead.sms_consent_at)}` : 'No'}</dd>
+                        <dt>Phone</dt><dd>{lead.phone ? <a href={`tel:${lead.phone}`}>{lead.phone}</a> : '—'}</dd>
+                        <dt>Email</dt><dd>{lead.email ? <a href={`mailto:${lead.email}`}>{lead.email}</a> : '—'}</dd>
+                        <dt>Text messages</dt><dd>{lead.sms_consent ? `Agreed ${fmtDateTime(lead.sms_consent_at)}` : 'Not agreed'}</dd>
                     </dl>
                 </section>
                 <section className="card stack">
@@ -62,7 +70,7 @@ export default async function LeadPage({ params, searchParams }: { params: Promi
                         <input type="hidden" name="id" value={lead.id} />
                         <Field id="status" label="Stage">
                             <select id="status" name="status" defaultValue={lead.status}>
-                                {STAGES.map((s) => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
+                                {STAGES.map((s) => <option key={s} value={s}>{titleCase(statusLabel(s))}</option>)}
                             </select>
                         </Field>
                         <button className="btn btn--ghost" type="submit">Update stage</button>
@@ -72,7 +80,7 @@ export default async function LeadPage({ params, searchParams }: { params: Promi
                     ) : null}
                     {lead.client_id ? <p className="small"><Link href={`/portal/clients/${lead.client_id}`}>Open client record →</Link></p> : null}
                 </section>
-                <div style={{ gridColumn: '1 / -1' }}><Timeline events={events} /></div>
+                <div className="span-all"><Timeline events={events} /></div>
             </div>
         </>
     );
