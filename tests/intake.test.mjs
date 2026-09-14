@@ -5,6 +5,7 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import handler from '../api/intake.mjs';
+import { deployEnv, isProduction } from '../api/_lib/env.mjs';
 import { makeReq, makeRes, stubFetch, withEnv } from './helpers/http.mjs';
 
 const CLEAR = {
@@ -19,6 +20,12 @@ const CLEAR = {
     DISPATCH_ALERT_SMS_TO: undefined,
     DISPATCH_ALERT_WEBHOOK: undefined,
     HUBSPOT_WEBHOOK_URL: undefined,
+    /* Every test below that does not say otherwise is the production
+       deployment, so "unchanged in production" is the default assertion. */
+    VERCEL_ENV: 'production',
+    VERCEL_URL: undefined,
+    VERCEL_BRANCH_URL: undefined,
+    VERCEL_PROJECT_PRODUCTION_URL: undefined,
     NODE_ENV: 'test'
 };
 
@@ -37,6 +44,48 @@ const quote = (extra = {}) => ({
 let env;
 before(() => { env = withEnv(CLEAR); });
 after(() => env.restore());
+
+/* ---------- Which deployment is this? ----------
+   The one that must not be got backwards. Production is production only when
+   VERCEL_ENV says so; everywhere else — a laptop, node --test, serve.py — is
+   development, because an environment that cannot prove it is production must
+   not be allowed to email dispatch or text the owner. */
+
+test('deployEnv: absent VERCEL_ENV is development, never production', () => {
+    const e = withEnv({ VERCEL_ENV: undefined });
+    try {
+        assert.equal(deployEnv(), 'development');
+        assert.equal(isProduction(), false);
+    } finally { e.restore(); }
+});
+
+test('deployEnv: production only when VERCEL_ENV says production', () => {
+    for (const [value, expected] of [
+        ['production', 'production'],
+        ['preview', 'preview'],
+        ['development', 'development'],
+        ['', 'development'],
+        ['   ', 'development'],
+        ['prod', 'development'],
+        ['staging', 'development'],
+        ['productionish', 'development']
+    ]) {
+        const e = withEnv({ VERCEL_ENV: value });
+        try {
+            assert.equal(deployEnv(), expected, `VERCEL_ENV=${JSON.stringify(value)}`);
+            assert.equal(isProduction(), expected === 'production', `VERCEL_ENV=${JSON.stringify(value)}`);
+        } finally { e.restore(); }
+    }
+});
+
+test('deployEnv: surrounding whitespace and casing do not demote production', () => {
+    for (const value of [' production ', 'PRODUCTION', 'Production']) {
+        const e = withEnv({ VERCEL_ENV: value });
+        try {
+            assert.equal(deployEnv(), 'production', `VERCEL_ENV=${JSON.stringify(value)}`);
+        } finally { e.restore(); }
+    }
+});
 
 test('nothing configured → 503 not_delivered, no fetch at all', async () => {
     const f = stubFetch(() => null);
@@ -59,6 +108,31 @@ test('CORS reflects only allowed origins', async () => {
     const res2 = makeRes();
     await handler(makeReq({ method: 'OPTIONS' }), res2);
     assert.equal(res2.headers['access-control-allow-origin'], 'https://fusedprotectiveservices.com');
+});
+
+test('a preview deployment still accepts its own origin', async () => {
+    /* SPEC-001 removes the `.vercel.app` alias from productionHosts, so a
+       preview's origin is no longer in the static list. `allowedOrigins()`
+       adds VERCEL_URL and VERCEL_BRANCH_URL at runtime instead; if that ever
+       stops happening, a preview's own form silently fails CORS and nobody
+       can test intake on it. */
+    const e = withEnv({
+        VERCEL_ENV: 'preview',
+        VERCEL_URL: 'fused-abc123-fused.vercel.app',
+        VERCEL_BRANCH_URL: 'fused-git-spec-002-fused.vercel.app'
+    });
+    const f = stubFetch(() => null);
+    try {
+        for (const host of ['fused-abc123-fused.vercel.app', 'fused-git-spec-002-fused.vercel.app']) {
+            const res = makeRes();
+            await handler(makeReq({ method: 'OPTIONS', headers: { origin: `https://${host}` } }), res);
+            assert.equal(res.statusCode, 204);
+            assert.equal(res.headers['access-control-allow-origin'], `https://${host}`, host);
+        }
+        const other = makeRes();
+        await handler(makeReq({ method: 'OPTIONS', headers: { origin: 'https://fused-someone-elses.vercel.app' } }), other);
+        assert.equal(other.headers['access-control-allow-origin'], undefined, 'another deployment is still not allowed');
+    } finally { f.restore(); e.restore(); }
 });
 
 test('honeypot filled → plausible 200 and nothing sent anywhere', async () => {
@@ -102,7 +176,11 @@ test('full chain: persist, owner email, emergency SMS, client confirmation', asy
     assert.deepEqual(res.body.delivery, {
         persisted: true, alerted: true, smsAlerted: true, confirmed: true, forwarded: false
     });
+    assert.equal(res.body.environment, undefined, 'production responses carry no environment marker');
     assert.match(res.body.message, /confirmation email is on its way/);
+
+    const inserted = JSON.parse(f.calls.find((c) => c.url.endsWith('/rest/v1/client_quotes')).init.body);
+    assert.equal(inserted.source_env, 'production');
 
     const emails = f.calls.filter((c) => c.url === 'https://api.resend.com/emails').map((c) => JSON.parse(c.init.body));
     assert.equal(emails.length, 2);
@@ -159,4 +237,126 @@ test('per-IP rate limit → 429 with Retry-After', async () => {
     assert.equal(last.statusCode, 429);
     assert.equal(last.body.error, 'rate_limited');
     assert.ok(Number(last.headers['retry-after']) > 0);
+});
+
+/* ---------- SPEC-002: a preview writes, labelled, and sends nothing ---------- */
+
+const FULLY_CONFIGURED = {
+    SUPABASE_URL: 'https://db.example',
+    SUPABASE_SERVICE_ROLE_KEY: 'service',
+    RESEND_API_KEY: 'k',
+    DISPATCH_ALERT_TO: 'owner@example.com',
+    DISPATCH_ALERT_FROM: 'Fused Dispatch <dispatch@fusedprotectiveservices.com>',
+    TWILIO_ACCOUNT_SID: 'AC123',
+    TWILIO_AUTH_TOKEN: 'tok',
+    TWILIO_FROM: '+15120000000',
+    DISPATCH_ALERT_SMS_TO: '+15121111111',
+    DISPATCH_ALERT_WEBHOOK: 'https://hooks.example/intake'
+};
+
+/** Routes every Supabase call a fully-configured intake makes, and nothing else. */
+const supabaseOnly = (table) => (url, init) => {
+    if (url.endsWith('/rest/v1/rpc/intake_gate')) return { json: { allowed: true, retry_after: null, duplicate_of: null } };
+    if (url.endsWith(`/rest/v1/${table}`)) return { status: 201, json: [JSON.parse(init.body)] };
+    if (url.endsWith('/rest/v1/notifications')) return { status: 201, json: [{}] };
+    return null;
+};
+
+test('preview: the row persists labelled, and every send is suppressed and reported', async () => {
+    const e = withEnv({ ...FULLY_CONFIGURED, VERCEL_ENV: 'preview' });
+    const f = stubFetch(supabaseOnly('client_quotes'));
+    const res = makeRes();
+    await handler(makeReq({ body: quote({ formDivision: 'Emergency Tactical Dispatch' }) }), res);
+    f.restore(); e.restore();
+
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.body.environment, 'preview');
+    assert.deepEqual(res.body.delivery, {
+        persisted: true,
+        alerted: false,
+        smsAlerted: false,
+        confirmed: false,
+        forwarded: false,
+        skipped: {
+            alerted: 'non_production_env',
+            smsAlerted: 'non_production_env',
+            confirmed: 'non_production_env',
+            forwarded: 'non_production_env'
+        }
+    });
+
+    const inserted = JSON.parse(f.calls.find((c) => c.url.endsWith('/rest/v1/client_quotes')).init.body);
+    assert.equal(inserted.source_env, 'preview');
+
+    /* The whole point: no email, no SMS, no webhook, from anywhere. */
+    for (const host of ['api.resend.com', 'api.twilio.com', 'hooks.example']) {
+        assert.equal(f.calls.filter((c) => c.url.includes(host)).length, 0, host);
+    }
+    for (const call of f.calls) assert.ok(call.url.startsWith('https://db.example/'), `unexpected call to ${call.url}`);
+});
+
+test('preview: a candidate application is labelled too', async () => {
+    const e = withEnv({ ...FULLY_CONFIGURED, VERCEL_ENV: 'preview' });
+    const f = stubFetch(supabaseOnly('candidate_applications'));
+    const res = makeRes();
+    await handler(makeReq({
+        body: {
+            type: 'candidate',
+            appPosition: 'level-3-officer',
+            appFullName: 'Test Candidate',
+            appPhone: '+15125550123',
+            appEmail: `cand-${Math.random().toString(36).slice(2)}@example.com`,
+            appBio: 'Six years on a door.'
+        }
+    }), res);
+    f.restore(); e.restore();
+
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.body.type, 'candidate');
+    const inserted = JSON.parse(f.calls.find((c) => c.url.endsWith('/rest/v1/candidate_applications')).init.body);
+    assert.equal(inserted.source_env, 'preview');
+    assert.equal(f.calls.filter((c) => c.url.includes('api.resend.com')).length, 0);
+});
+
+test('preview: the notification log records non_production_env, not a missing key', async () => {
+    const e = withEnv({ ...FULLY_CONFIGURED, VERCEL_ENV: 'preview' });
+    const f = stubFetch(supabaseOnly('client_quotes'));
+    const res = makeRes();
+    await handler(makeReq({ body: quote({ formDivision: 'Emergency Tactical Dispatch' }) }), res);
+    f.restore(); e.restore();
+
+    assert.equal(res.statusCode, 200);
+    const logged = f.calls
+        .filter((c) => c.url.endsWith('/rest/v1/notifications'))
+        .map((c) => JSON.parse(c.init.body));
+    assert.ok(logged.length >= 2, 'owner alert and visitor confirmation are both logged');
+    for (const row of logged) {
+        assert.equal(row.status, 'skipped', `${row.trigger}/${row.channel}`);
+        assert.equal(row.error, 'non_production_env', `${row.trigger}/${row.channel}`);
+    }
+});
+
+test('local development is not production either', async () => {
+    const e = withEnv({ ...FULLY_CONFIGURED, VERCEL_ENV: undefined });
+    const f = stubFetch(supabaseOnly('client_quotes'));
+    const res = makeRes();
+    await handler(makeReq({ body: quote() }), res);
+    f.restore(); e.restore();
+
+    assert.equal(res.body.environment, 'development');
+    const inserted = JSON.parse(f.calls.find((c) => c.url.endsWith('/rest/v1/client_quotes')).init.body);
+    assert.equal(inserted.source_env, 'development');
+    assert.equal(f.calls.filter((c) => c.url.includes('api.resend.com')).length, 0);
+});
+
+test('preview with no database configured is an honest 503, not a silent success', async () => {
+    const e = withEnv({ RESEND_API_KEY: 'k', DISPATCH_ALERT_TO: 'owner@example.com', VERCEL_ENV: 'preview' });
+    const f = stubFetch(() => null);
+    const res = makeRes();
+    await handler(makeReq({ body: quote() }), res);
+    f.restore(); e.restore();
+
+    assert.equal(res.statusCode, 503);
+    assert.equal(res.body.error, 'not_delivered');
+    assert.equal(f.calls.length, 0);
 });

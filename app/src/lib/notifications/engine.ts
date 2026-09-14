@@ -3,9 +3,15 @@
    dispatch(trigger, ctx) reads the matrix, resolves recipients, honours SMS
    consent and STOP, sends, and logs one row per attempt. Dependencies are
    injected so the trigger logic is testable without a network or database.
+
+   Outside production nothing is dispatched (SPEC-002). The message is still
+   rendered and still logged — with the skip reason `non_production_env` and
+   the subject and preview it would have carried — so a preview shows exactly
+   what the owner would have received without touching their inbox or phone.
    ========================================================================== */
 
 import { rulesFor, type Ctx, type Channel, type Rule } from './templates';
+import { isProduction, NON_PRODUCTION_REASON } from '@/lib/env';
 import type { Client } from '@/lib/db/types';
 
 export type SendOutcome = { configured: boolean; ok: boolean; id?: string; sid?: string; error?: string; skipped?: string };
@@ -18,6 +24,8 @@ export type EngineDeps = {
     ownerContacts: () => Promise<{ emails: string[]; phones: string[] }>;
     isOptedOut: (phone: string) => Promise<boolean>;
     log: (row: LogRow) => Promise<void>;
+    /** Defaults to the real deployment check; injected only by tests. */
+    isProduction?: () => boolean;
 };
 
 export type LogRow = {
@@ -65,6 +73,7 @@ function clientRecipients(client: Client | null | undefined): { emails: string[]
 
 export async function dispatchWith(deps: EngineDeps, trigger: string, ctx: Ctx, opts: DispatchOptions = {}): Promise<DispatchSummary> {
     const summary: DispatchSummary = { attempted: 0, sent: 0, failed: 0, skipped: 0 };
+    const live = (deps.isProduction ?? isProduction)();
     const rules = rulesFor(trigger);
     if (rules.length === 0) {
         console.warn(`[notifications] no rule for trigger "${trigger}"`);
@@ -92,7 +101,7 @@ export async function dispatchWith(deps: EngineDeps, trigger: string, ctx: Ctx, 
 
             for (const recipient of recipients) {
                 summary.attempted++;
-                const outcome = await sendOne(deps, rule, channel, recipient, ctx, targets.smsConsent);
+                const outcome = await sendOne(deps, rule, channel, recipient, ctx, targets.smsConsent, live);
                 if (outcome.result.ok) summary.sent++;
                 else if (outcome.result.skipped) summary.skipped++;
                 else summary.failed++;
@@ -107,12 +116,19 @@ export async function dispatchWith(deps: EngineDeps, trigger: string, ctx: Ctx, 
     return summary;
 }
 
-async function sendOne(deps: EngineDeps, rule: Rule, channel: Channel, recipient: string, ctx: Ctx, smsConsent: boolean) {
+/* `live` is the last gate before a transport, never the first: a preview
+   reports the same reason production would (no consent, no sender, STOP) when
+   one applies, and `non_production_env` only for a send that would otherwise
+   have gone out. Either way the transport is not called. */
+const suppressed = { configured: false, ok: false, skipped: NON_PRODUCTION_REASON };
+
+async function sendOne(deps: EngineDeps, rule: Rule, channel: Channel, recipient: string, ctx: Ctx, smsConsent: boolean, live: boolean) {
     if (channel === 'email') {
         if (!rule.email) return { result: { configured: false, ok: false, skipped: 'no_email_template' } };
         const msg = rule.email(ctx);
         const from = rule.audience === 'owner' ? deps.internalSender() : deps.publicSender();
         if (!from) return { subject: msg.subject, result: { configured: false, ok: false, skipped: 'no_verified_sender' } };
+        if (!live) return { subject: msg.subject, preview: msg.text.slice(0, 200), result: { ...suppressed } };
         const result = await deps.sendEmail({ from, to: recipient, ...msg });
         return { subject: msg.subject, preview: msg.text.slice(0, 200), result };
     }
@@ -121,6 +137,7 @@ async function sendOne(deps: EngineDeps, rule: Rule, channel: Channel, recipient
     if (!smsConsent) return { result: { configured: false, ok: false, skipped: 'no_sms_consent' } };
     if (await deps.isOptedOut(recipient)) return { result: { configured: false, ok: false, skipped: 'sms_opted_out' } };
     const body = rule.sms(ctx);
+    if (!live) return { preview: body.slice(0, 200), result: { ...suppressed } };
     const result = await deps.sendSms({ to: recipient, body });
     return { preview: body.slice(0, 200), result };
 }

@@ -12,10 +12,19 @@
 // gets a 503 only when nothing at all was delivered. A failed confirmation or
 // SMS never hides a successful lead, and a successful lead never hides a failed
 // confirmation: both are stated in `delivery`.
+//
+// Environment separation (SPEC-002). Every deployment of this function can
+// reach whichever Supabase project its variables point at, so the row carries
+// `source_env` and the portal filters on it. Outside production stages 2–4 are
+// not attempted at all: a preview must never email dispatch, text the owner's
+// phone or fire the webhook. Nothing is faked — each suppressed stage is
+// reported in `delivery.skipped` with the reason `non_production_env`, and the
+// notification log records it the same way.
 // ==============================================================================
 
 import { randomBytes } from 'node:crypto';
 import { cors, parseBody, clientIp, text } from './_lib/http.mjs';
+import { deployEnv, isProduction, suppressedOutsideProduction } from './_lib/env.mjs';
 import { insertRow, supabaseConfigured } from './_lib/supabase.mjs';
 import { logSends } from './_lib/notify-log.mjs';
 import { sendEmail, internalSender, publicSender } from './_lib/email.mjs';
@@ -59,6 +68,7 @@ function normalise(body) {
                 service_branch: text(body.appServiceBranch) || 'civilian',
                 bio: text(body.appBio, 5000),
                 vetting_stage: 'application_received',
+                source_env: deployEnv(),
                 sms_consent: body.appSmsConsent === 'yes' || body.appSmsConsent === 'on',
                 sms_consent_at: body.appSmsConsent === 'yes' || body.appSmsConsent === 'on' ? new Date().toISOString() : null
             }
@@ -79,6 +89,7 @@ function normalise(body) {
             schedule: text(body.formSchedule) || 'TBD',
             notes: text(body.formNotes, 2000) || null,
             status: 'new',
+            source_env: deployEnv(),
             sms_consent: body.formSmsConsent === 'yes' || body.formSmsConsent === 'on',
             sms_consent_at: body.formSmsConsent === 'yes' || body.formSmsConsent === 'on' ? new Date().toISOString() : null
         }
@@ -100,6 +111,7 @@ async function persist(table, record) {
 
 /* ---------- Stage 2: owner alert (email, plus SMS on emergency) ---------- */
 async function alertOwner(ctx) {
+    if (!isProduction()) return { email: suppressedOutsideProduction(), sms: suppressedOutsideProduction() };
     const to = (process.env.DISPATCH_ALERT_TO || '').split(',').map((s) => s.trim()).filter(Boolean);
     const { subject, text: plain, html } = ownerAlert(ctx);
     const email = await sendEmail({
@@ -128,14 +140,18 @@ async function alertOwner(ctx) {
 
 /* ---------- Stage 3: visitor confirmation ---------- */
 async function confirmVisitor(ctx) {
+    if (!isProduction()) return suppressedOutsideProduction();
     const from = publicSender();
-    if (!from || !ctx.record.email) return { configured: Boolean(from), ok: false, skipped: !ctx.record.email };
+    if (!from || !ctx.record.email) {
+        return { configured: Boolean(from), ok: false, skipped: ctx.record.email ? 'no_verified_sender' : 'no_email' };
+    }
     const { subject, text: plain, html } = clientConfirmation(ctx);
     return sendEmail({ from, to: ctx.record.email, subject, text: plain, html });
 }
 
 /* ---------- Stage 4: webhook ---------- */
 async function forward(event) {
+    if (!isProduction()) return suppressedOutsideProduction();
     const url = process.env.DISPATCH_ALERT_WEBHOOK || process.env.HUBSPOT_WEBHOOK_URL;
     if (!url) return { configured: false, ok: false };
     try {
@@ -246,17 +262,30 @@ export default async function handler(req, res) {
         });
     }
 
+    /* A stage that was deliberately not attempted says why, rather than
+       letting a silent `false` read as a failed send: `non_production_env` on
+       a preview, `no_verified_sender` or `no_email` in any environment. The
+       booleans keep exactly the meaning they always had, and the key is absent
+       when every stage was genuinely tried — which is the usual production
+       response. */
+    const skipped = {};
+    for (const [stage, outcome] of [['alerted', owner.email], ['smsAlerted', owner.sms], ['confirmed', confirmed], ['forwarded', forwarded]]) {
+        if (!outcome.ok && outcome.skipped) skipped[stage] = outcome.skipped;
+    }
+
     return res.status(200).json({
         ok: true,
         type: isCandidate ? 'candidate' : 'quote',
         refCode: record.ref_code,
         priority,
+        ...(isProduction() ? {} : { environment: deployEnv() }),
         delivery: {
             persisted: stored.ok,
             alerted: owner.email.ok,
             smsAlerted: owner.sms.ok,
             confirmed: confirmed.ok,
-            forwarded: forwarded.ok
+            forwarded: forwarded.ok,
+            ...(Object.keys(skipped).length ? { skipped } : {})
         },
         message: receivedMessage({ ...ctx, confirmed: confirmed.ok })
     });

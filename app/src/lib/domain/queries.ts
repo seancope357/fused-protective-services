@@ -9,6 +9,41 @@ export async function db() {
     return createSupabaseServerClient();
 }
 
+/* ---------- Leads, and the source_env scope every lead read inherits ----------
+
+   `/api/intake` stamps each public submission with the deployment that made it
+   (SPEC-002). Preview and local rows are real rows — they are how intake gets
+   tested — but they are not leads, so nothing that counts, lists or chases a
+   lead may see them unless a human asked for them explicitly. One scope type,
+   one helper, used by the inbox, the dashboard and the nav counts alike. */
+
+export type SourceEnvScope = 'production' | 'all';
+
+/** Parses the `?env=` search param. Anything but an explicit `all` is production. */
+export const sourceEnvScope = (value: string | null | undefined): SourceEnvScope =>
+    value === 'all' ? 'all' : 'production';
+
+export async function listLeads(
+    { stage, scope = 'production', limit = 200 }: { stage?: string | null; scope?: SourceEnvScope; limit?: number } = {}
+): Promise<Lead[]> {
+    let query = (await db()).from('client_quotes').select('*');
+    if (stage) query = query.eq('status', stage);
+    if (scope === 'production') query = query.eq('source_env', 'production');
+    const { data } = await query.order('created_at', { ascending: false }).limit(limit);
+    return (data as Lead[]) ?? [];
+}
+
+/** Count for the nav badge. Production-only by default, or the badge counts test rows. */
+export async function countLeads(
+    { stage, scope = 'production' }: { stage?: string | null; scope?: SourceEnvScope } = {}
+): Promise<number> {
+    let query = (await db()).from('client_quotes').select('id', { count: 'exact', head: true });
+    if (stage) query = query.eq('status', stage);
+    if (scope === 'production') query = query.eq('source_env', 'production');
+    const { count } = await query;
+    return count ?? 0;
+}
+
 export async function getLead(id: string): Promise<Lead | null> {
     const { data } = await (await db()).from('client_quotes').select('*').eq('id', id).maybeSingle();
     return (data as Lead) ?? null;

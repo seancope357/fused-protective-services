@@ -23,6 +23,8 @@ function fakeDeps(over: Partial<EngineDeps> = {}) {
         ownerContacts: async () => ({ emails: ['owner@example.com'], phones: ['+15121111111'] }),
         isOptedOut: async () => false,
         log: async (row) => { log.push(row); },
+        /* The suite is the production matrix unless a test says otherwise. */
+        isProduction: () => true,
         ...over
     };
     return { deps, log };
@@ -89,6 +91,58 @@ describe('notification matrix', () => {
         const job = { id: 'j1', job_number: 'J-1', title: 'T', starts_at: '2026-09-10T01:00:00Z' } as Job;
         expect((await dispatchWith(deps, 'job_unstaffed_24h', { job, unstaffed: false })).attempted).toBe(0);
         expect((await dispatchWith(deps, 'job_unstaffed_24h', { job, unstaffed: true })).sent).toBe(1);
+    });
+});
+
+describe('outside production the engine dispatches nothing (SPEC-002)', () => {
+    const preview = (over: Partial<EngineDeps> = {}) => fakeDeps({ isProduction: () => false, ...over });
+
+    it('renders and logs the owner alert but sends neither email nor SMS', async () => {
+        const { deps, log } = preview();
+        const summary = await dispatchWith(deps, 'proposal_accepted', { client: client(), quote: quote(), proposal: proposal() }, { entityType: 'proposal', entityId: 'p1' });
+
+        expect(deps.sendEmail).not.toHaveBeenCalled();
+        expect(deps.sendSms).not.toHaveBeenCalled();
+        expect(summary).toEqual({ attempted: 2, sent: 0, failed: 0, skipped: 2 });
+        expect(log.map((l) => l.result.skipped)).toEqual(['non_production_env', 'non_production_env']);
+    });
+
+    it('logs what would have gone out, so a preview can be checked without sending', async () => {
+        const { deps, log } = preview();
+        await dispatchWith(deps, 'proposal_sent', { client: client(), quote: quote(), proposal: proposal() });
+
+        const email = log.find((l) => l.channel === 'email');
+        expect(email?.recipient).toBe('jane@acme.example');
+        expect(email?.subject).toBeTruthy();
+        expect(email?.bodyPreview).toBeTruthy();
+        expect(email?.result.ok).toBe(false);
+        expect(email?.result.skipped).toBe('non_production_env');
+    });
+
+    it('still reports the more specific reason when one applies', async () => {
+        const noSender = preview({ publicSender: () => null });
+        await dispatchWith(noSender.deps, 'proposal_sent', { client: client(), quote: quote(), proposal: proposal() });
+        expect(noSender.log[0].result.skipped).toBe('no_verified_sender');
+
+        const job: Job = { id: 'j1', job_number: 'J-1', title: 'Door detail', starts_at: '2026-09-10T01:00:00Z' } as Job;
+        const stopped = preview({ isOptedOut: async () => true });
+        await dispatchWith(stopped.deps, 'job_reminder_24h', { client: client(), job });
+        expect(stopped.log.find((l) => l.channel === 'sms')?.result.skipped).toBe('sms_opted_out');
+        expect(stopped.deps.sendSms).not.toHaveBeenCalled();
+    });
+
+    it('defaults to the real deployment check when no override is injected', async () => {
+        const saved = process.env.VERCEL_ENV;
+        delete process.env.VERCEL_ENV;
+        try {
+            const { deps, log } = fakeDeps({ isProduction: undefined });
+            await dispatchWith(deps, 'proposal_sent', { client: client(), quote: quote(), proposal: proposal() });
+            expect(deps.sendEmail).not.toHaveBeenCalled();
+            expect(log[0].result.skipped).toBe('non_production_env');
+        } finally {
+            if (saved === undefined) delete process.env.VERCEL_ENV;
+            else process.env.VERCEL_ENV = saved;
+        }
     });
 });
 
