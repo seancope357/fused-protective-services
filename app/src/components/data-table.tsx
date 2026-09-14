@@ -42,7 +42,9 @@ export function DataTable<T>({
     flush?: boolean;
 }) {
     return (
-        <div className={`dt-wrap${flush ? ' dt-wrap--flush' : ''}`}>
+        /* From 600px a wide table may scroll inside this wrapper; a scrollable
+           region must be reachable by keyboard (axe scrollable-region-focusable). */
+        <div className={`dt-wrap${flush ? ' dt-wrap--flush' : ''}`} role="region" aria-label={caption} tabIndex={0}>
             <table className="dt" role="table">
                 <caption>{caption}</caption>
                 <thead role="rowgroup">

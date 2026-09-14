@@ -76,6 +76,7 @@
     }
     a { color: var(--text-gold-core); text-decoration: none; }
     a:hover { color: var(--logo-gold-specular); }
+    :where(p, dd, li, .field__hint, .alert) a:not(.btn, .chip) { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
     h1, h2, h3 { line-height: 1.2; color: var(--text-pure); font-weight: 700; overflow-wrap: anywhere; }
     h1 { font-size: clamp(22px, 5.6vw, 30px); }
     h2 { font-size: clamp(17px, 4.4vw, 20px); }
@@ -355,7 +356,18 @@
 
     /* Safety net for wide content that is not a DataTable (paper line items,
        message bodies): it scrolls inside itself, never the page. */
-    .table-wrap { overflow-x: auto; max-width: 100%; }
+    .table-wrap {
+        overflow-x: auto; max-width: 100%;
+        /* Scroll shadows: a shadow shows at an edge only while there is more to
+           scroll that way (local covers ride with the content). */
+        --wrap-bg: var(--color-surface-elevated);
+        --wrap-shadow: rgba(0, 0, 0, 0.55);
+        background:
+            linear-gradient(to right, var(--wrap-bg) 30%, transparent) left / 32px 100% no-repeat local,
+            linear-gradient(to left, var(--wrap-bg) 30%, transparent) right / 32px 100% no-repeat local,
+            radial-gradient(farthest-side at 0 50%, var(--wrap-shadow), transparent) left / 14px 100% no-repeat scroll,
+            radial-gradient(farthest-side at 100% 50%, var(--wrap-shadow), transparent) right / 14px 100% no-repeat scroll;
+    }
     tr.is-link:hover td { background: var(--color-surface-glass); }
 
     /* ---- DataTable -----------------------------------------------------
@@ -366,6 +378,7 @@
        changing display on table elements drops their semantics in some
        browsers (Safari/VoiceOver). */
     .dt-wrap { min-width: 0; }
+    .dt-wrap:focus-visible, .table-wrap:focus-visible { outline: 2px solid var(--logo-gold-specular); outline-offset: 2px; border-radius: var(--radius-md); }
     .dt { width: 100%; border-collapse: separate; border-spacing: 0; }
     .dt caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
     .dt thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
@@ -412,8 +425,10 @@
         .dt td::before, .dt td[data-wide]::before { content: none; }
         .dt td[data-wide] { display: table-cell; }
         .dt td:not([data-primary]) { text-align: left; }
-        .dt td[data-primary] { font-size: 14px; font-weight: 600; }
-        .dt [data-num] { text-align: right; }
+        /* Re-stated with the same specificity as the phone rule, or the phone's
+           display:block survives and the cell's row line drifts. */
+        .dt td[data-primary] { display: table-cell; padding: 11px 12px; font-size: 14px; font-weight: 600; }
+        .dt [data-num] { text-align: right; white-space: nowrap; }
         .dt td:not([data-primary]) > :only-child { margin-left: 0; }
         .dt tr:has(td[data-primary] a:hover) td { background: var(--color-surface-glass); }
         .dt tr:has(td[data-primary] a:focus-visible) { outline-offset: -2px; }
@@ -511,6 +526,9 @@
     .paper__section p, .paper__section li { font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
     .paper__sign { margin-top: 26px; padding: 16px; border: 1px solid #e7e5e4; border-radius: 8px; background: #fafaf9; }
     .paper .badge { border-color: #d6d3d1; color: #57534e; background: #f5f5f4; }
+    .paper .table-wrap { --wrap-bg: #ffffff; --wrap-shadow: rgba(28, 25, 23, 0.22); }
+    /* Below 600px the line items keep readable columns and scroll inside the paper. */
+    .paper .table-wrap table { min-width: 480px; }
     .qr { width: 132px; height: 132px; }
     @media (min-width: 600px) {
         .paper { padding: clamp(22px, 4vw, 44px); }
@@ -518,6 +536,7 @@
         .paper__brand img { width: 56px; height: 56px; }
         .paper__name { font-size: 18px; }
         .paper__contact { text-align: right; }
+        .paper .table-wrap table { min-width: 0; }
     }
 
     @media print {
@@ -526,6 +545,8 @@
         .shell { display: block; }
         .shell__main, .shell__main:has(.page-head__primary) { padding: 0; max-width: none; }
         .paper { box-shadow: none; border-radius: 0; padding: 0; }
+        .table-wrap { background: none; overflow: visible; }
+        .paper .table-wrap table { min-width: 0; }
         .paper__brand { flex-direction: row; justify-content: space-between; align-items: center; }
         .paper__contact { text-align: right; }
     }

@@ -29,6 +29,12 @@ export default async function JobPage({ params, searchParams }: { params: Promis
         getClient(job.client_id), getSite(job.site_id), listShifts(id), listInvoicesForJob(id), listClients(), listSites(job.client_id), getReviewByJob(id)
     ]);
     const billable = shifts.filter((s) => s.status !== 'cancelled');
+    /* A standing detail can carry dozens of shifts; on a phone that is a scroll of
+       cards. Lead with the next few that have not ended; the rest sit collapsed. */
+    const NEXT_SHIFTS = 6;
+    const nowMs = Date.now();
+    const notEnded = shifts.filter((s) => s.status !== 'cancelled' && new Date(s.ends_at).getTime() >= nowMs);
+    const nextShifts = (notEnded.length ? notEnded : shifts).slice(0, NEXT_SHIFTS);
     const estimate = billable.reduce((sum, s) => sum + lineCents(s.officers_required, (new Date(s.ends_at).getTime() - new Date(s.starts_at).getTime()) / 3600000, s.bill_rate_cents), 0);
     const hasDeposit = invoices.some((i) => i.kind === 'deposit' && i.status !== 'void');
     // A completed job's next step is its final invoice, unless one already exists.
@@ -97,7 +103,14 @@ export default async function JobPage({ params, searchParams }: { params: Promis
                 <section className="card">
                     <div className="card__title"><h2>Shifts</h2><span className="small muted">{billable.length} billable · estimate <Money cents={estimate} /></span></div>
                     {shifts.length ? (
-                        <DataTable caption="Shifts" columns={shiftColumns} rows={shifts} rowKey={(s) => s.id} flush />
+                        <>
+                            <DataTable caption={nextShifts.length < shifts.length ? 'Next shifts' : 'Shifts'} columns={shiftColumns} rows={nextShifts} rowKey={(s) => s.id} flush />
+                            {nextShifts.length < shifts.length ? (
+                                <Disclosure summary={`All ${shifts.length} shifts`} className="mt-4">
+                                    <DataTable caption="All shifts" columns={shiftColumns} rows={shifts} rowKey={(s) => `all-${s.id}`} flush />
+                                </Disclosure>
+                            ) : null}
+                        </>
                     ) : <Empty>No shifts yet.{open ? ' Add one below.' : ''}</Empty>}
                     {open ? (
                         <Disclosure summary="Add a shift" className="mt-4">
