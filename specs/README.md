@@ -14,7 +14,7 @@ has nothing unbuilt in its `Depends on` line.
 
 | # | Spec | Gate | Size | Depends on | Status |
 | :-- | :--- | :--- | :--- | :--- | :--- |
-| [001](SPEC-001-placeholder-guardrail.md) | Fail-closed placeholder guardrail | A1 | S | — | **Ready** |
+| [001](SPEC-001-placeholder-guardrail.md) | Fail-closed placeholder guardrail | A1 | S | — | ✅ **Done** |
 | [002](SPEC-002-environment-separation.md) | Preview must not touch production | C3, C4 | M | — | **Ready** |
 | [003](SPEC-003-error-reporting.md) | Error reporting and alerting | D1 | M | 002 | **Ready** |
 | [004](SPEC-004-health-and-heartbeat.md) | Health checks + cron dead-man's switch | D2 | M | 003 | **Ready** |

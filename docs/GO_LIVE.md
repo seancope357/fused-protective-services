@@ -49,13 +49,16 @@ statement the site makes that must be true.
 - [ ] **A1 · Texas DPS licence number.** `src/data/site.mjs` → `licenseNumber.value`, then
       `placeholder: false`, then `node build.mjs`. Tex. Occ. Code §1702.284 requires it in
       advertising, and this website is advertising. **Owner: Cameron.**
-      ⚠️ **Sequencing trap:** the red PLACEHOLDER flag is hidden on any host listed in
-      `site.productionHosts` — which already includes `fused-protective-services.vercel.app`.
-      `B00000` is rendering unflagged on the live URL right now, in the footer and in the
-      schema.org `identifier`. Connecting the custom domain (C1) before fixing this hides
-      the guardrail rather than the problem. Fix A1 first.
-      The guardrail itself is made fail-closed by [**SPEC-001**](../specs/SPEC-001-placeholder-guardrail.md);
-      the number still has to come from Cameron.
+      **Verify:** `node build.mjs --verify-release` — exits 1 and names every field still
+      marked `placeholder: true`, exits 0 when none remain. Run it immediately before the
+      DNS cutover (C1); CI runs the same command in the `release-gate` job, which fires on
+      tags and manual dispatch only.
+      ⚠️ **The site says so out loud until this is fixed.**
+      [**SPEC-001**](../specs/SPEC-001-placeholder-guardrail.md) (shipped) made the guardrail
+      fail-closed: the red PLACEHOLDER flag now renders beside `B00000` on **every** host,
+      production included, with no JavaScript involved. That is intended pressure, not a
+      defect — the alternative is advertising a licence number that is not ours. Connecting
+      the custom domain no longer hides it.
 - [ ] **A2 · Prove the dispatch line rings.** `(512) 555-0199` is marked confirmed in
       `src/data/site.mjs`, but `555-01xx` is the North American block reserved for fiction.
       Dial it from an outside phone. If it does not connect, edit `display` and `e164`.
@@ -128,9 +131,12 @@ done until that step passes.
       of either project reads and writes live client data — and a preview submission lands
       in Cameron's real leads inbox. Point preview at a Supabase branch (or a second
       project) and keep `sk_test_` keys scoped to preview. **Owner: engineering.**
-- [ ] **C4 · Add the production domain to `productionHosts`** → [**SPEC-001**](../specs/SPEC-001-placeholder-guardrail.md) in `src/data/site.mjs` and
-      consider dropping the `.vercel.app` alias from that list, so preview-style hosts show
-      placeholder flags again. **Owner: engineering.**
+- [x] **C4 · `productionHosts` no longer carries a deploy alias.** Done in
+      [**SPEC-001**](../specs/SPEC-001-placeholder-guardrail.md): `src/data/site.mjs` lists
+      only the apex and `www`. Note the list has a second consumer —
+      `api/_lib/http.mjs` builds the CORS origin allowlist from it — so preview deployments
+      now rely on `VERCEL_URL` / `VERCEL_BRANCH_URL` at runtime for their own origin, which
+      they already did. **Owner: engineering.**
 
 ---
 
