@@ -21,10 +21,13 @@ const sources = [
     ['src/styles/tokens.css', 'src/styles/tokens.css'],
     ['api/_lib', 'api/_lib']
 ];
-/* Brand plate: served from this app's own origin so it renders before DNS exists. */
-const LOGO = ['assets/logo.png', 'public/logo.png'];
+/* Brand plate: served from this app's own origin so it renders before DNS
+   exists. The PNG derivative rather than the marketing site's WebP plate,
+   because app/src/lib/shared.ts serves it from the fixed path /logo.png —
+   the destination name is the contract, so the source has to stay a PNG. */
+const LOGO = ['assets/logo-512.png', 'public/logo.png'];
 
-for (const [from] of sources) {
+for (const [from] of [...sources, LOGO]) {
     if (!existsSync(join(repo, from))) {
         console.error(`sync-shared: ${from} is missing. The portal must be built from a checkout of the whole repository.`);
         process.exit(1);

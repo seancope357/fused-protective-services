@@ -12,7 +12,12 @@
     <meta name="author" content="Fused Protective Services">
     <meta name="theme-color" content="#050504">
     <link rel="canonical" href="https://fusedprotectiveservices.com">
-    <link rel="icon" type="image/png" href="assets/logo.png">
+
+    <!-- Icons. The favicon used to be the 1 MB brand plate, fetched on every
+         page load to be painted at 16px. -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icon-180.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png">
 
     <!-- AI Search Engine Optimization (GEO & LLMs) -->
     <meta name="ai-content-declaration" content="verified-business-profile">
@@ -23,15 +28,21 @@
     <meta property="og:site_name" content="Fused Protective Services">
     <meta property="og:title" content="Fused Protective Services — Elite Texas Security &amp; Executive Protection">
     <meta property="og:description" content="Armed and unarmed tactical security officers, close VIP protection, luxury event and nightlife venue security, and commercial asset defense across Austin, San Antonio, and Texas.">
-    <meta property="og:image" content="https://fusedprotectiveservices.com/assets/logo.png">
+    <meta property="og:image" content="https://fusedprotectiveservices.com/assets/og-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Fused Protective Services — the gold shield emblem beside the FUSED wordmark on a carbon field, over the line &quot;Armed and unarmed officers, VIP executive close protection, and rapid dispatch across Austin, San Antonio, and Texas.&quot;">
+    <meta property="og:image:type" content="image/png">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://fusedprotectiveservices.com">
 
-    <!-- Twitter Card -->
+    <!-- Twitter Card. summary_large_image wants 1200x630; it used to be handed
+         a 1000x1000 square, which every client letterboxed. -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Fused Protective Services — Elite Texas Security">
     <meta name="twitter:description" content="Armed and unarmed officers, VIP executive close protection, and rapid dispatch across Austin, San Antonio, and Texas.">
-    <meta name="twitter:image" content="https://fusedprotectiveservices.com/assets/logo.png">
+    <meta name="twitter:image" content="https://fusedprotectiveservices.com/assets/og-card.png">
+    <meta name="twitter:image:alt" content="Fused Protective Services — the gold shield emblem beside the FUSED wordmark on a carbon field, over the line &quot;Armed and unarmed officers, VIP executive close protection, and rapid dispatch across Austin, San Antonio, and Texas.&quot;">
 
     <!-- Schema.org JSON-LD (generated from src/data — never hand-edited) -->
     <script type="application/ld+json">
@@ -43,8 +54,8 @@
       "@id": "https://fusedprotectiveservices.com/#organization",
       "name": "Fused Protective Services",
       "url": "https://fusedprotectiveservices.com",
-      "logo": "https://fusedprotectiveservices.com/assets/logo.png",
-      "image": "https://fusedprotectiveservices.com/assets/logo.png",
+      "logo": "https://fusedprotectiveservices.com/assets/icon-512.png",
+      "image": "https://fusedprotectiveservices.com/assets/og-card.png",
       "description": "Texas premier private security and executive protection contractor providing commissioned armed and unarmed officers, VIP personal protection officers, event, restaurant, bar and nightlife venue security, and commercial patrols across Austin, San Antonio, and Texas.",
       "telephone": "+15125550199",
       "email": "dispatch@fusedprotectiveservices.com",
@@ -260,7 +271,7 @@
     <div class="nav-island-wrapper">
         <nav class="hud-nav-island" id="hudNavIsland" aria-label="Primary">
             <a href="#" class="brand-link">
-                <img src="assets/logo.png" alt="Fused Protective Services gold shield emblem" class="brand-img" width="40" height="40">
+                <img src="assets/logo.webp" alt="Fused Protective Services gold shield emblem" class="brand-img" width="40" height="40">
                 <div>
                     <div class="brand-title">FUSED</div>
                     <div class="brand-subtitle">Protective Services</div>
@@ -305,7 +316,7 @@
         <div class="container">
 
             <div class="emblem-wrapper" id="emblemWrapper">
-                <img src="assets/logo.png" alt="Fused Protective Services shield emblem" class="emblem-card" id="emblemCard" width="185" height="185">
+                <img src="assets/logo.webp" alt="Fused Protective Services shield emblem" class="emblem-card" id="emblemCard" width="185" height="185">
             </div>
 
             <h1 class="hero-heading">
@@ -1082,7 +1093,7 @@
 
     <footer class="footer-block">
         <div class="container">
-            <img src="assets/logo.png" alt="" class="footer-badge-img" width="110" height="110">
+            <img src="assets/logo.webp" alt="" class="footer-badge-img" width="110" height="110">
             <div class="footer-wordmark">FUSED PROTECTIVE SERVICES</div>
             <p class="footer-motto">DEFENSE • DISCRETION • INTEGRITY</p>
 

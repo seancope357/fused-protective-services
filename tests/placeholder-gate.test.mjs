@@ -16,19 +16,31 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { cpSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-/** A minimal checkout: the generator and its only input. */
+/** A minimal checkout: the generator and its inputs.
+ *
+ *  assets/ is here because build.mjs asserts that every icon and card src/
+ *  points at is really on disk (SPEC-007) and refuses to build when one is
+ *  not. That assertion is the point, so the fixture supplies the files rather
+ *  than the build being taught to tolerate their absence. Empty stand-ins: the
+ *  build only asks whether they exist, and copying the real ones would put
+ *  ~3 MB through the filesystem on every one of these checkouts. */
 function checkout() {
     const dir = mkdtempSync(join(tmpdir(), 'fps-placeholder-'));
     mkdirSync(join(dir, 'src'), { recursive: true });
     cpSync(join(ROOT, 'src'), join(dir, 'src'), { recursive: true });
     cpSync(join(ROOT, 'build.mjs'), join(dir, 'build.mjs'));
+
+    mkdirSync(join(dir, 'assets'), { recursive: true });
+    for (const name of readdirSync(join(ROOT, 'assets'))) {
+        writeFileSync(join(dir, 'assets', name), '');
+    }
     return dir;
 }
 
