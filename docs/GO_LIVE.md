@@ -207,11 +207,23 @@ you can run a business on.
       already forbid inline handlers and inline styles, so a strict policy
       (`self` + the two three.js CDNs + Google Fonts) is mostly a matter of writing it.
       Add HSTS there too. **Owner: engineering.**
-- [ ] **E2 · Real social and favicon assets.** → [**SPEC-007**](../specs/SPEC-007-brand-assets.md) `assets/logo.png` is 1.07 MB at 1000×1000 and
-      is simultaneously the brand plate, the WebGL voxel source, the favicon and the
-      `og:image` — while the page declares `twitter:card: summary_large_image`, which wants
-      1200×630. Every share preview is currently a 1 MB square in a wide frame. Ship a
-      dedicated OG card and a small favicon set. **Owner: engineering.**
+- [x] **E2 · Brand assets right-sized.** → [**SPEC-007**](../specs/SPEC-007-brand-assets.md)
+      The favicon was the 1,095,464-byte brand plate; it is now `assets/icon-32.png`
+      at **575 bytes**, with an apple-touch icon and a 512 icon linked alongside.
+      `assets/og-card.png` is a **composed** 1200×630 card (178 KB) declared with
+      `og:image:width`, `:height`, `:alt`, `:type` — not a square logo letterboxed into
+      a wide frame. The brand plate and the voxel source share one 134 KB WebP at full
+      resolution. **A first view of `/` drops 959,959 bytes**, measured in a real browser
+      against both branches. `build.mjs` now refuses to build, check or release if a
+      referenced asset is missing. Derivatives come from `./scripts/build-assets.sh` and
+      are committed; the build still imports no image library.
+      *Worth knowing:* the spec's premise was wrong and ASSETS disproved it — cube
+      placement never used the source resolution (`GRID_ROWS` is already 256 and the
+      master has no alpha channel), so the plate shrank by **re-encoding**, not
+      downscaling: smaller than a 512 downscale and measurably sharper.
+      **Still open:** the Twitter/X and Facebook validators both need a public URL, so
+      run them as the last step of this gate after DNS cutover (C1). **Owner: engineering.**
+
 - [ ] **E3 · Mobile performance budget.** → [**SPEC-009**](../specs/SPEC-009-performance-budget.md) The intro assembles ~65,000 voxel cubes over
       WebGL, with three.js pulled from jsDelivr (unpkg fallback). Measure Core Web Vitals
       on a mid-range Android over 4G and set a budget. The reduced-motion and

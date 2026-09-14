@@ -20,7 +20,7 @@ has nothing unbuilt in its `Depends on` line.
 | [004](SPEC-004-health-and-heartbeat.md) | Health checks + cron dead-man's switch | D2 | M | 003 | **Ready** |
 | [005](SPEC-005-conversion-analytics.md) | Cookieless conversion analytics | D3 | M | 002 | **Ready** |
 | [006](SPEC-006-marketing-site-csp.md) | CSP + HSTS for the marketing site | E1 | M | — | **Ready** |
-| [007](SPEC-007-brand-assets.md) | Favicon, OG card, page weight | E2 | S | — | 🔨 **In progress** |
+| [007](SPEC-007-brand-assets.md) | Favicon, OG card, page weight | E2 | S | — | ✅ **Done** (−960 KB) |
 | [008](SPEC-008-accessibility-gate.md) | Accessibility conformance gate in CI | E4 | M | — | ◐ **Audited**, gate staged; fixes in wave 3 |
 | [009](SPEC-009-performance-budget.md) | Performance budget for the intro | E3 | M | 006, 007 | **Ready** |
 | [010](SPEC-010-candidate-ats.md) | Candidate ATS in the portal | F3 | L | 002 | 🔨 **In progress** |
