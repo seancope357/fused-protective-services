@@ -88,6 +88,9 @@
     td { font-size: 14px; }
     img, svg { max-width: 100%; }
     input, select, textarea, button { font: inherit; color: inherit; }
+    /* A fieldset's default min-width is its content, which stops a form inside
+       it from shrinking to a phone's width. */
+    fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
     :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
         outline: 2px solid var(--logo-gold-specular);
         outline-offset: 3px;
