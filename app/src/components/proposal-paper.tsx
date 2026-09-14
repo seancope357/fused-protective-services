@@ -45,7 +45,7 @@ export function ProposalPaper({ proposal, quote, client, signature }: { proposal
             </div>
 
             {/* Only the line items scroll sideways on a narrow phone; the paper never does. */}
-            <div className="table-wrap mt-4">
+            <div className="table-wrap mt-4" role="region" aria-label="Line items" tabIndex={0}>
                 <table>
                     <thead><tr><th>Service</th><th className="num">Officers</th><th className="num">Hours</th><th className="num">Rate</th><th className="num">Amount</th></tr></thead>
                     <tbody>

@@ -112,7 +112,7 @@ type Column<T> = {
 - `.kv` stacks label over value on phone. `.timeline__item` stacks time over event on phone.
 - `.grid--4` stats: two columns on phone. `h1` scales down; long names wrap (`overflow-wrap: anywhere` on
   cells, titles and `dd`).
-- **Calendar:** grid from 768px; below that an agenda list (days that have shifts, each shift a row).
+- **Calendar:** grid from 1024px; below that an agenda list (days that have shifts, each shift a row). A month grid's chips cannot reach 44px, so touch tablets get the agenda.
   The page renders both; CSS shows one.
 - **Paper (proposal/invoice):** brand header stacks on phone; line-item table scrolls inside the paper on phone
   only; print output unchanged.

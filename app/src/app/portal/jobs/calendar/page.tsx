@@ -59,7 +59,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
                 Every shift this month. A weekly detail shows on each date it runs.
             </PageHead>
 
-            {/* Below 768px: an agenda of the days that have shifts. CSS shows exactly one of the two views. */}
+            {/* Below 1024px: an agenda of the days that have shifts. CSS shows exactly one of the two views. */}
             {busyDays.length ? (
                 <ol className="agenda" aria-label={`Shifts in ${label}`}>
                     {busyDays.map((day) => (

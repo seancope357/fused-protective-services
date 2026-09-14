@@ -194,7 +194,7 @@ without anyone having to remember them page by page.
 
 * **Mobile-first, two breakpoints.** A rule with no media query is a phone rule. `min-width: 600px`
   brings back tables and multi-column forms; `min-width: 1024px` swaps the tab bar for the sidebar.
-  Never write a `max-width` query. The calendar is the one exception: its month grid needs 768px.
+  Never write a `max-width` query. The calendar's month grid appears only from 1024px; below that it is an agenda.
 * **Nothing scrolls sideways.** Only an inner `overflow-x: auto` container may (a filter strip, a
   paper's line items). Grid and flex children carry `min-width: 0`; user text that can be long wraps.
 * **Touch targets are 44px.** Buttons, chips, tabs, sheet links, summaries and inputs are at least

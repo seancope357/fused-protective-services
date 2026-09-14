@@ -326,7 +326,10 @@ function measure({ auditTargets, minTarget, deviceWidth }: { auditTargets: boole
         for (const el of document.querySelectorAll('a[href], button, input, select, textarea, summary')) {
             if (el instanceof HTMLInputElement && el.type === 'hidden') continue;
             if (!el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) continue;
-            const r = el.getBoundingClientRect();
+            /* A DataTable's primary link is stretched over its row (a card on a
+               phone) with ::after, so the tap target is the row, not the text. */
+            const stretchedRow = el.tagName === 'A' ? el.closest('.dt td[data-primary]')?.closest('tr') ?? null : null;
+            const r = (stretchedRow ?? el).getBoundingClientRect();
             if (r.width <= 1 || r.height <= 1) continue;
             if (el.tagName === 'A' && getComputedStyle(el).display === 'inline' && inlineInText(el)) continue;
             const width = Math.round(r.width * 10) / 10;
