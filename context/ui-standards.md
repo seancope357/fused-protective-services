@@ -101,6 +101,7 @@ Animations follow real-world physical inertia curves defined in `tokens.css`:
 
 ### The Assembly Dual Clocks
 * **Intro copy:** The opening hero displays “Protection is a thousand moving parts.” without the “FPS // Assembly Protocol” badge, removed at Sean's request on 2026-09-14 to reduce clutter and avoid visitor-facing implementation jargon.
+* **Scroll indicator:** Display “SCROLL” with the existing downward arrow. Preserve the cue's fade as scrolling begins; “TO ASSEMBLE” was removed at Sean's request on 2026-09-14.
 * `--assembly`: Bound to viewport scroll offset (`0.0000` to `1.0000`). Used for pacing copy beat opacities.
 * `--assembly-settled`: Bound to physical camera matrix convergence. The only clock that may trigger full-scene completion.
 

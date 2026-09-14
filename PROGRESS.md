@@ -3,7 +3,7 @@
 > **Living operational status, completed milestones, active workstreams, and known gaps.**  
 > *Last Updated: September 2026*
 
-Latest focused implementation status: [Hero badge removal](context/progress-tracker.md).
+Latest focused implementation status: [Hero copy refinements](context/progress-tracker.md).
 
 ---
 
