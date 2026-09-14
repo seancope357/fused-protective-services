@@ -20,9 +20,7 @@ const head = (page) => html`
     <link rel="canonical" href="${site.url}/${page.slug}">
     <link rel="icon" type="image/png" sizes="32x32" href="${site.icons.favicon}">
     <link rel="apple-touch-icon" sizes="180x180" href="${site.icons.appleTouch}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Typefaces self-hosted; see src/styles/base.css (SPEC-006). -->
     <link rel="stylesheet" href="css/site.css">
 `;
 

@@ -92,6 +92,15 @@ test('every assets/ path named in src/ is on disk', () => {
 
 /* ── the build refuses to ship a missing one ─────────────────────────────── */
 
+/** Mirrors a directory tree as empty files, preserving its shape. */
+function stubTree(from, to) {
+    mkdirSync(to, { recursive: true });
+    for (const entry of readdirSync(from, { withFileTypes: true })) {
+        if (entry.isDirectory()) stubTree(join(from, entry.name), join(to, entry.name));
+        else writeFileSync(join(to, entry.name), '');
+    }
+}
+
 function checkout() {
     const dir = mkdtempSync(join(tmpdir(), 'fps-assets-'));
     mkdirSync(join(dir, 'src'), { recursive: true });
@@ -99,8 +108,10 @@ function checkout() {
     cpSync(join(ROOT, 'build.mjs'), join(dir, 'build.mjs'));
     mkdirSync(join(dir, 'assets'), { recursive: true });
     /* Existence is the only thing asserted, so stand-ins are enough and keep
-       ~3 MB of image data out of every temp checkout. */
-    for (const name of readdirSync(join(ROOT, 'assets'))) writeFileSync(join(dir, 'assets', name), '');
+       ~3 MB of image data out of every temp checkout. Recursive since
+       SPEC-006: assets/fonts/ is a directory, and a flat loop would create a
+       FILE named `fonts` and then every woff2 the build looks for is missing. */
+    stubTree(join(ROOT, 'assets'), join(dir, 'assets'));
     return dir;
 }
 
