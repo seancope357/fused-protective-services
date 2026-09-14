@@ -37,10 +37,16 @@ function checkout() {
     cpSync(join(ROOT, 'src'), join(dir, 'src'), { recursive: true });
     cpSync(join(ROOT, 'build.mjs'), join(dir, 'build.mjs'));
 
-    mkdirSync(join(dir, 'assets'), { recursive: true });
-    for (const name of readdirSync(join(ROOT, 'assets'))) {
-        writeFileSync(join(dir, 'assets', name), '');
-    }
+    /* Recursive since SPEC-006 added assets/fonts/: a flat loop would create a
+       FILE named `fonts` and every woff2 the build asserts would be missing. */
+    const stub = (from, to) => {
+        mkdirSync(to, { recursive: true });
+        for (const entry of readdirSync(from, { withFileTypes: true })) {
+            if (entry.isDirectory()) stub(join(from, entry.name), join(to, entry.name));
+            else writeFileSync(join(to, entry.name), '');
+        }
+    };
+    stub(join(ROOT, 'assets'), join(dir, 'assets'));
     return dir;
 }
 

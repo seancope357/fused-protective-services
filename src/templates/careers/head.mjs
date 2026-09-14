@@ -90,10 +90,7 @@ export const careersHead = () => html`
 ${json(structuredData())}
     </script>
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+    <!-- Typefaces are self-hosted (SPEC-006); the @font-face rules ride in
+         css/site.css. No preconnect, because there is no third origin left. -->
     <link rel="stylesheet" href="css/site.css">
 `;
