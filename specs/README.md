@@ -25,6 +25,7 @@ has nothing unbuilt in its `Depends on` line.
 | [009](SPEC-009-performance-budget.md) | Performance budget for the intro | E3 | M | 006, 007 | ⏸ **Recommended cut from launch** |
 | [010](SPEC-010-candidate-ats.md) | Candidate ATS in the portal | F3 | L | 002 | ✅ **Done** (emails wait on B1) |
 | [011](SPEC-011-incident-and-restore.md) | Incident, rollback and restore drill | D4, D8 | S | — | ◐ **Docs done**, drill unrun (Sean) |
+| [012](SPEC-012-portal-mobile-first.md) | Portal mobile-first, ready for Cameron | F1 | L | — | 🔨 **In progress** |
 
 **Status as of 2026-09-14.** Seven of eleven are done: 001, 002, 003, 006, 007, 010, 011,
 plus 008 audited with its gate staged pending two brand-token decisions. **004** (uptime +
