@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import '../../shared/src/styles/tokens.css';
 import '@/styles/app.css';
 import { site, logoSrc } from '@/lib/shared';
@@ -9,6 +9,16 @@ export const metadata: Metadata = {
     description: `${site.name} operations platform.`,
     robots: { index: false, follow: false },
     icons: { icon: logoSrc }
+};
+
+/* viewportFit 'cover' lets the tab bar reach the bottom edge on phones with a
+   home indicator; the bar pads itself with env(safe-area-inset-bottom).
+   themeColor is --color-void, so the browser chrome meets the page. */
+export const viewport: Viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    viewportFit: 'cover',
+    themeColor: '#050504'
 };
 
 /* Every page outside production says so, above everything else (SPEC-002).

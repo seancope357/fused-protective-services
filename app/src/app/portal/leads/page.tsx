@@ -1,12 +1,37 @@
 import Link from 'next/link';
-import { PageHead, Badge, Empty } from '@/components/ui';
-import { fmtDateTime } from '@/lib/format';
+import { PageHead, Badge, Empty, Chips } from '@/components/ui';
+import { DataTable, type Column } from '@/components/data-table';
+import { fmtDateTime, statusLabel, titleCase } from '@/lib/format';
 import { divisionByQuoteValue } from '@/lib/shared';
 import { listLeads, sourceEnvScope } from '@/lib/domain/queries';
 
 export const dynamic = 'force-dynamic';
 
 const STAGES = ['new', 'contacted', 'audit_scheduled', 'proposal_sent', 'dispatched', 'closed_won', 'closed_lost'];
+
+type Lead = Awaited<ReturnType<typeof listLeads>>[number];
+
+/* Desktop keeps the order an operator scans in; on a phone the contact is the
+   card title and the reference and location wait for a wider screen. */
+const columns: Column<Lead>[] = [
+    { key: 'received', header: 'Received', cell: (l) => <span className="mono small">{fmtDateTime(l.created_at)}</span> },
+    { key: 'ref', header: 'Reference', hide: 'tablet', cell: (l) => <span className="mono small">{l.ref_code}</span> },
+    {
+        key: 'contact',
+        header: 'Contact',
+        primary: true,
+        cell: (l) => (
+            <>
+                <Link href={`/portal/leads/${l.id}`}>{l.full_name}</Link>
+                {l.company ? <div className="small muted">{l.company}</div> : null}
+            </>
+        )
+    },
+    { key: 'division', header: 'Division', hide: 'phone', cell: (l) => <span className="small">{divisionByQuoteValue(l.service_division)?.heading ?? l.service_division}</span> },
+    { key: 'location', header: 'Location', hide: 'tablet', cell: (l) => <span className="small">{l.deployment_location}</span> },
+    { key: 'priority', header: 'Priority', cell: (l) => <Badge status={l.priority} /> },
+    { key: 'stage', header: 'Stage', cell: (l) => <Badge status={l.status} /> }
+];
 
 export default async function LeadsPage({ searchParams }: { searchParams: Promise<{ stage?: string; env?: string }> }) {
     const { stage, env } = await searchParams;
@@ -20,41 +45,32 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
         const query = new URLSearchParams(params);
         return query.size ? `/portal/leads?${query}` : '/portal/leads';
     };
+    const keepEnv: Record<string, string> = scope === 'all' ? { env: 'all' } : {};
+    const keepStage: Record<string, string> = stageFilter ? { stage: stageFilter } : {};
 
     return (
         <>
-            <PageHead eyebrow="Inbox" title="Leads">Every request from the website, newest first. One click converts a lead to a draft quote.</PageHead>
-            <nav className="row mb-4" aria-label="Filter by stage">
-                <Link href={withStage(scope === 'all' ? { env: 'all' } : {})} className={`btn btn--sm ${!stageFilter ? 'btn--gold' : 'btn--ghost'}`}>All</Link>
-                {STAGES.map((s) => (
-                    <Link key={s} href={withStage({ stage: s, ...(scope === 'all' ? { env: 'all' } : {}) })} className={`btn btn--sm ${stageFilter === s ? 'btn--gold' : 'btn--ghost'}`}>{s.replace('_', ' ')}</Link>
-                ))}
-            </nav>
-            <nav className="row mb-4" aria-label="Filter by originating environment">
-                <span className="small muted">Source</span>
-                <Link href={withStage({ ...(stageFilter ? { stage: stageFilter } : {}) })} className={`btn btn--sm ${scope === 'production' ? 'btn--gold' : 'btn--ghost'}`}>Production only</Link>
-                <Link href={withStage({ ...(stageFilter ? { stage: stageFilter } : {}), env: 'all' })} className={`btn btn--sm ${scope === 'all' ? 'btn--gold' : 'btn--ghost'}`}>Include preview &amp; local</Link>
-            </nav>
+            <PageHead eyebrow="Inbox" title="Leads">Every request from the website, newest first. Open one to call back or turn it into a quote.</PageHead>
+            <Chips
+                label="Filter by stage"
+                items={[
+                    { href: withStage(keepEnv), label: 'All', active: !stageFilter },
+                    ...STAGES.map((s) => ({ href: withStage({ stage: s, ...keepEnv }), label: titleCase(statusLabel(s)), active: stageFilter === s }))
+                ]}
+            />
+            <Chips
+                label="Filter by originating environment"
+                caption="Source"
+                items={[
+                    { href: withStage(keepStage), label: 'Production only', active: scope === 'production' },
+                    { href: withStage({ ...keepStage, env: 'all' }), label: 'Include preview & local', active: scope === 'all' }
+                ]}
+            />
             {leads.length ? (
-                <div className="card table-wrap">
-                    <table>
-                        <thead><tr><th>Received</th><th>Reference</th><th>Contact</th><th>Division</th><th>Location</th><th>Priority</th><th>Stage</th></tr></thead>
-                        <tbody>
-                            {leads.map((l) => (
-                                <tr key={l.id} className="is-link">
-                                    <td className="mono small">{fmtDateTime(l.created_at)}</td>
-                                    <td className="mono small">{l.ref_code}</td>
-                                    <td><Link href={`/portal/leads/${l.id}`}>{l.full_name}</Link>{l.company ? <div className="small muted">{l.company}</div> : null}</td>
-                                    <td className="small">{divisionByQuoteValue(l.service_division)?.heading ?? l.service_division}</td>
-                                    <td className="small">{l.deployment_location}</td>
-                                    <td><Badge status={l.priority} /></td>
-                                    <td><Badge status={l.status} /></td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            ) : <Empty>No leads{stage ? ` in ${stage.replace('_', ' ')}` : ''} yet.</Empty>}
+                <DataTable caption="Leads" columns={columns} rows={leads} rowKey={(l) => l.id} />
+            ) : (
+                <Empty>No leads{stageFilter ? ` in ${statusLabel(stageFilter)}` : ''} yet.</Empty>
+            )}
         </>
     );
 }

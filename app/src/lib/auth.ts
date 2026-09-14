@@ -12,6 +12,9 @@ export type Session = {
     clientId: string | null;
     officerId: string | null;
     fullName: string | null;
+    /** Set on accounts created with a temporary password (SPEC-012). Lives in
+        app_metadata, which only the service role can write. */
+    mustChangePassword: boolean;
 };
 
 /** The signed-in user's profile, or null. Cached per request. */
@@ -32,7 +35,8 @@ export const getSession = cache(async (): Promise<Session | null> => {
         role: profile.role as Role,
         clientId: profile.client_id,
         officerId: profile.officer_id,
-        fullName: profile.full_name
+        fullName: profile.full_name,
+        mustChangePassword: user.app_metadata?.must_change_password === true
     };
 });
 

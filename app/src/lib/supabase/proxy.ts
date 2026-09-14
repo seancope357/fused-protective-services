@@ -22,6 +22,9 @@ export async function updateSession(request: NextRequest) {
     const nonce = Buffer.from(crypto.getRandomValues(new Uint8Array(16))).toString('base64');
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-nonce', nonce);
+    /* Layouts receive no pathname; the portal layout needs it to send a
+       first-sign-in account to /portal/welcome without looping (SPEC-012). */
+    requestHeaders.set('x-pathname', request.nextUrl.pathname);
     const csp = buildCsp(nonce);
     requestHeaders.set('content-security-policy', csp);
 
