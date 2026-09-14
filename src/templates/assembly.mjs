@@ -13,7 +13,6 @@ export const assembly = () => html`
     <section class="forge-track" id="assembly-intro" aria-label="${site.name} — brand introduction">
         <div class="forge-stage">
             <div class="forge-beat forge-beat-1">
-                <span class="forge-eyebrow">FPS // Assembly Protocol</span>
                 <p class="forge-line">Protection is a thousand moving parts.</p>
             </div>
             <div class="forge-beat forge-beat-2">

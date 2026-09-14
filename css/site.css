@@ -777,23 +777,6 @@ html[data-forge-fallback] .forge-track {
     text-align: center;
 }
 
-.forge-eyebrow {
-    display: inline-block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--logo-gold-highlight);
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    margin-bottom: var(--space-3);
-    padding: 7px 16px;
-    border-radius: var(--radius-full);
-    background: rgba(5, 5, 4, 0.55);
-    border: 1px solid var(--border-gold-subtle);
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
-}
-
 .forge-line {
     font-family: 'Cinzel', serif;
     font-size: clamp(30px, 5.2vw, 58px);
