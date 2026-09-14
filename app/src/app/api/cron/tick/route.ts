@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { runTick } from '@/lib/notifications/scheduler';
 import { deployEnv, isProduction, NON_PRODUCTION_REASON } from '@/lib/env';
+import { report } from '@/lib/observability';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -24,11 +25,24 @@ export async function GET(request: NextRequest) {
         console.warn(`[cron] refusing to run outside production (VERCEL_ENV=${deployEnv()}).`);
         return NextResponse.json({ ok: true, skipped: NON_PRODUCTION_REASON, environment: deployEnv() });
     }
+    /* Each rule inside runTick is isolated and reports its own failure
+       (SPEC-003 §4), so this catch is for the tick failing to start at all —
+       an unconfigured service-role client, most likely. A tick that ran and
+       had rules fail still returns 200 with the failures named in the report,
+       because the work that did happen happened. */
     try {
-        const report = await runTick(new Date());
-        return NextResponse.json({ ok: true, report });
+        const tick = await runTick(new Date());
+        if (tick.failed) {
+            console.error(`[cron] ${tick.failed} rule(s) failed: ${tick.failed_rules}`);
+        }
+        return NextResponse.json({ ok: true, report: tick });
     } catch (err) {
         console.error('[cron] tick failed:', err);
+        await report(err, {
+            severity: 'fatal',
+            source: 'app/api/cron/tick',
+            context: { stage: 'tick', reason: 'the scheduler did not start' }
+        });
         return NextResponse.json({ ok: false, error: 'tick_failed' }, { status: 500 });
     }
 }
