@@ -310,6 +310,38 @@ Restoring the database is [`RESTORE-DRILL.md`](RESTORE-DRILL.md) — a procedure
 
 ---
 
+## 8a. Portal dependencies and the supply-chain policy
+
+`app/` is the only workspace with dependencies. Two policies guard it, both in
+`app/pnpm-workspace.yaml`, and both will fail CI rather than warn:
+
+**Minimum release age.** A package published within the last 24 hours is rejected. This is the
+window in which a compromised release is most likely still live, and it fires on *transitive*
+dependencies too — adding one direct dependency can pull in a package published that morning.
+When it fires, **resolve to an older version rather than adding an exemption**:
+
+```bash
+cd app
+pnpm clean --lockfile   # discard the rejected resolution
+pnpm install            # re-resolve; the policy steers it to an established version
+```
+
+Add to `minimumReleaseAgeExclude` only with a reason and an exact version. There are three
+entries today, all React.
+
+**Install scripts are denied by default.** `allowBuilds` records a decision per package, and pnpm
+errors on an *undeclared* ignored build — so a new dependency that wants to run code at install
+time stops the build until a human decides. `@sentry/cli` is set to `false` deliberately: it
+downloads a platform binary for source-map upload, and the Sentry SDK runs server-side only and
+needs none of it.
+
+**Use the pinned pnpm.** `app/package.json` sets `"packageManager": "pnpm@11.27.0"`, matching CI.
+This matters more than it sounds: pnpm 10 does **not** enforce the release-age check, so an older
+pnpm will happily write a lockfile that CI then rejects — which is exactly how the Sentry
+dependency first went red. Run `corepack enable` once, or prefix commands with `npx pnpm@11`.
+
+---
+
 ## 8b. Changing the marketing site's security headers
 
 `vercel.json` is **generated**. Do not edit it: change `vercelConfig()` in `build.mjs`, run

@@ -1,6 +1,7 @@
 {
   "name": "fused-portal",
   "private": true,
+  "packageManager": "pnpm@11.27.0",
   "version": "0.1.0",
   "description": "Fused Protective Services operations platform — owner portal, client portal, payments, notifications.",
   "scripts": {

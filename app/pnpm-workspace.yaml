@@ -1,3 +1,16 @@
+# @sentry/cli ships a postinstall that downloads a platform binary. We do not upload
+# source maps — the Sentry SDK runs in the Node and Edge runtimes only and needs none
+# of it — so the script is deliberately denied rather than left undeclared. pnpm errors
+# on an undeclared ignored build, which is the behaviour we want for everything else:
+# a new package that wants to run code at install time should stop the build until a
+# human decides.
+allowBuilds:
+  '@sentry/cli': false
+
+# Packages exempted from the minimum-release-age supply-chain check. Add an entry only
+# with a reason and an exact version — the check exists to keep a package published
+# hours ago out of the build, which is when a compromised release is most likely live.
+# Prefer resolving to an older version over adding an exemption.
 minimumReleaseAgeExclude:
   - react-dom@19.3.0
   - react@19.3.0
