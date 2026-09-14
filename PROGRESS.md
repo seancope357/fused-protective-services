@@ -1,7 +1,7 @@
 # 📈 PROGRESS — Fused Protective Services
 
 > **Living operational status, completed milestones, active workstreams, and known gaps.**  
-> *Last Updated: September 2026*
+> *Last Updated: 2026-09-14 — go-live gate list, eleven specs, six shipped. See PR #10.*
 
 ---
 
@@ -25,8 +25,14 @@
 | **Stripe Checkout** | 🟢 **Honest** | Amount read from the stored invoice by id; 503 without a key. No mock links anywhere. |
 | **Phone Line** | 🟢 **Confirmed** | `(512) 555-0199` confirmed by Sean 2026-09-09; placeholder flag cleared. |
 | **DPS Licence Number** | 🔴 **Placeholder, flagged** | Footer and schema carry `B00000` until Cameron supplies the number. `docs/OPEN_QUESTIONS.md` §2. |
+| **Environment separation** | 🟢 **Code done, account pending** | Preview deploys label every row `source_env` and send nothing — owner email, emergency SMS, visitor confirmation and webhook all skip and report `non_production_env` rather than faking. The production scheduler filters preview rows. Sean still has to create the Supabase `preview` branch (`docs/RUNBOOK.md` §1a); until then previews share the production database, labelled and silent. |
+| **Accessibility** | 🟡 **Audited, gate staged** | `docs/A11Y-AUDIT.md`: 48 automated + 12 manual findings, each with file, selector, rule id and fix. The skip-link defect is fixed. Four CSS value changes clear all 48; the gate arms after those land. |
+| **Backup & restore** | 🟡 **Verifier proven, drill unrun** | `app/scripts/verify-restore.mjs` runs in CI against a real migrated database on every push (20/20 tables, RLS, invoice-sequence reissue check). The drill itself ships banner-marked **never run** — it needs Supabase dashboard access. `docs/RESTORE-DRILL.md`. |
+| **Incident response** | 🟢 **Written** | `docs/INCIDENT.md`: first-minute triage across both Vercel projects, four reversible stop-the-bleeding actions, five scenarios. Writing it corrected four things this tracker had wrong. |
+| **Error reporting** | 🔴 **In flight (SPEC-003)** | Nothing reports today: a Stripe webhook can throw after a client has paid, or the cron can stop sending, and nobody finds out. |
+| **Security headers (marketing site)** | 🔴 **In flight (SPEC-006)** | The portal has a nonce CSP and HSTS; the marketing site — the surface that collects PII — has neither, and loads three.js from a third-party CDN. |
 | **Review Markup** | 🟢 **Removed** | No rating is claimed. `src/data/reviews.mjs` re-enables it only from real reviews. |
-| **CI** | 🟢 **GitHub Actions** | `node build.mjs --check` and `node --test` on every push and PR. |
+| **CI** | 🟢 **GitHub Actions** | Four jobs on every push and PR: `site` (drift check + API tests), `portal` (typecheck, vitest incl. RLS/numbering/ATS against Postgres 17, restore-verifier, `next build`), `a11y` (WCAG 2.1 AA scan, reporting — not yet blocking), `release-gate` (`--verify-release`, tags and manual dispatch only). |
 
 ---
 
@@ -146,7 +152,11 @@
 - [ ] **Blocked on accounts** — Resend sender, Twilio, Stripe keys, custom domains (`docs/OPEN_QUESTIONS.md`).
 
 ### Phase 0: Stop the bleeding (2026-09-09)
-- [x] Phone number and DPS licence number carry `placeholder: true` in `src/data/site.mjs`; the build warns on every run and every non-production host shows a red PLACEHOLDER flag (`components/placeholder.css`, `js/modules/env.mjs`).
+- [x] Phone number and DPS licence number carry `placeholder: true` in `src/data/site.mjs`; the build warns on every run.
+  **Superseded by SPEC-001 (2026-09-14):** the flag was host-gated through `js/modules/env.mjs`, whose
+  `productionHosts` list already contained the live `.vercel.app` alias — so `B00000` was rendering
+  *unflagged* on the public site. `env.mjs` is deleted; the flag now renders on **every** host with no
+  JavaScript involved (`components/placeholder.css`).
 - [x] `licenseNumber` rendered in the footer and as the schema.org `identifier` (Tex. Occ. Code §1702.284).
 - [x] False `aggregateRating` removed. `src/data/reviews.mjs` derives the rating from real reviews only; an empty list emits no markup.
 - [x] `/api/intake` rewritten around `api/_lib/`: same-origin CORS, honeypot, per-IP rate limit and duplicate window backed by `public.intake_gate` (migration `20260909000000`), owner email, emergency Twilio SMS, branded visitor confirmation with reference code and dispatch line, honest per-stage `delivery` report.
@@ -155,6 +165,78 @@
 - [x] Dead `supabase/functions/intake-dispatcher` removed (a parallel intake with wildcard CORS and client-minted codes).
 - [x] `tests/` (node --test, fetch stubbed) cover the intake chain, honeypot, duplicates, rate limit, and Stripe amount authority. CI workflow added.
 - [x] `docs/RUNBOOK.md` (Resend domain verification, Twilio 10DLC, Stripe, env index) and `docs/OPEN_QUESTIONS.md` (everything blocked on Cameron).
+
+### Phase 12: Go-live readiness — the gate list and the first six specs (2026-09-14)
+
+Built by a team of agents in parallel worktrees with partitioned file ownership, integrated
+continuously rather than at the end. Full narrative in PR #10.
+
+- [x] **[`docs/GO_LIVE.md`](docs/GO_LIVE.md) — six ordered gates**, every box with an owner and a
+      verification step. It says, in order, what has to be true before the domain points here and
+      Cameron takes real work through it. About half of it is accounts, DNS, licence numbers and
+      attorney review that no agent can do; the buildable half became eleven specs.
+- [x] **[`specs/`](specs/README.md) — eleven specs**, one branch and one PR each, carrying the ten
+      inherited invariants, the definition of done and the dependency order once rather than eleven
+      times.
+- [x] **SPEC-001 — fail-closed placeholder guardrail.** The PLACEHOLDER flag was hidden on any host
+      in `productionHosts`, which already included the live alias, so the fake licence number was
+      rendering unflagged in the footer and the schema.org `identifier`. Flag now renders everywhere
+      with no JavaScript; `js/modules/env.mjs` deleted; `node build.mjs --verify-release` exits 1
+      while any placeholder remains, gated in CI to tags and manual dispatch.
+- [x] **SPEC-002 — preview deploys can no longer page anyone.** Both previews on the PR were pointed
+      at the production Supabase project. Now every non-production row is labelled and every
+      client-facing send is skipped and honestly reported. Two defects found beyond the brief: the
+      *production* scheduler was still going to page about preview leads (suppressing at the preview
+      does not help when the row is in the production database), and a suppressed send was logging
+      `error: 'not_configured'` — a false record.
+- [x] **SPEC-007 — a first view of `/` is 960 KB lighter.** The favicon was the 1.07 MB brand plate;
+      it is now 575 bytes. Composed 1200×630 social card with the dimension and alt tags that were
+      missing. The spec's premise was wrong and is corrected in place: the voxel forge does not need
+      the full-resolution source, because `GRID_ROWS` is already 256 and the master has no alpha
+      channel, so re-encoding beat downscaling on both size and sharpness.
+- [x] **SPEC-008 — accessibility audited, gate staged.** 48 automated + 12 manual findings. Two were
+      decision-free and are fixed: **the skip link skipped the hero and both primary CTAs** — "Skip
+      to main content" on `/` pointed at `#capabilities`, three sections into `<main>`, and
+      `/careers` had the same shape. A conversion defect as much as an accessibility one.
+- [x] **SPEC-010 — candidate ATS.** `/portal/candidates` lists, filters and stages applications from
+      `/careers`, production rows only; the detail page carries the application, internal notes,
+      assignment, rejection and the audit timeline. Stages advance one at a time and cannot skip; a
+      rejection can be re-opened; every change is audited with actor and diff. Candidate email waits
+      on a verified Resend sender and skips honestly until then; reaching `active_roster`
+      deliberately creates no `officers` row.
+- [x] **SPEC-011 — incident response, and an honestly unrun drill.** `docs/INCIDENT.md` and
+      `docs/RESTORE-DRILL.md`. The drill ships banner-marked never run with blank result fields —
+      inventing backup numbers would be worse than an honest blank. Its verifier now runs in CI
+      against a real migrated database, so the SQL is proven continuously rather than first
+      discovered broken during an incident.
+- [ ] **SPEC-006 (CSP + self-hosting) and SPEC-003 (error reporting)** — in flight at session end.
+- [ ] **SPEC-005 (analytics) and SPEC-009 (perf budget)** — recommended **cut from launch scope**.
+      Analytics tells you how launch went; a perf budget prevents future regression. Neither is a
+      precondition for launching, and each adds surface area on day one.
+
+**Three defects that existed only in the combination of two agents' work**, which is the argument for
+integrating continuously:
+
+1. **The environment banner failed contrast** — white on `#ef4444` is 3.76:1, under the 4.5:1 floor.
+   The accessibility audit found `/login` clean, but it branched *before* the banner merged, so
+   neither agent could have seen it. Fixed at the banner, not the shared token: `--color-crimson` is
+   designed as a foreground on dark and passes there.
+2. **Candidate rows in the activity feed rendered as dead text** — `entityHref` had no `candidate`
+   case. The vocabulary lives in SQL where no TypeScript can see it, so the next table would repeat
+   it; there is now a test that reads the newest declaring migration and the route tree and asserts
+   every audited entity type links to a page that exists.
+3. **A latent cross-file database race**, surfaced by a third test file changing scheduling: one
+   suite reserved an invoice-sequence block and asserted an exact delta while another minted
+   invoices concurrently against the same database. Fixed at the shared resource
+   (`fileParallelism: false`), not by re-running it until it passed.
+
+**One thing a spec asked for that was deliberately not shipped.** SPEC-010 supplied privacy-policy
+copy promising that unsuccessful applications are deleted at 24 months. Nothing deletes them — the
+spec shipped no deleter because the DPS retention floor for hired officers is a question for counsel.
+A privacy policy must not promise a purge that does not run, so the published copy states what the
+system actually does and the fixed period became gate **F3a**.
+
+---
 
 ---
 
@@ -167,17 +249,24 @@ Tracked in [`docs/OPEN_QUESTIONS.md`](file:///Users/cope/projects/fused-protecti
 [`docs/GO_LIVE.md`](file:///Users/cope/projects/fused-protective-services/docs/GO_LIVE.md)
 is the ordered launch gate list — legal and licensing, the lead-to-cash delivery chain,
 domains and environment separation, operational readiness, site quality, and Cameron's
-day-one dry run. It adds the items this tracker did not carry: error monitoring, uptime
-checks, analytics, a backup restore drill, preview deploys currently writing to the
-production database, no CSP on the marketing site, no accessibility check in CI, and no
-portal screen for `candidate_applications`. Every box names an owner and a verification
-step.
+day-one dry run. Every box names an owner and a verification step.
+
+**Ticked so far: C4, D8, E2, F3.** Advanced: A1, C3, D4, E4. It raised the items this
+tracker did not carry — of those, the restore drill, environment separation, the
+accessibility check and the candidate screen are now built or written; error monitoring,
+uptime checks, analytics and the marketing-site CSP are not.
+
+**The launch-blocking remainder is not engineering.** The critical path is Twilio 10DLC
+registration (business days, needs the EIN), attorney review, and DNS → Resend — a chain,
+not three parallel tasks. Until Resend verifies a sender, no client can sign into the
+portal at all. What the spec work buys is that nothing is *also* waiting on engineering
+when those accounts land.
 
 The buildable half is broken into eleven specs in
-[`specs/`](file:///Users/cope/projects/fused-protective-services/specs/README.md) — one
-branch and one pull request each, with a status table, a dependency order, the invariants
-every spec inherits, and a shared definition of done. 001, 006, 007, 008 and 011 are
-independent and can start at once; 002 unblocks 003, 004, 005 and 010.
+[`specs/`](specs/README.md) — one branch and one pull request each, with a status table,
+a dependency order, the invariants every spec inherits, and a shared definition of done.
+**Done: 001, 002, 007, 010, 011**, plus 008 audited with its gate staged. **In flight:
+006, 003.** **Recommended cut from launch scope: 005, 009.**
 
 ---
 
@@ -191,6 +280,9 @@ independent and can start at once; 002 unblocks 003, 004, 005 and 010.
 | **P1** | **Set Real Phone Line** | Update `phone` in `site.mjs` with Cameron's active dispatch line. | Cameron's phone number |
 | **P1** | **Twilio credentials** | Code is live; set the four Twilio variables and `DISPATCH_ALERT_SMS_TO` (`docs/RUNBOOK.md` §3). | Twilio account, 10DLC |
 | **P0** | **Resend sender + Stripe keys + Twilio** | Everything client-facing waits on these accounts (`docs/RUNBOOK.md` §2–4). | Sean, Cameron |
+| **P0** | **Two brand-token decisions** | Blocking the accessibility gate. (1) `--text-tertiary` `#78716c` → `#8f8a86` — clears 42 of 48 violations, measured 5.74–5.97:1 against every surface it lands on. (2) A `--gradient-gold-brushed-ui` clamped at `#a1814c` for interactive faces; the decorative gradient stays as is. Both reversible; the current values fail WCAG AA. | Cameron/Sean to approve the look |
+| **P1** | **Application retention period** | Gate **F3a**. Nothing deletes candidate applications today and the privacy policy correctly does not claim otherwise. A fixed period cannot be published until counsel sets the DPS floor for hired officers; then engineering adds the deletion to the cron tick and the policy sentence changes with it. | Counsel, same review as A3 |
+| **P2** | **Arm the accessibility gate** | After the four CSS fixes: add `--exit` back to both axe steps, delete the summary blocks and `continue-on-error`, add `a11y` to required checks, and tighten `tests/skip-link.test.mjs` to assert `#main` exactly. | The two token decisions |
 | **P2** | **Phase 2 operations** | Officer roster UI, shift assignment with conflict detection, officer mobile view, GPS clock-in and checkpoint scans, incident reports with photos, timesheets/payroll export, invoices reconciled to worked hours. Schema seams exist (`officers`, `shift_assignments` clock columns, `pay_rate_cents`). | Phase 1 in use |
 | **P2** | **Client Testimonials Section** | Render `src/data/reviews.mjs` once real reviews exist; the rating markup follows automatically. | Verified reviews |
 | **P3** | **Client-Side PDF Generator** | Add standalone PDF export library as alternative to browser print. | Invoicing module |

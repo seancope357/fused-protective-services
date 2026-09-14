@@ -182,7 +182,37 @@ Animations follow real-world physical inertia curves defined in `tokens.css`:
 
 ## ♿ Accessibility Baseline (WCAG 2.1 AA)
 
-All user interface elements strictly adhere to the accessibility baseline established during the 2026 rebuild:
+All user interface elements strictly adhere to the accessibility baseline established during the 2026 rebuild.
+
+> [!IMPORTANT]
+> **This section describes intent. [`docs/A11Y-AUDIT.md`](../docs/A11Y-AUDIT.md) describes measured
+> reality, and where the two disagree the audit is right.** The 2026-09-14 audit found 48 automated
+> and 12 manual violations against this baseline — including two defects in the very affordances
+> described below. Read it before trusting a claim on this page.
+
+### 0. Standing obligation
+
+Any change to the nav or drawer, the bookshelf, the protocol tablist, the assessment quiz, the
+estimator, either intake form, the careers filters or accordion, or the scroll-driven intro requires
+re-running the manual audit in [`docs/A11Y-AUDIT.md`](../docs/A11Y-AUDIT.md) and updating its date.
+The `a11y` CI job covers the automated third — colour contrast, names, roles, landmarks — and covers
+none of the above.
+
+**Contrast is measured against the composited background, not the token.** Several surfaces are
+translucent (`--color-surface-card` is `rgba(18,19,18,0.86)` over `--color-void`), so a ratio
+computed against the nominal hex is wrong. Large text (≥24px, or ≥18.66px bold) is held to 3:1 and
+everything else to 4.5:1; `.standard-index` passes only because it is 34px at weight 900.
+
+**Open token decisions, both blocking the CI gate** (`docs/A11Y-AUDIT.md` Part E, items 1 and 8):
+1. `--text-tertiary` `#78716c` → `#8f8a86`. Clears 42 of 48 violations. Measured 5.97:1 on the void,
+   5.84:1 on the sunken surfaces, 5.74:1 on framed; the current value is 4.08–4.25:1 and fails
+   everywhere it is used.
+2. The gold ramp fails as an interactive face: the 75% stop is 3.99:1 and the 100% stop 2.93:1
+   against `--color-void`. Recommendation is an additive `--gradient-gold-brushed-ui` clamped at
+   `--logo-gold-core` (`#a1814c`), leaving the decorative gradient untouched.
+
+Record the outcome here when decided — this document owns the gold tokens.
+
 
 ### 1. Semantic Interactive Controls
 * **Real `<button>` Elements:** All clickable triggers (bookshelf spine rails, estimator tier selectors, quiz cards) are native `<button>` elements with `type="button"`. No `<div onclick>` constructs exist.
@@ -202,7 +232,14 @@ The 4-stage deployment protocol implements the complete WAI-ARIA tablist pattern
   * Quiz result recommendations dynamically update an ARIA live region.
 
 ### 4. Focus Visibility & Skip Links
-* **Skip Link:** A high-contrast `.skip-link` sits off-screen at `-100%` and slides down into view on initial keyboard tab, skipping directly to main content.
+* **Skip Link:** A high-contrast `.skip-link` sits off-screen at `-100%` and slides down into view on
+  initial keyboard tab, targeting `#main` on every page. All four `<main>` elements carry
+  `tabindex="-1"` — without it, activating the link leaves `document.activeElement` on `BODY` and only
+  Chrome's sequential-focus-starting-point papers over it; VoiceOver and NVDA do not.
+  *Corrected 2026-09-14 (A11Y-01/02):* `/` targeted `#capabilities` and `/careers` targeted
+  `#open-postings` — both **inside** `<main>` but past the hero and past every primary CTA. The one
+  affordance a keyboard or screen-reader visitor uses to reach the content skipped the calls to
+  action. Treat this as a conversion invariant, not only an accessibility one.
 * **Unified `:focus-visible` Style:**
   ```css
   :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
