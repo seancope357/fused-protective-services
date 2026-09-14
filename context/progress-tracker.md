@@ -4,7 +4,7 @@ Updated: 2026-09-14. This file tracks the current implementation unit; [PROGRESS
 
 ## Current Phase
 
-SPEC-012 — the portal made mobile-first and ready for Cameron's first session, on branch `feat/portal-mobile-first`.
+SPEC-012 — the portal made mobile-first and ready for Cameron's first session. Merged to `main` and deployed 2026-09-14, together with the real DPS licence number (`01766480`).
 
 ## Current Goal
 
@@ -25,7 +25,7 @@ None.
 
 ## Next Up
 
-Push `feat/portal-mobile-first` and open a PR (a push creates Vercel preview deploys; previews write labelled rows to the production database and send nothing, SPEC-002). Then Cameron's first sign-in on the real portal proves criterion 8.
+Cameron's first sign-in on the real portal proves criterion 8: create his owner account from Settings, and he enrols an authenticator and sets his own password. Before that, confirm the hosted `secure_password_change` setting, and have Cameron confirm `01766480` is the company licence and give the DPS-record address.
 
 ## Open Questions
 
