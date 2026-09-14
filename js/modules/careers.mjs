@@ -218,9 +218,9 @@ function initCandidateForm() {
         if (status) {
             status.removeAttribute('hidden');
             status.innerHTML = `
-                <strong>Application Transmitted Successfully</strong><br>
+                <strong>Application Received</strong><br>
                 Candidate Reference: <span style="color: var(--logo-gold-specular); font-family: 'JetBrains Mono', monospace;">${code}</span><br>
-                Your operational profile and TOPS licensing credentials have been routed to Cameron Harrell and the Command Operations Desk. You will be contacted at <strong>${data.appPhone}</strong> within 48 business hours.
+                Your operational profile and TOPS licensing credentials have been sent to Fused Protective Services. You will be contacted at <strong>${data.appPhone}</strong> within 48 business hours.
             `;
         }
 

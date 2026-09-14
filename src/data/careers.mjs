@@ -14,7 +14,7 @@ export const careersSeo = {
     description:
         'Join Fused Protective Services. Hiring Texas DPS Level IV Personal Protection Officers (PPO), Level III Armed Officers, Level II Unarmed Officers, and Tactical Dispatchers across Austin and San Antonio. Market-rate pay by license level ($16–$60/hr), paid training, own gear preferred with a repayable gear stipend, and a veteran-first culture.',
     keywords:
-        'executive protection jobs Austin, security jobs San Antonio, Texas PPO bodyguard hiring, armed security jobs Texas, unarmed security jobs Austin, DPS Level 4 security careers, veteran security contractor Austin, Cameron Harrell security recruiting'
+        'executive protection jobs Austin, security jobs San Antonio, Texas PPO bodyguard hiring, armed security jobs Texas, unarmed security jobs Austin, DPS Level 4 security careers, veteran security contractor Austin, Fused Protective Services careers'
 };
 
 export const careersMetrics = [
@@ -107,9 +107,9 @@ export const vettingStages = [
         step: '04',
         name: 'Command Staff Board Interview',
         badge: 'STAGE 4: ETHICS',
-        heading: 'Executive Interview with Cameron Harrell',
+        heading: 'Executive Interview with Fused Leadership',
         body: 'An in-person command board interview evaluating communication presence, situational de-escalation instincts, tactical composure, and alignment with Fused standards.',
-        checkpoint: 'Direct sign-off from Chief of Operations Cameron Harrell.'
+        checkpoint: 'Direct sign-off from Fused Protective Services leadership.'
     },
     {
         id: 'active_roster',
