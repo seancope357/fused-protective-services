@@ -45,6 +45,8 @@ export function supabaseProjectRef(): string | null {
     if (!raw) return null;
     try {
         const host = new URL(raw).hostname;
+        /* A local stack is addressed by loopback, whose first label ("127") is not a project. */
+        if (host === 'localhost' || /^\d+\.\d+\.\d+\.\d+$/.test(host)) return 'local';
         const [ref] = host.split('.');
         return ref || null;
     } catch {

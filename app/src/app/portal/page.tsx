@@ -7,7 +7,8 @@ import { formatMoney } from '@/lib/money';
 import { divisionByQuoteValue, site } from '@/lib/shared';
 import { gettingStartedFacts, listLeads } from '@/lib/domain/queries';
 import { allDone, gettingStartedSteps } from '@/lib/domain/getting-started';
-import type { Invoice, Job } from '@/lib/db/types';
+import type { Invoice } from '@/lib/db/types';
+import { nextJobsFromShifts, type ShiftWithJob, type UpcomingJob } from '@/lib/domain/upcoming';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,8 +34,8 @@ const leadColumns: Column<Lead>[] = [
     { key: 'priority', header: 'Priority', cell: (l) => <Badge status={l.priority} /> }
 ];
 
-const jobColumns: Column<Job>[] = [
-    { key: 'starts', header: 'Starts', cell: (j) => <span className="mono small">{fmtDateTime(j.starts_at)}</span> },
+const jobColumns: Column<UpcomingJob>[] = [
+    { key: 'starts', header: 'Next shift', cell: (j) => <span className="mono small">{fmtDateTime(j.next_start)}</span> },
     {
         key: 'job',
         header: 'Job',
@@ -76,16 +77,17 @@ export default async function Dashboard() {
 
     /* Leads are production-only here (SPEC-002): a preview submission is not a
        lead, and "New leads" is the number the owner acts on. */
-    const [leads, { data: jobs }, { data: unpaid }, { data: paidThisMonth }, facts] = await Promise.all([
+    const [leads, { data: shifts }, { data: unpaid }, { data: paidThisMonth }, facts] = await Promise.all([
         listLeads({ stage: 'new', limit: 10 }),
-        supabase.from('jobs').select('*').in('status', ['scheduled', 'in_progress']).lte('starts_at', in7).order('starts_at').limit(15),
+        /* From shifts, not jobs.starts_at: a standing detail's starts_at is its first shift. */
+        supabase.from('shifts').select('starts_at, jobs(id, title, job_number, status)').neq('status', 'cancelled').gte('starts_at', now.toISOString()).lte('starts_at', in7).order('starts_at').limit(200),
         supabase.from('invoices').select('*').in('status', ['sent', 'partially_paid', 'overdue']).order('due_date'),
         supabase.from('payments').select('amount_cents').eq('status', 'succeeded').gte('received_at', monthStart),
         gettingStartedFacts()
     ]);
 
     const openInvoices = (unpaid ?? []) as Invoice[];
-    const upcoming = (jobs ?? []) as Job[];
+    const upcoming = nextJobsFromShifts((shifts ?? []) as unknown as ShiftWithJob[]).slice(0, 15);
     const outstanding = openInvoices.reduce((s, i) => s + (i.total_cents - i.amount_paid_cents), 0);
     const overdueCount = openInvoices.filter((i) => daysBetween(i.due_date, today) >= 1).length;
     const revenue = (paidThisMonth ?? []).reduce((s, p) => s + p.amount_cents, 0);
@@ -134,7 +136,7 @@ export default async function Dashboard() {
 
             <div className="grid grid--4 mb-4">
                 <Stat label="New leads" value={leads.length} hint="Awaiting first response" gold={leads.length > 0} />
-                <Stat label="Jobs next 7 days" value={upcoming.length} hint={upcoming[0] ? `Next: ${fmtDateTime(upcoming[0].starts_at)}` : 'Nothing scheduled'} />
+                <Stat label="Jobs next 7 days" value={upcoming.length} hint={upcoming[0] ? `Next: ${fmtDateTime(upcoming[0].next_start)}` : 'Nothing scheduled'} />
                 <Stat label="Outstanding" value={formatMoney(outstanding)} hint={`${openInvoices.length} open · ${overdueCount} overdue`} />
                 <Stat label="Collected this month" value={formatMoney(revenue)} hint="Succeeded payments" gold />
             </div>

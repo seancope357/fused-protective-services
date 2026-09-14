@@ -78,11 +78,13 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
                 <div className="agenda"><Empty>No shifts in {label}.</Empty></div>
             )}
 
-            <div className="calendar" role="grid" aria-label={`Shifts in ${label}`}>
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => <div key={d} className="small muted" role="columnheader" style={{ padding: '0 6px' }}>{d}</div>)}
+            {/* No grid role: an ARIA grid needs rows, and the month is read best as a
+                sequence of days, each announcing its full date. */}
+            <div className="calendar" aria-label={`Shifts in ${label}`} role="group">
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => <div key={d} className="small muted" aria-hidden="true" style={{ padding: '0 6px' }}>{d}</div>)}
                 {cells.map((day, i) => day ? (
-                    <div key={day} className={`calendar__day${day === today ? ' calendar__day--today' : ''}`} role="gridcell">
-                        <div className="calendar__date">{Number(day.slice(-2))}</div>
+                    <div key={day} className={`calendar__day${day === today ? ' calendar__day--today' : ''}`}>
+                        <div className="calendar__date"><span aria-hidden="true">{Number(day.slice(-2))}</span><span className="visually-hidden">{dayLabel(day)}{day === today ? ', today' : ''}</span></div>
                         {(byDay.get(day) ?? []).map((s) => (
                             <Link key={s.id} href={`/portal/jobs/${s.job_id}`} className="calendar__job" title={`${s.jobs?.title} ${fmtTime(s.starts_at)}–${fmtTime(s.ends_at)}`}>
                                 {fmtTime(s.starts_at)} {s.jobs?.title ?? 'Job'}
