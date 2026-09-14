@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { PageHead, Badge, Empty } from '@/components/ui';
+import { PageHead, Badge, Empty, Disclosure } from '@/components/ui';
+import { DataTable, type Column } from '@/components/data-table';
 import { StatusFromSearch, type SearchStatus } from '@/components/status-from-search';
 import { publishReview } from '@/lib/actions/reviews';
 import { fmtDateTime } from '@/lib/format';
@@ -8,26 +9,88 @@ import type { Review } from '@/lib/db/types';
 
 export const dynamic = 'force-dynamic';
 
+type Row = Review & { jobs: { title: string; job_number: string } | null; clients: { name: string } | null };
+
+const reviewText = (r: Row) => (
+    <>
+        {r.body ?? (r.status === 'requested' ? `requested ${fmtDateTime(r.requested_at)}` : '—')}
+        {r.author_name ? <div className="muted">— {r.author_name}</div> : null}
+    </>
+);
+
+/* The job is the card title and opens the job. A review is prose, and a phone
+   card right-aligns every label/value line, so on a phone the text sits under
+   the title instead of in its own line; the Review column returns from 600px.
+   Exactly one of the two copies is displayed at any width. */
+const columns: Column<Row>[] = [
+    {
+        key: 'job',
+        header: 'Job',
+        primary: true,
+        cell: (r) => (
+            <>
+                <Link href={`/portal/jobs/${r.job_id}`}>{r.jobs?.title ?? r.job_id}</Link>
+                <div className="only-phone small wrap-anywhere mt-2" style={{ fontWeight: 400 }}>{reviewText(r)}</div>
+            </>
+        )
+    },
+    { key: 'client', header: 'Client', cell: (r) => r.clients?.name ?? '—' },
+    {
+        key: 'rating',
+        header: 'Rating',
+        cell: (r) => (r.rating ? <span role="img" aria-label={`${r.rating} out of 5`}>{`${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}`}</span> : '—')
+    },
+    { key: 'review', header: 'Review', hide: 'phone', cell: (r) => <div className="small wrap-anywhere">{reviewText(r)}</div> },
+    {
+        key: 'status',
+        header: 'Status',
+        cell: (r) => (
+            <div>
+                <Badge status={r.published_at ? 'paid' : r.status}>{r.published_at ? 'published' : r.status}</Badge>
+                {r.status === 'submitted' ? <div className="small muted">{r.permission_to_publish ? 'may publish' : 'private'}</div> : null}
+            </div>
+        )
+    },
+    {
+        key: 'actions',
+        header: '',
+        cell: (r) =>
+            r.status === 'submitted' && r.permission_to_publish ? (
+                <form action={publishReview}>
+                    <input type="hidden" name="id" value={r.id} />
+                    <input type="hidden" name="publish" value={r.published_at ? '0' : '1'} />
+                    <button className="btn btn--ghost btn--sm" type="submit">{r.published_at ? 'Unpublish' : 'Publish'}</button>
+                </form>
+            ) : null
+    }
+];
+
 export default async function ReviewsPage({ searchParams }: { searchParams: Promise<SearchStatus> }) {
     const supabase = await createSupabaseServerClient();
     const { data } = await supabase.from('reviews').select('*, jobs(title, job_number), clients(name)').order('requested_at', { ascending: false }).limit(200);
-    const reviews = (data ?? []) as (Review & { jobs: { title: string; job_number: string } | null; clients: { name: string } | null })[];
+    const reviews = (data ?? []) as Row[];
     const published = reviews.filter((r) => r.published_at);
     const exportSnippet = published.map((r) => `    { author: ${JSON.stringify(r.author_name || r.clients?.name || 'Client')}, company: ${JSON.stringify(r.clients?.name ?? '')}, rating: ${r.rating}, text: ${JSON.stringify(r.body ?? '')}, date: ${JSON.stringify((r.submitted_at ?? '').slice(0, 10))} }`).join(',\n');
     return (
         <>
-            <PageHead eyebrow="Reputation" title="Reviews">Requested a day after each completed job. Only reviews the client allowed can be published, and only published ones may back the site's rating.</PageHead>
+            <PageHead eyebrow="Reputation" title="Reviews">
+                Clients are asked for a review a day after each completed job. You can publish a review only when the client gave permission, and only published reviews count toward the rating on the website.
+            </PageHead>
             <StatusFromSearch params={await searchParams} />
             {reviews.length ? (
-                <div className="card table-wrap mt-4">
-                    <table>
-                        <thead><tr><th>Job</th><th>Client</th><th>Rating</th><th>Review</th><th>Status</th><th /></tr></thead>
-                        <tbody>{reviews.map((r) => <tr key={r.id}><td><Link href={`/portal/jobs/${r.job_id}`}>{r.jobs?.title ?? r.job_id}</Link></td><td>{r.clients?.name}</td><td>{r.rating ? `${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}` : '—'}</td><td className="small">{r.body ?? (r.status === 'requested' ? `requested ${fmtDateTime(r.requested_at)}` : '—')}{r.author_name ? <div className="muted">— {r.author_name}</div> : null}</td><td><Badge status={r.published_at ? 'paid' : r.status}>{r.published_at ? 'published' : r.status}</Badge>{r.status === 'submitted' ? <div className="small muted">{r.permission_to_publish ? 'may publish' : 'private'}</div> : null}</td><td>{r.status === 'submitted' && r.permission_to_publish ? <form action={publishReview}><input type="hidden" name="id" value={r.id} /><input type="hidden" name="publish" value={r.published_at ? '0' : '1'} /><button className="btn btn--ghost btn--sm" type="submit">{r.published_at ? 'Unpublish' : 'Publish'}</button></form> : null}</td></tr>)}</tbody>
-                    </table>
-                </div>
-            ) : <Empty>No reviews yet. They are requested automatically 24 hours after a job is completed.</Empty>}
+                <DataTable caption="Reviews" columns={columns} rows={reviews} rowKey={(r) => r.id} />
+            ) : <Empty>No reviews yet. Clients are asked automatically 24 hours after a job is completed.</Empty>}
             {published.length ? (
-                <section className="card mt-4"><h2 className="mb-2">Export for the website</h2><p className="small">Paste into <span className="mono">src/data/reviews.mjs</span>, rebuild, and the schema.org rating appears with these {published.length} reviews behind it.</p><pre className="mono small mt-4" style={{ whiteSpace: 'pre-wrap' }}>{`export const reviews = [\n${exportSnippet}\n];`}</pre></section>
+                /* The site reads reviews from a source file, so publishing to the
+                   website is a code change Sean makes. Cameron's part is to send
+                   this; the repo detail stays inside the collapsed disclosure. */
+                <section className="card mt-4">
+                    <Disclosure summary="For Sean: website snippet">
+                        <p className="small">Send this to Sean to publish these reviews on the website.</p>
+                        <p className="small muted mt-2">Technical detail: paste into <span className="mono">src/data/reviews.mjs</span> and rebuild; the schema.org rating then appears with these {published.length} reviews behind it.</p>
+                        <pre className="mono small mt-4 wrap-anywhere" style={{ whiteSpace: 'pre-wrap' }}>{`export const reviews = [\n${exportSnippet}\n];`}</pre>
+                    </Disclosure>
+                </section>
             ) : null}
         </>
     );

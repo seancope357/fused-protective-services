@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { fmtDateTime } from '@/lib/format';
 import { formatMoney } from '@/lib/money';
 import type { TimelineEvent } from '@/lib/domain/timeline';
@@ -11,7 +12,9 @@ const show = (k: string, v: unknown): string => {
     return String(v).slice(0, 120);
 };
 
-/** Newest first. Changes carry an expandable diff; messages carry their outcome. */
+/** Newest first. Changes carry an expandable diff; messages carry their outcome.
+    Summaries, recipients and old/new values are free text (an email address, a
+    JSON blob), so every line may break anywhere rather than widen a phone. */
 export function Timeline({ events, title = 'Activity' }: { events: TimelineEvent[]; title?: string }) {
     return (
         <section className="card" aria-labelledby="h-timeline">
@@ -21,16 +24,24 @@ export function Timeline({ events, title = 'Activity' }: { events: TimelineEvent
                     {events.map((e) => (
                         <li key={e.id} className="timeline__item">
                             <span className="timeline__when">{fmtDateTime(e.at)}</span>
-                            <div>
+                            <div className="wrap-anywhere">
                                 <div>
-                                    {e.kind === 'message' ? <span className="badge" data-status={e.status === 'sent' ? 'paid' : e.status === 'failed' ? 'failed' : 'draft'}>{e.status}</span> : null}{' '}
+                                    {e.kind === 'message' ? <><span className="badge" data-status={e.status === 'sent' ? 'paid' : e.status === 'failed' ? 'failed' : 'draft'}>{e.status}</span>{' '}</> : null}
                                     <span>{e.summary}</span>
                                     <span className="small muted"> · {e.actor}</span>
                                 </div>
                                 {e.detail ? <div className="small muted">{e.detail}</div> : null}
                                 {e.changes ? (
-                                    <details className="small mt-2"><summary style={{ cursor: 'pointer' }} className="muted">What changed</summary>
-                                        <dl className="kv mt-2">{Object.entries(e.changes).map(([k, v]) => <div key={k} style={{ display: 'contents' }}><dt>{k.replace(/_/g, ' ')}</dt><dd><span className="muted">{show(k, v.old)}</span> → {show(k, v.new)}</dd></div>)}</dl>
+                                    <details className="small mt-2">
+                                        <summary>What changed</summary>
+                                        <dl className="kv mt-2">
+                                            {Object.entries(e.changes).map(([k, v]) => (
+                                                <Fragment key={k}>
+                                                    <dt>{k.replace(/_/g, ' ')}</dt>
+                                                    <dd><span className="muted">{show(k, v.old)}</span> → {show(k, v.new)}</dd>
+                                                </Fragment>
+                                            ))}
+                                        </dl>
                                     </details>
                                 ) : null}
                             </div>

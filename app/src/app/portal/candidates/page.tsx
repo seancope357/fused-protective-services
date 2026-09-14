@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { PageHead, Badge, Empty } from '@/components/ui';
+import { PageHead, Badge, Empty, Chips } from '@/components/ui';
+import { DataTable, type Column } from '@/components/data-table';
 import { fmtDateTime } from '@/lib/format';
 import { isVettingStage, positionTitle, vettingPipeline, vettingStageLabel } from '@/lib/shared';
 import { listCandidates, sourceEnvScope } from '@/lib/domain/queries';
@@ -10,6 +11,22 @@ export const dynamic = 'force-dynamic';
    same filter rows, same source-environment switch, same table. Recruiting and
    sales are two pipelines and one job, and Cameron should not have to learn two
    interfaces to work them. */
+
+type Candidate = Awaited<ReturnType<typeof listCandidates>>[number];
+
+/* On a phone the card is the person, the role they want and where they are in
+   vetting. Reference, licence, service branch and stage date wait for a wider
+   screen, as the reference and location do on Leads. */
+const columns: Column<Candidate>[] = [
+    { key: 'received', header: 'Received', cell: (c) => <span className="mono small">{fmtDateTime(c.created_at)}</span> },
+    { key: 'ref', header: 'Reference', hide: 'tablet', cell: (c) => <span className="mono small">{c.ref_code}</span> },
+    { key: 'candidate', header: 'Candidate', primary: true, cell: (c) => <Link href={`/portal/candidates/${c.id}`}>{c.full_name}</Link> },
+    { key: 'position', header: 'Position', cell: (c) => <span className="small">{positionTitle(c.position_id)}</span> },
+    { key: 'licence', header: 'Licence', hide: 'phone', cell: (c) => <span className="small">{c.license_level.replace(/-/g, ' ')}</span> },
+    { key: 'service', header: 'Service', hide: 'tablet', cell: (c) => <span className="small">{c.service_branch ?? '—'}</span> },
+    { key: 'stage', header: 'Stage', cell: (c) => <Badge status={c.vetting_stage}>{vettingStageLabel(c.vetting_stage)}</Badge> },
+    { key: 'since', header: 'Stage since', hide: 'phone', cell: (c) => <span className="mono small">{fmtDateTime(c.stage_changed_at)}</span> }
+];
 
 export default async function CandidatesPage({
     searchParams
@@ -56,61 +73,47 @@ export default async function CandidatesPage({
                 Every application from the careers page, newest first. Stages advance one at a time; a rejection can be re-opened.
             </PageHead>
 
-            <nav className="row mb-4" aria-label="Filter by vetting stage">
-                <Link href={withParams(without('stage'))} className={`btn btn--sm ${!stageFilter ? 'btn--gold' : 'btn--ghost'}`}>All</Link>
-                {vettingPipeline.map((s) => (
-                    <Link key={s.id} href={withParams({ ...without('stage'), stage: s.id })} className={`btn btn--sm ${stageFilter === s.id ? 'btn--gold' : 'btn--ghost'}`}>
-                        {s.label}
-                    </Link>
-                ))}
-            </nav>
+            <Chips
+                label="Filter by vetting stage"
+                items={[
+                    { href: withParams(without('stage')), label: 'All', active: !stageFilter },
+                    ...vettingPipeline.map((s) => ({ href: withParams({ ...without('stage'), stage: s.id }), label: s.label, active: stageFilter === s.id }))
+                ]}
+            />
 
             {licences.length > 1 ? (
-                <nav className="row mb-4" aria-label="Filter by licence level">
-                    <span className="small muted">Licence</span>
-                    <Link href={withParams(without('licence'))} className={`btn btn--sm ${!licenceFilter ? 'btn--gold' : 'btn--ghost'}`}>Any</Link>
-                    {licences.map((l) => (
-                        <Link key={l} href={withParams({ ...without('licence'), licence: l })} className={`btn btn--sm ${licenceFilter === l ? 'btn--gold' : 'btn--ghost'}`}>{l.replace(/-/g, ' ')}</Link>
-                    ))}
-                </nav>
+                <Chips
+                    label="Filter by licence level"
+                    caption="Licence"
+                    items={[
+                        { href: withParams(without('licence')), label: 'Any', active: !licenceFilter },
+                        ...licences.map((l) => ({ href: withParams({ ...without('licence'), licence: l }), label: l.replace(/-/g, ' '), active: licenceFilter === l }))
+                    ]}
+                />
             ) : null}
 
             {positions.length > 1 ? (
-                <nav className="row mb-4" aria-label="Filter by position">
-                    <span className="small muted">Position</span>
-                    <Link href={withParams(without('position'))} className={`btn btn--sm ${!positionFilter ? 'btn--gold' : 'btn--ghost'}`}>Any</Link>
-                    {positions.map((p) => (
-                        <Link key={p} href={withParams({ ...without('position'), position: p })} className={`btn btn--sm ${positionFilter === p ? 'btn--gold' : 'btn--ghost'}`}>{positionTitle(p)}</Link>
-                    ))}
-                </nav>
+                <Chips
+                    label="Filter by position"
+                    caption="Position"
+                    items={[
+                        { href: withParams(without('position')), label: 'Any', active: !positionFilter },
+                        ...positions.map((p) => ({ href: withParams({ ...without('position'), position: p }), label: positionTitle(p), active: positionFilter === p }))
+                    ]}
+                />
             ) : null}
 
-            <nav className="row mb-4" aria-label="Filter by originating environment">
-                <span className="small muted">Source</span>
-                <Link href={withParams(without('env'))} className={`btn btn--sm ${scope === 'production' ? 'btn--gold' : 'btn--ghost'}`}>Production only</Link>
-                <Link href={withParams({ ...keep, env: 'all' })} className={`btn btn--sm ${scope === 'all' ? 'btn--gold' : 'btn--ghost'}`}>Include preview &amp; local</Link>
-            </nav>
+            <Chips
+                label="Filter by originating environment"
+                caption="Source"
+                items={[
+                    { href: withParams(without('env')), label: 'Production only', active: scope === 'production' },
+                    { href: withParams({ ...keep, env: 'all' }), label: 'Include preview & local', active: scope === 'all' }
+                ]}
+            />
 
             {candidates.length ? (
-                <div className="card table-wrap">
-                    <table>
-                        <thead><tr><th>Received</th><th>Reference</th><th>Candidate</th><th>Position</th><th>Licence</th><th>Service</th><th>Stage</th><th>Stage since</th></tr></thead>
-                        <tbody>
-                            {candidates.map((c) => (
-                                <tr key={c.id} className="is-link">
-                                    <td className="mono small">{fmtDateTime(c.created_at)}</td>
-                                    <td className="mono small">{c.ref_code}</td>
-                                    <td><Link href={`/portal/candidates/${c.id}`}>{c.full_name}</Link></td>
-                                    <td className="small">{positionTitle(c.position_id)}</td>
-                                    <td className="small">{c.license_level.replace(/-/g, ' ')}</td>
-                                    <td className="small">{c.service_branch ?? '—'}</td>
-                                    <td><Badge status={c.vetting_stage}>{vettingStageLabel(c.vetting_stage)}</Badge></td>
-                                    <td className="mono small">{fmtDateTime(c.stage_changed_at)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                <DataTable caption="Candidates" columns={columns} rows={candidates} rowKey={(c) => c.id} />
             ) : (
                 <Empty>No applications{stageFilter ? ` at ${vettingStageLabel(stageFilter)}` : ''} yet.</Empty>
             )}

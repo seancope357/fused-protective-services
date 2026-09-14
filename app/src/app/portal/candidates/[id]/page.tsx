@@ -35,6 +35,9 @@ export default async function CandidatePage({
 
     return (
         <>
+            {/* Advancing is what this screen is for, so it is the pinned action.
+                Rejecting needs a reason and notifies the candidate: it stays in
+                the vetting card, styled as the destructive action it is. */}
             <PageHead
                 eyebrow={`Candidate ${candidate.ref_code}`}
                 title={candidate.full_name}
@@ -43,6 +46,17 @@ export default async function CandidatePage({
                         <a className="btn btn--ghost" href={`tel:${candidate.phone}`}>Call {candidate.phone}</a>
                         <a className="btn btn--ghost" href={`mailto:${candidate.email}`}>Email</a>
                     </>
+                }
+                primary={
+                    next ? (
+                        <form action={advanceCandidateStage}>
+                            <input type="hidden" name="id" value={candidate.id} />
+                            <input type="hidden" name="stage" value={next} />
+                            <button className="btn btn--gold" type="submit">
+                                {rejected ? `Re-open at ${vettingStageLabel(next)}` : `Advance to ${vettingStageLabel(next)}`}
+                            </button>
+                        </form>
+                    ) : undefined
                 }
             >
                 Applied {fmtDateTime(candidate.created_at)} · <Badge status={candidate.vetting_stage}>{vettingStageLabel(candidate.vetting_stage)}</Badge>
@@ -62,22 +76,23 @@ export default async function CandidatePage({
                         <dt>Phone</dt><dd>{candidate.phone}</dd>
                         <dt>Email</dt><dd>{candidate.email}</dd>
                         <dt>SMS consent</dt><dd>{candidate.sms_consent ? `Yes, ${fmtDateTime(candidate.sms_consent_at)}` : 'No'}</dd>
-                        <dt>Background</dt><dd style={{ whiteSpace: 'pre-wrap' }}>{candidate.bio}</dd>
+                        <dt>Background</dt><dd>{candidate.bio}</dd>
                     </dl>
                 </section>
 
                 <div className="stack">
                     <section className="card stack">
-                        <h2>Vetting protocol</h2>
+                        <h2>Vetting steps</h2>
                         <p className="small muted">
                             {stage?.published && stage.checkpoint
-                                ? `Gate metric: ${stage.checkpoint}`
+                                ? `To pass this stage: ${stage.checkpoint}`
                                 : rejected
-                                    ? 'This application is closed. Re-opening it returns the candidate to the start of the protocol and is recorded.'
-                                    : 'Not yet started on the published protocol.'}
+                                    ? 'This application is closed. Re-opening it returns the candidate to the start of vetting and is recorded.'
+                                    : 'Not yet started on the published vetting steps.'}
                         </p>
 
-                        <ol className="stack" style={{ listStyle: 'none', paddingLeft: 0 }}>
+                        {/* The base reset zeroes padding; without list-style the markers would hang outside the card. */}
+                        <ol className="stack" style={{ listStyle: 'none' }}>
                             {vettingStageOrder.map((sid) => {
                                 const s = vettingStageById(sid)!;
                                 const reached = !rejected && vettingStageOrder.indexOf(candidate.vetting_stage as typeof vettingStageOrder[number]) >= vettingStageOrder.indexOf(sid);
@@ -93,21 +108,13 @@ export default async function CandidatePage({
                             })}
                         </ol>
 
-                        {next ? (
-                            <form action={advanceCandidateStage}>
-                                <input type="hidden" name="id" value={candidate.id} />
-                                <input type="hidden" name="stage" value={next} />
-                                <button className="btn btn--gold" type="submit">
-                                    {rejected ? `Re-open at ${vettingStageLabel(next)}` : `Advance to ${vettingStageLabel(next)}`}
-                                </button>
-                            </form>
-                        ) : (
+                        {!next ? (
                             <p className="small muted">
                                 {roster
-                                    ? 'End of the protocol. Activating an officer record, pay rate and assignments is a separate, manual step — this portal deliberately does not create one.'
-                                    : 'No forward move is available from here.'}
+                                    ? 'This is the last vetting step. Setting up the officer’s record, pay rate and assignments is done separately — the portal deliberately does not create an officer for you.'
+                                    : 'There is no next step from here.'}
                             </p>
-                        )}
+                        ) : null}
 
                         {!rejected ? (
                             <form action={rejectCandidate} className="stack">
@@ -115,10 +122,10 @@ export default async function CandidatePage({
                                 <Field id="rejection_reason" label="Reason for closing (internal only)" hint="Never sent to the candidate and never quoted in the email.">
                                     <textarea id="rejection_reason" name="rejection_reason" rows={2} defaultValue={candidate.rejection_reason ?? ''} />
                                 </Field>
-                                <button className="btn btn--ghost" type="submit">Reject and notify the candidate</button>
+                                <button className="btn btn--danger" type="submit">Reject and notify the candidate</button>
                             </form>
                         ) : candidate.rejection_reason ? (
-                            <dl className="kv"><dt>Internal reason</dt><dd style={{ whiteSpace: 'pre-wrap' }}>{candidate.rejection_reason}</dd></dl>
+                            <dl className="kv"><dt>Internal reason</dt><dd>{candidate.rejection_reason}</dd></dl>
                         ) : null}
                     </section>
 
@@ -148,7 +155,7 @@ export default async function CandidatePage({
                     </section>
                 </div>
 
-                <div style={{ gridColumn: '1 / -1' }}>
+                <div className="span-all">
                     {events.length ? <Timeline events={events} /> : <Empty>No recorded activity on this application yet.</Empty>}
                 </div>
             </div>
