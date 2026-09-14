@@ -23,7 +23,9 @@ function show(stepId) {
 
 function present() {
     const { recommendations } = config.assessment;
-    const key = state.threat?.escalate ? 'ppo' : (state.environment?.recommend ?? 'squad');
+    /* Same rule as resolve() in src/data/assessment.mjs: a threat answer that
+       carries its own routing outranks the environment. */
+    const key = state.threat?.recommend ?? state.environment?.recommend ?? 'squad';
     const text = document.getElementById('quizRecommendationText');
     if (text) text.textContent = `Recommended: ${recommendations[key]}`;
     show('quizResult');
@@ -47,8 +49,10 @@ function apply() {
     const { environment, threat } = state;
     if (!environment) return;
 
-    setField('formDivision', environment.division);
-    setField('formArmedPreference', environment.armed);
+    /* An immediate known threat routes to emergency dispatch wherever it
+       happens, so its division and armed level win over the environment's. */
+    setField('formDivision', threat?.division ?? environment.division);
+    setField('formArmedPreference', threat?.armed ?? environment.armed);
 
     const rec = document.getElementById('quizRecommendationText')?.textContent.trim() ?? '';
     const notes = document.getElementById('formNotes');

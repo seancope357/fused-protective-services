@@ -118,18 +118,18 @@ The platform provides a guided assessment quiz (`src/data/assessment.mjs`) to ro
 * **Commercial Property / Complex** $\rightarrow$ Recommends `patrol` (`24/7 Mobile Patrol + Level III Guard`)
 * **Construction Site** $\rightarrow$ Recommends `patrol` (`24/7 Mobile Patrol + Level III Guard`)
 
-### Step 2: Crowd Size & Threat Escalation
-* **Low / Intimate (< 100 Guests):** `escalate: false`
-* **Moderate / Public (100–500 Attendees):** `escalate: false`
-* **High Profile / VIP Media Attention:** `escalate: true`
-* **Elevated / Immediate Known Threat:** `escalate: false`
+### Step 2: Crowd Size & Threat Level
+* **Low / Intimate (< 100 Guests):** no override; the environment decides.
+* **Moderate / Public (100–500 Attendees):** no override; the environment decides.
+* **High Profile / VIP Media Attention:** recommends `ppo` (`Level IV PPO + Plainclothes Escort`); the environment's division stays on the quote form.
+* **Elevated / Immediate Known Threat:** recommends `rapid` and routes the quote form to **Emergency Tactical Dispatch** with armed officers, so the lead is triaged as an emergency (45-minute response window; owner SMS once Twilio is configured). The result tells the visitor to call 911 first if anyone is in immediate danger.
 
 ### Resolution Matrix
 ```javascript
 export const resolve = (environment, threat) =>
-    threat?.escalate ? 'ppo' : (environment?.recommend ?? 'squad');
+    threat?.recommend ?? environment?.recommend ?? 'squad';
 ```
-* **Strategic Rule:** High-profile public exposure outranks the venue environment and escalates the recommendation to Level IV PPO. Otherwise, the operational environment determines the detail.
+* **Strategic Rule:** A threat answer that carries its own routing outranks the venue environment — high-profile exposure escalates to Level IV PPO, an immediate known threat to emergency dispatch. Otherwise the operational environment determines the detail. Until 2026-09-14 the immediate-threat answer carried no routing, so a construction site under threat was recommended routine patrol and filed at standard priority (`tests/assessment.test.mjs` now guards this).
 
 ---
 

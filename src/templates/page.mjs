@@ -40,7 +40,10 @@ const clientConfig = () => ({
             ])
         ),
         threat: Object.fromEntries(
-            assessment.steps[1].options.map((o) => [o.id, { value: o.value, escalate: o.escalate }])
+            assessment.steps[1].options.map((o) => [
+                o.id,
+                { value: o.value, recommend: o.recommend, division: o.division, armed: o.armed }
+            ])
         )
     },
     estimator: {

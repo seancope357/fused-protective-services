@@ -18,6 +18,7 @@ Address officer applications to Fused rather than to Cameron by name, bring `con
 - Audited every context and tracking document against the code and corrected stale claims (`1397db4`).
 - Found the hosted project three migrations behind deployed code, then applied `20260914000000_source_env`, `20260914120000_candidates_ats` and `20260914140000_alert_gate` through the Supabase connector in filename order and aligned their recorded versions to the filenames. Hosted history is now 15 of 15; the new columns, `alert_gate()` and `set_candidate_stage_changed_at()` exist.
 - Verified: a labelled production test lead (`TX-FPS-Z8NHSG`) returned `delivery.persisted: true` with `source_env = production` and was then deleted; the portal `/api/cron/tick` returns `200 ok`. The only other quote on file predates the PR #10 deploy, so no real submission hit the gap.
+- Closed the threat-assessment safety gap: “Elevated / Immediate Known Threat” carried no routing, so the environment decided (a construction site under threat was recommended routine patrol at standard priority). It now recommends `rapid` (Emergency Tactical Dispatch, armed officers, “call 911 first”) and routes the quote form to `Emergency Tactical Dispatch`, which the intake and database triage as `emergency`. Threat answers carry `recommend` / `division` / `armed` instead of `escalate`; `resolve()`, the `#fps-config` island and `js/modules/assessment.mjs` share the rule. `tests/assessment.test.mjs` adds four tests; 118 pass and the drift check is clean.
 - Earlier today: hero badge removal (`1387db3`), the “SCROLL ↓” cue (`83003e0`), and the client-facing How It Works rewrite (`696e114`).
 
 ## In Progress
@@ -26,7 +27,7 @@ None.
 
 ## Next Up
 
-Publish: push `1397db4` and `66a0884` to `main`, then confirm both Vercel production deployments and the live `/careers` page.
+Publish the assessment fix to `main` and confirm the production island routes the immediate-threat answer to Emergency Tactical Dispatch. (The docs audit, careers copy and migration record are already live.)
 
 ## Open Questions
 

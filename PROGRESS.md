@@ -248,6 +248,7 @@ All three were applied and verified the same afternoon; the only quote on file p
 - [x] Removed the “FPS // Assembly Protocol” hero badge (`1387db3`) and shortened the scroll cue to “SCROLL ↓” (`83003e0`).
 - [x] Rewrote the four How It Works steps in client language; tactical badges, metadata strips and simulated terminal logs are gone from `src/data/protocol.mjs` (`696e114`).
 - [x] Careers application header: removed the “COMMAND INTAKE” badge and the word “TRANSMIT” (heading now “OFFICER APPLICATION”), and the lead now says applications go to Fused Protective Services instead of naming Cameron Harrell (`6c0ffee`). The interview stage, its sign-off line, the careers keywords and the post-submit confirmation followed (`66a0884`); the careers page no longer names Cameron.
+- [x] **Threat assessment safety gap closed.** “Elevated / Immediate Known Threat” carried no routing, so the environment decided — an immediate threat at a construction site was recommended routine patrol and filed at standard priority. It now recommends Emergency Tactical Dispatch (armed officers, “call 911 first”) and routes the quote form there, so the lead triages as `emergency`. Guarded by `tests/assessment.test.mjs`.
 - [x] Each change was made in `src/`, regenerated, drift-checked, and confirmed on production.
 
 ---

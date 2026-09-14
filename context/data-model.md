@@ -159,10 +159,9 @@ interface AssessmentStep {
         icon: string;
         label: string;
         value: string;
-        recommend?: 'ppo' | 'squad' | 'patrol';
-        division?: string;           // Pre-fill target quoteValue
-        armed?: string;              // Pre-fill target preference
-        escalate?: boolean;          // If true, forces PPO regardless of environment
+        recommend?: 'ppo' | 'squad' | 'patrol' | 'rapid'; // On a threat answer, outranks the environment's
+        division?: string;           // Pre-fill target quoteValue (a threat answer's outranks the environment's)
+        armed?: string;              // Pre-fill target preference (likewise)
     }>;
 }
 ```

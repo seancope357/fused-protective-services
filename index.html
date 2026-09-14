@@ -1097,7 +1097,8 @@
     "recommendations": {
       "ppo": "Level IV Personal Protection Officer (PPO) + Dedicated Plainclothes Escort",
       "patrol": "24/7 Marked Mobile Patrols + Level III Static Gatehouse Guard",
-      "squad": "Level III Commissioned Armed Security Squad"
+      "squad": "Level III Commissioned Armed Security Squad",
+      "rapid": "Emergency Tactical Dispatch — Armed Commissioned Officers. If anyone is in immediate danger, call 911 first."
     },
     "environment": {
       "executive": {
@@ -1133,20 +1134,20 @@
     },
     "threat": {
       "low": {
-        "value": "Low Risk / Private Gathering (\u003c 100 Guests)",
-        "escalate": false
+        "value": "Low Risk / Private Gathering (\u003c 100 Guests)"
       },
       "moderate": {
-        "value": "Medium Risk / Large Event (100 - 500 Guests)",
-        "escalate": false
+        "value": "Medium Risk / Large Event (100 - 500 Guests)"
       },
       "highProfile": {
         "value": "High Profile / Public VIP Presence",
-        "escalate": true
+        "recommend": "ppo"
       },
       "elevated": {
         "value": "Elevated Threat / Immediate Asset Protection",
-        "escalate": false
+        "recommend": "rapid",
+        "division": "Emergency Tactical Dispatch",
+        "armed": "Armed Commissioned Officers (Level III / IV)"
       }
     }
   },
