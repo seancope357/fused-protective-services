@@ -49,7 +49,13 @@ In accordance with modern context engineering standards, all repository knowledg
 ## 📈 Operational Progress & Milestone Tracker
 
 For active workstreams, completed phase deliverables, operational blockers, and prioritized backlog items, consult the root tracker:  
-👉 **[`PROGRESS.md`](file:///Users/cope/projects/fused-protective-services/PROGRESS.md)** (located at the repository root).
+👉 **[`PROGRESS.md`](PROGRESS.md)** (located at the repository root).
+
+**To ship, start instead with [`docs/GO_LIVE.md`](docs/GO_LIVE.md)** — six ordered gates, every box
+with an owner and a verification step. `PROGRESS.md` records what was built; `GO_LIVE.md` records
+what must be true before the domain points here. They are different questions and the second is the
+one that blocks launch. The buildable half of it is specified in [`specs/`](specs/README.md), whose
+README carries the ten invariants every spec inherits and a shared definition of done.
 
 ---
 
@@ -58,11 +64,18 @@ For active workstreams, completed phase deliverables, operational blockers, and 
 ```text
 ├── app/                       operations portal — Next.js 16 + Supabase (own package.json)
 ├── api/                       Vercel functions for the static site (intake) + api/_lib transports
-├── supabase/migrations/       additive migrations (ten), supabase/tests/auth_shim.sql for local RLS tests
-├── docs/                      RUNBOOK.md (setup order), OPEN_QUESTIONS.md (blocked on Cameron)
+├── supabase/migrations/       additive migrations (fourteen), supabase/tests/auth_shim.sql for local RLS tests
+├── docs/                      GO_LIVE.md (the launch gate list — start here), RUNBOOK.md (setup order),
+│                           OPEN_QUESTIONS.md (blocked on Cameron), INCIDENT.md, RESTORE-DRILL.md,
+│                           A11Y-AUDIT.md (measured accessibility reality)
+├── specs/                     the buildable half of go-live — eleven specs, one branch and PR each
 ├── build.mjs                  the static-site toolchain (zero dependencies)
 ├── index.html                 GENERATED — marketing & intake page
-├── invoice.html               GENERATED — internal invoicing tool (/invoice)
+├── careers.html               GENERATED — recruiting page (/careers)
+├── privacy.html               GENERATED — from src/data/legal.mjs
+├── terms.html                 GENERATED — from src/data/legal.mjs
+├── sms-consent.html           GENERATED — from src/data/legal.mjs
+├── invoice.html               GENERATED — legacy-record export tool (/invoice)
 ├── css/
 │   ├── site.css               GENERATED — compiled site stylesheet
 │   └── invoice.css            GENERATED — compiled invoice stylesheet
@@ -91,4 +104,8 @@ For active workstreams, completed phase deliverables, operational blockers, and 
 * **Keep `quoteValue` Stable:** It is the contract linking the bookshelf button, the `<select>` form option, the assessment recommendation, the budget calculator, and the operational lead payload.
 * **Dual Clocks in Logo Forge:** `--assembly` tracks scroll position (copy beats). `--assembly-settled` tracks camera arrival (the only clock allowed to claim animation completion).
 * **CSS is Layered:** `@layer tokens, base, layout, components, utilities;` is declared once. Cascade order inside `components` is dictated by explicit `STYLE_ORDER` in `build.mjs`.
-* **Deterministic Builds:** `copyrightYear` is stated (e.g. 2026), never read from the clock, ensuring `node build.mjs --check` passes across new years.
+* **Deterministic Builds:** `copyrightYear` is stated (e.g. 2026), never read from the clock, ensuring `node build.mjs --check` passes across new years. Nothing in the build may read the clock, the environment or the network.
+* **A Placeholder Never Hides:** Facts that are not yet real carry `placeholder: true` in `src/data/site.mjs` and render a red flag on **every** host — no JavaScript, no host allow-list. `node build.mjs --verify-release` exits 1 while any remain, so a release cannot be cut carrying one. The DPS licence number is the one still outstanding.
+* **No Fake Success, Anywhere:** A missing key is a reported state — `503` with a stable `error` code and a plain-language message. A send that did not happen is logged with its real reason (`no_verified_sender`, `non_production_env`), never as success and never as a different error. This applies to the published word too: the privacy policy may not promise a data purge that no code performs.
+* **Preview Is Not Production:** `deployEnv()` in `api/_lib/env.mjs` returns `production` only when `VERCEL_ENV` says so; absent falls to `development`. The asymmetry is deliberate — wrong way round, a preview deploy pages the owner at 3am. Every non-production row is labelled `source_env`, and the production scheduler filters on it.
+* **Generated Output Is Committed and Verified:** Not just HTML and CSS. Anything derived from source belongs in `artefacts()` so `node build.mjs --check` catches drift in it.

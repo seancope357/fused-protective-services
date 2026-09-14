@@ -198,4 +198,13 @@ Cameron uses `/invoice` (`invoice.html`) to draft and issue branded client invoi
 
 ## ⚠️ Known Gaps — Cameron's Action Items
 
-Maintained in one place: [`docs/OPEN_QUESTIONS.md`](file:///Users/cope/projects/fused-protective-services/docs/OPEN_QUESTIONS.md). Facts that are still placeholders carry `placeholder: true` in `src/data/site.mjs`; the build prints a warning for each, and `js/modules/env.mjs` + `components/placeholder.css` flag them in red on any host not listed in `site.productionHosts`.
+Maintained in one place: [`docs/OPEN_QUESTIONS.md`](file:///Users/cope/projects/fused-protective-services/docs/OPEN_QUESTIONS.md). Facts that are still placeholders carry `placeholder: true` in `src/data/site.mjs`; the build prints a warning for each, and `components/placeholder.css` flags them in red **on every host**.
+
+> [!CAUTION]
+> **The flag used to be host-gated and that was a defect, not a feature.** `js/modules/env.mjs` hid the
+> flag on any host in `site.productionHosts` — a list that already contained the live `.vercel.app`
+> alias — so the placeholder DPS licence number rendered *unflagged* in the footer and in the
+> schema.org `identifier` on the public site. `env.mjs` is deleted and `productionHosts` is gone.
+> The flag is now pure CSS with no JavaScript involved, and `node build.mjs --verify-release` exits 1
+> while any `placeholder: true` remains, so a release cannot be cut with one. Do not reintroduce
+> host gating: a placeholder that hides itself in production is worse than no flag at all.

@@ -18,15 +18,21 @@
        progress; anything that asserts completion in words reads this one,
        because --assembly reaches 1 the moment the scroll does, while the
        camera is still easing the last of the way in
-     data-forge-fallback appears on <html> when WebGL or the CDN is
-       missing and the emblem is mounted as a still instead
+     data-forge-fallback appears on <html> when WebGL is unavailable or
+       the GPU context is lost and the emblem is mounted as a still instead
      prefers-reduced-motion holds the assembled emblem still and the
        track collapses (css/forge.css) so there is no dead scroll
    ========================================================================== */
 
 /* ── configuration ─────────────────────────────────────────────── */
 
-const IMAGE_SRC    = 'assets/logo.png';   // same plate the nav and hero already load
+/* Still the same plate the nav and hero load, so a first view fetches it once.
+   It is WebP now, and still 1000x1000: GRID_ROWS below decides how many cubes
+   there are, but the texture below decides how sharp they look, and a browser
+   render at 1x and 2x DPR put a 512 source 22% down on the settled emblem's
+   acutance. Re-encoding cost 5% and 88% of the bytes. scripts/build-assets.sh
+   has the numbers. */
+const IMAGE_SRC    = 'assets/logo.webp';
 const GRID_ROWS    = 256;      // vertical resolution; columns follow the image ratio
 const CUBE_SIZE    = 1.00;
 const ASSEMBLE_Z   = 180;      // camera z at full scroll
@@ -44,25 +50,22 @@ const TRACK_ID     = 'assembly-intro';   // css/forge.css owns the track height
 const START_Z = ASSEMBLE_Z / START_ZOOM;
 
 /* ── three.js ──────────────────────────────────────────────────── */
-/* One pinned version, mirrored. This import is the only thing the page
-   fetches beyond its own assets and Google Fonts; if both hosts are
-   unreachable the fallback below mounts the emblem as a still. */
+/* Same origin, pinned, committed: js/vendor/three.module.js is three r160
+   byte-for-byte, with its provenance and sha256 in the file header.
 
-const THREE_SOURCES = [
-  'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js',
-  'https://unpkg.com/three@0.160.0/build/three.module.js'
-];
+   It used to be a dynamic import of a public npm CDN, with a second such
+   host behind it as a fallback. SPEC-006 removed both, and with them the
+   "every host it knows is unreachable" branch — a same-origin module either
+   arrives with the rest of the deploy or the deploy is broken in a way a CDN
+   retry was never going to fix. What that bought is `script-src 'self'` with
+   no exception on a page that collects a client's name, phone number and the
+   location and schedule of a protective detail.
 
-let THREE = null;
+   Static, not dynamic: the browser can now see the dependency in the module
+   graph at parse time and fetch it in parallel with js/app.mjs instead of
+   after this file has been fetched, parsed and run. */
 
-function loadThree(at) {
-  const i = at || 0;
-  return import(THREE_SOURCES[i]).catch(function (err) {
-    if (i + 1 >= THREE_SOURCES.length) throw err;
-    console.warn('[logo-forge] ' + THREE_SOURCES[i] + ' did not load; trying the next host');
-    return loadThree(i + 1);
-  });
-}
+import * as THREE from './vendor/three.module.js';
 
 /* ── the trick ─────────────────────────────────────────────────── */
 /* distance = ASSEMBLE_Z - z, scale = distance / ASSEMBLE_Z, therefore
@@ -390,16 +393,27 @@ function resize() {
 }
 
 /* ── fallback ──────────────────────────────────────────────────── */
-/* three.js and a GPU context are how the picture is *delivered*; the
-   picture itself is already here. When delivery is impossible, mount
-   the emblem where the settled canvas would have been and publish a
-   finished assembly so the copy beats lay out over a resolved image
-   instead of waiting for one that is never coming. css/forge.css also
-   collapses the track so there is no dead scroll. */
+/* A GPU context is how the picture is *delivered*; the picture itself is
+   already here. When delivery is impossible, mount the emblem where the
+   settled canvas would have been and publish a finished assembly so the
+   copy beats lay out over a resolved image instead of waiting for one that
+   is never coming. css/forge.css also collapses the track so there is no
+   dead scroll.
+
+   Three things reach this now, all of them real and none of them a network
+   problem: no WebGL at all, a WebGL context evicted under memory pressure,
+   and an emblem image that would not decode. The fourth — "three.js did not
+   load from any known host" — went away with the CDNs in SPEC-006. The
+   second argument that carried its on-screen notice went with it; every
+   remaining caller is a permanent condition of the visitor's machine that
+   they cannot act on, so none of them has anything to say out loud.
+
+   The single entry point is deliberate: this is where anything that needs to
+   know the emblem degraded should hook in. */
 
 let fellBack = false;
 
-function fallback(reason, notice) {
+function fallback(reason) {
   if (fellBack) return;
   fellBack = true;
   console.error('[logo-forge] ' + reason);
@@ -411,6 +425,11 @@ function fallback(reason, notice) {
      the page says in text. */
   img.alt = '';
   img.setAttribute('aria-hidden', 'true');
+  /* Assigning to .style is CSSOM, and CSP does not govern CSSOM — only
+     <style> elements and style="" attributes in markup. So none of the
+     Object.assign(el.style, …) calls in this file need a hash or an
+     exception under `style-src 'self'`, and adding one would not help if
+     they did. Same for the .setProperty('--assembly', …) calls above. */
   Object.assign(img.style, {
     position: 'fixed', top: '0', left: '0',
     width: '100%', height: '100%',
@@ -420,24 +439,6 @@ function fallback(reason, notice) {
   document.body.prepend(img);
   stageEl = img;
   onHandOff();
-
-  /* A missing GPU is the visitor's permanent situation and nothing they
-     can act on; an unreachable host is neither, so that one says so. */
-  if (notice) {
-    const say = document.createElement('p');
-    say.textContent = notice;
-    Object.assign(say.style, {
-      position: 'fixed', left: '50%', bottom: '16px', transform: 'translateX(-50%)',
-      zIndex: '2', margin: '0', maxWidth: 'min(90vw, 36em)',
-      padding: '10px 14px', borderRadius: '8px', textAlign: 'center',
-      background: 'rgba(0, 0, 0, .74)', color: '#fff',
-      font: '500 13px/1.5 ui-sans-serif, -apple-system, system-ui, sans-serif',
-      /* Informational only — it must never intercept taps meant for the
-         dispatch bar that owns the same strip of viewport. */
-      pointerEvents: 'none'
-    });
-    document.body.appendChild(say);
-  }
 
   publish(1);
   publishSettled(1);   // a still image is, by definition, fully arrived
@@ -552,10 +553,8 @@ function boot() {
   });
 }
 
-loadThree().then(function (three) {
-  THREE = three;
-  boot();
-}).catch(function (err) {
-  fallback('three.js did not load from any known host (' + err.message + ')',
-    'This page assembles its emblem with three.js, and every host it knows is unreachable.');
-});
+/* three.js is a static import now, so by the time this line runs the module
+   is already evaluated — there is nothing left to await and nothing left to
+   fail over. A module that cannot be fetched is a broken deploy, and the
+   browser reports that itself. */
+boot();

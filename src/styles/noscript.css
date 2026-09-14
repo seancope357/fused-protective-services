@@ -1,0 +1,35 @@
+@layer components {
+/* ==========================================================================
+   NO-SCRIPT PRESENTATION OF THE ASSEMBLY INTRO
+   ==========================================================================
+   Its own bundle, linked from inside <noscript> on / and nowhere else. It is
+   a whole file rather than three lines of inline <style> for one reason:
+   SPEC-006 puts the site behind `style-src 'self'`, and an inline <style>
+   would need either a sha256 in the policy or `unsafe-inline`. A hash would
+   be correct today and wrong the first time anyone edits a declaration in
+   here — silently, because the page keeps rendering while the policy stops
+   matching. A same-origin stylesheet is simply allowed, forever.
+
+   The cost is one extra request, paid only by a visitor with JavaScript
+   turned off, who is by definition not paying for js/app.mjs or the 1.2 MB
+   of three.js either.
+
+   These rules mirror the html[data-forge-fallback] rules in
+   src/styles/components/forge.css. They cannot BE those rules: that attribute
+   is set by js/logo-forge.js, and with scripting off nothing ever sets it.
+   Keep the two in step — if the fallback presentation changes there, it
+   changes here.
+   ========================================================================== */
+
+/* No script, so no camera to drive: the 350vh runway would be dead scroll. */
+.forge-track {
+    height: 120vh;
+}
+
+/* An assembly readout and a "keep scrolling" cue over an emblem that will
+   never assemble are both lies. Same reasoning as the fallback rules. */
+.forge-hud-left,
+.forge-cue {
+    display: none;
+}
+}

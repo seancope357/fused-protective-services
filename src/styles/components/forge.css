@@ -31,7 +31,7 @@
     }
 }
 
-/* No WebGL / no CDN: a still emblem needs no runway. */
+/* No WebGL (or the context was lost): a still emblem needs no runway. */
 html[data-forge-fallback] .forge-track {
     height: 120vh;
 }

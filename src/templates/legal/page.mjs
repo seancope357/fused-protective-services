@@ -18,10 +18,9 @@ const head = (page) => html`
     <meta name="robots" content="${page.reviewed ? 'index, follow' : 'noindex, follow'}">
     <meta name="theme-color" content="#050504">
     <link rel="canonical" href="${site.url}/${page.slug}">
-    <link rel="icon" type="image/png" href="${site.logo}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="${site.icons.favicon}">
+    <link rel="apple-touch-icon" sizes="180x180" href="${site.icons.appleTouch}">
+    <!-- Typefaces self-hosted; see src/styles/base.css (SPEC-006). -->
     <link rel="stylesheet" href="css/site.css">
 `;
 
@@ -37,7 +36,7 @@ ${head(page)}
 ${drawer(true)}
 ${nav(true)}
 
-    <main id="main" class="legal-main">
+    <main id="main" tabindex="-1" class="legal-main">
         <article class="container legal-doc">
             <header class="legal-head">
                 <span class="section-tag">${page.eyebrow}</span>

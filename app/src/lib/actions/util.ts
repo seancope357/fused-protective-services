@@ -1,6 +1,7 @@
 import 'server-only';
-import { redirect } from 'next/navigation';
+import { redirect, unstable_rethrow } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+import { report } from '@/lib/observability';
 
 /** Redirects back to a page with a status line the page renders in a live region. */
 export function done(path: string, message: string, tone: 'good' | 'bad' | 'warn' = 'good'): never {
@@ -9,6 +10,48 @@ export function done(path: string, message: string, tone: 'good' | 'bad' | 'warn
     url.searchParams.set('msg', message);
     url.searchParams.set('tone', tone);
     redirect(`${url.pathname}${url.search}`);
+}
+
+/**
+ * Wraps a server action so an unhandled exception inside it is reported before
+ * it disappears (SPEC-003 §4). Without this an action that throws shows the
+ * user the error boundary and tells nobody — the failure that the spec lists
+ * as "discovered by a customer, if at all".
+ *
+ * Two things it must get right, and the reason it exists rather than a
+ * try/catch at every call site:
+ *
+ *   1. `redirect()` and `notFound()` signal themselves by throwing. Every
+ *      successful action in this codebase ends in `done()`, which redirects,
+ *      so a naive wrapper would report every success as a failure and — far
+ *      worse — swallow the redirect. `unstable_rethrow` is Next's own test
+ *      for its control-flow throws; it re-throws them and returns for
+ *      anything else.
+ *   2. It re-throws the real error afterwards. The error boundary still
+ *      renders, the user still sees what they saw before. Reporting is added
+ *      behaviour and never replaces behaviour.
+ *
+ * Form data is never reported. The action's name and the argument shape are
+ * enough to find it; the field values are a client's name, phone number and
+ * site address, and an ops alert is not where those belong.
+ */
+export function reporting<A extends unknown[], R>(
+    name: string,
+    action: (...args: A) => Promise<R>
+): (...args: A) => Promise<R> {
+    return async (...args: A): Promise<R> => {
+        try {
+            return await action(...args);
+        } catch (err) {
+            unstable_rethrow(err);
+            await report(err, {
+                severity: 'error',
+                source: `action/${name}`,
+                context: { arity: args.length }
+            });
+            throw err;
+        }
+    };
 }
 
 export const str = (fd: FormData, key: string, max = 2000): string => String(fd.get(key) ?? '').trim().slice(0, max);

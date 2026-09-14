@@ -4,7 +4,8 @@ import { PageHead, Stat, Badge, Money, Empty } from '@/components/ui';
 import { fmtDateTime, fmtDateOnly, daysBetween, todayYmd } from '@/lib/format';
 import { formatMoney } from '@/lib/money';
 import { divisionByQuoteValue, site } from '@/lib/shared';
-import type { Invoice, Job, Lead } from '@/lib/db/types';
+import { listLeads } from '@/lib/domain/queries';
+import type { Invoice, Job } from '@/lib/db/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,8 +16,10 @@ export default async function Dashboard() {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
     const today = todayYmd();
 
-    const [{ data: leads }, { data: jobs }, { data: unpaid }, { data: paidThisMonth }] = await Promise.all([
-        supabase.from('client_quotes').select('*').eq('status', 'new').order('created_at', { ascending: false }).limit(10),
+    /* Leads are production-only here (SPEC-002): a preview submission is not a
+       lead, and "New leads" is the number the owner acts on. */
+    const [leads, { data: jobs }, { data: unpaid }, { data: paidThisMonth }] = await Promise.all([
+        listLeads({ stage: 'new', limit: 10 }),
         supabase.from('jobs').select('*').in('status', ['scheduled', 'in_progress']).lte('starts_at', in7).order('starts_at').limit(15),
         supabase.from('invoices').select('*').in('status', ['sent', 'partially_paid', 'overdue']).order('due_date'),
         supabase.from('payments').select('amount_cents').eq('status', 'succeeded').gte('received_at', monthStart)
@@ -34,7 +37,7 @@ export default async function Dashboard() {
             </PageHead>
 
             <div className="grid grid--4 mb-4">
-                <Stat label="New leads" value={(leads ?? []).length} hint="Awaiting first response" gold={(leads ?? []).length > 0} />
+                <Stat label="New leads" value={leads.length} hint="Awaiting first response" gold={leads.length > 0} />
                 <Stat label="Jobs next 7 days" value={(jobs ?? []).length} hint={jobs?.[0] ? `Next: ${fmtDateTime((jobs[0] as Job).starts_at)}` : 'Nothing scheduled'} />
                 <Stat label="Outstanding" value={formatMoney(outstanding)} hint={`${openInvoices.length} open · ${overdueCount} overdue`} />
                 <Stat label="Collected this month" value={formatMoney(revenue)} hint="Succeeded payments" gold />
@@ -43,11 +46,11 @@ export default async function Dashboard() {
             <div className="grid grid--2">
                 <section className="card" aria-labelledby="h-leads">
                     <div className="card__title"><h2 id="h-leads">Leads needing a response</h2><Link href="/portal/leads" className="small">All leads →</Link></div>
-                    {leads && leads.length ? (
+                    {leads.length ? (
                         <div className="table-wrap"><table>
                             <thead><tr><th>Received</th><th>Contact</th><th>Division</th><th>Priority</th></tr></thead>
                             <tbody>
-                                {(leads as Lead[]).map((l) => (
+                                {leads.map((l) => (
                                     <tr key={l.id} className="is-link">
                                         <td className="mono small">{fmtDateTime(l.created_at)}</td>
                                         <td><Link href={`/portal/leads/${l.id}`}>{l.full_name}</Link>{l.company ? <div className="small muted">{l.company}</div> : null}</td>

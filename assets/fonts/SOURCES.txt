@@ -1,0 +1,140 @@
+FUSED PROTECTIVE SERVICES — SELF-HOSTED WEB FONTS
+=================================================
+
+These files are third-party binaries. They are committed rather than fetched
+because SPEC-006 puts the marketing site behind `default-src 'self'` with no
+allowlisted origins: the page that collects a client's name, phone number and
+the location and schedule of a protective detail must not let a third party
+run script or serve bytes into it. `font-src 'self'` is only honest if the
+fonts are actually ours to serve.
+
+WHERE THEY CAME FROM
+--------------------
+Every file below is a byte-for-byte copy of what Google Fonts served for the
+exact request the site used to make from its <head>:
+
+  https://fonts.googleapis.com/css2
+      ?family=Cinzel:wght@600;700;800;900
+      &family=Outfit:wght@300;400;500;600;700;800;900
+      &family=JetBrains+Mono:wght@400;500;600;700;800
+      &display=swap
+
+fetched with a current Chrome user agent, which is what makes Google answer in
+woff2. Nothing has been re-encoded, subsetted or instanced by us.
+
+WHY TEN FILES COVER SIXTEEN WEIGHTS
+-----------------------------------
+All three families are variable fonts. Google answers that request with 52
+@font-face blocks pointing at only 10 distinct files: one per family per
+unicode-range subset, each carrying the whole wght axis. Every declared weight
+is an instance of the axis, so `font-weight: 600 900` in src/styles/base.css
+covers exactly the weights the site asked for and nothing extra. (Verified: all
+ten files carry an `fvar` table.)
+
+The non-Latin subsets are kept even though no glyph on the site needs them.
+They cost 23,236 bytes of repository and ZERO bytes over the wire — the
+unicode-range on each @font-face means a browser only fetches a subset when it
+is about to paint a character from it. Dropping them would save nothing a
+visitor can measure and would silently downgrade a Cyrillic or Vietnamese name
+typed into the quote form to a system fallback.
+
+LICENCES
+--------
+All three are SIL Open Font License 1.1, which permits self-hosting and
+redistribution. The full licence text for each is committed alongside:
+
+  cinzel-OFL.txt          Copyright 2020 The Cinzel Project Authors
+  outfit-OFL.txt          Copyright 2021 The Outfit Project Authors
+  jetbrains-mono-OFL.txt  Copyright 2020 The JetBrains Mono Project Authors
+
+Note for anyone updating this directory: OFL 1.1 forbids selling the fonts on
+their own and forbids using the Reserved Font Names on a modified version. We
+do neither — we serve them unmodified as part of the site.
+
+MANIFEST
+--------
+tests/csp.test.mjs re-reads every file below and recomputes its sha256 on each
+run, so a corrupted, truncated or quietly swapped font fails the test suite
+instead of shipping.
+
+cinzel-latin.woff2
+  family    Cinzel
+  subset    latin
+  weights   600-900 (variable wght axis)
+  bytes     25904
+  sha256    09941fb1c169c38fd414536b37690057fc01b3117a5c63dd6571186540c8f370
+  source    https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt79mT7.woff2
+
+cinzel-latin-ext.woff2
+  family    Cinzel
+  subset    latin-ext
+  weights   600-900 (variable wght axis)
+  bytes     14540
+  sha256    8fc2606f8ae6c569f444e138dba052d9a6e3f0657f9031796503bbb94eced600
+  source    https://fonts.gstatic.com/s/cinzel/v26/8vIJ7ww63mVu7gt7-GT7LEc.woff2
+
+outfit-latin.woff2
+  family    Outfit
+  subset    latin
+  weights   300-900 (variable wght axis)
+  bytes     32292
+  sha256    6c18d579fd87c3776be068b762cbc83fde3acb543d49eabd3ade842eb987e887
+  source    https://fonts.gstatic.com/s/outfit/v15/QGYvz_MVcBeNP4NJtEtq.woff2
+
+outfit-latin-ext.woff2
+  family    Outfit
+  subset    latin-ext
+  weights   300-900 (variable wght axis)
+  bytes     14808
+  sha256    0f53d1c03b3918d744a843b5039001ee31695ca1e255e3914188df81beb461e9
+  source    https://fonts.gstatic.com/s/outfit/v15/QGYvz_MVcBeNP4NJuktqQ4E.woff2
+
+jetbrains-mono-latin.woff2
+  family    JetBrains Mono
+  subset    latin
+  weights   400-800 (variable wght axis)
+  bytes     31432
+  sha256    83c005d49d8a6a50474c73a5a36ac0468076e9c4a29da7bdb14995d80560a5be
+  source    https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwg.woff2
+
+jetbrains-mono-latin-ext.woff2
+  family    JetBrains Mono
+  subset    latin-ext
+  weights   400-800 (variable wght axis)
+  bytes     11624
+  sha256    db5ff4db83e580426280e9337a58dc57d3a83784a1b03ad80914651594441d52
+  source    https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx7cwhsk.woff2
+
+jetbrains-mono-greek.woff2
+  family    JetBrains Mono
+  subset    greek
+  weights   400-800 (variable wght axis)
+  bytes     6836
+  sha256    0a557721b1f8b36d3f3f84442689a71ca4a744300abcb46a1953f51bfc663b66
+  source    https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxPcwhsk.woff2
+
+jetbrains-mono-cyrillic.woff2
+  family    JetBrains Mono
+  subset    cyrillic
+  weights   400-800 (variable wght axis)
+  bytes     8872
+  sha256    e17cfd15fb96909d64095015f958207063a0c07191da3512df7d560a781aebdf
+  source    https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxTcwhsk.woff2
+
+jetbrains-mono-cyrillic-ext.woff2
+  family    JetBrains Mono
+  subset    cyrillic-ext
+  weights   400-800 (variable wght axis)
+  bytes     1640
+  sha256    62213be8a78b42f1e29d1452d91e2f8b3e745572a9dd98d3941e39fa00b37d76
+  source    https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx3cwhsk.woff2
+
+jetbrains-mono-vietnamese.woff2
+  family    JetBrains Mono
+  subset    vietnamese
+  weights   400-800 (variable wght axis)
+  bytes     5888
+  sha256    c89b9cc0bc6262bd4f8d8494b6961601f3aefa829d08c2e3635f4d501d3a47c2
+  source    https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx_cwhsk.woff2
+
+TOTAL  153,836 bytes across 10 files.

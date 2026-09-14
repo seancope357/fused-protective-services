@@ -61,9 +61,10 @@ It publishes two clocks. `--assembly` carries **scroll** position and paces the 
 beats. `--assembly-settled` carries the **camera's** real progress and is the only one
 anything may use to claim completion — `--assembly` hits 1 the instant the scroll does,
 while cubes are still arriving. Reduced motion holds the assembled emblem on a collapsed
-track; if WebGL or the three.js CDN (jsdelivr → unpkg fallback) is unreachable, a static
-emblem mounts instead (`data-forge-fallback`). three.js is the page's only external
-script dependency.
+track; if WebGL is unavailable or the context is lost, a static emblem mounts instead
+(`data-forge-fallback`). three.js is vendored at `js/vendor/three.module.js` and imported
+statically — **the page loads nothing from a third-party origin**, which is what lets the
+Content-Security-Policy be `default-src 'self'` with no allowlisted host.
 
 ---
 
@@ -97,6 +98,17 @@ function): persist to Supabase → email and emergency SMS to dispatch → confi
 email to the visitor → optional webhook. Every stage is reported; nothing fakes
 success. Setup order and verification: [`docs/RUNBOOK.md`](docs/RUNBOOK.md).
 Blocked items: [`docs/OPEN_QUESTIONS.md`](docs/OPEN_QUESTIONS.md).
+
+## 🚀 Going live
+
+What must be true before the custom domain is pointed at this and Cameron starts taking
+work through it — ordered gates, each with an owner and a verification step:
+**[`docs/GO_LIVE.md`](docs/GO_LIVE.md)**.
+
+About half of those gates are accounts, DNS and legal review that no agent can do. The
+other half — the engineering work — is specified one spec per branch in
+**[`specs/`](specs/README.md)**, with the invariants, acceptance criteria and definition
+of done each one inherits.
 
 ## 🏛️ Operations portal (`app/`)
 

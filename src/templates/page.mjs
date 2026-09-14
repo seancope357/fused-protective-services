@@ -71,7 +71,7 @@ ${head()}
         </defs>
     </svg>
 
-    <a href="#capabilities" class="skip-link">Skip to main content</a>
+    <a href="#main" class="skip-link">Skip to main content</a>
 
     <canvas id="tactical-bg-canvas" aria-hidden="true"></canvas>
     <div class="cursor-spotlight" id="cursorSpotlight" aria-hidden="true"></div>
@@ -79,7 +79,7 @@ ${head()}
 ${drawer()}
 ${nav()}
 
-    <main id="main">
+    <main id="main" tabindex="-1">
 ${assembly()}
 ${hero()}
 ${bookshelf()}

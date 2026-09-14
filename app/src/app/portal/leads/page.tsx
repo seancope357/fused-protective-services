@@ -1,30 +1,39 @@
 import Link from 'next/link';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { PageHead, Badge, Empty } from '@/components/ui';
 import { fmtDateTime } from '@/lib/format';
 import { divisionByQuoteValue } from '@/lib/shared';
-import type { Lead } from '@/lib/db/types';
+import { listLeads, sourceEnvScope } from '@/lib/domain/queries';
 
 export const dynamic = 'force-dynamic';
 
 const STAGES = ['new', 'contacted', 'audit_scheduled', 'proposal_sent', 'dispatched', 'closed_won', 'closed_lost'];
 
-export default async function LeadsPage({ searchParams }: { searchParams: Promise<{ stage?: string }> }) {
-    const { stage } = await searchParams;
-    const supabase = await createSupabaseServerClient();
-    let query = supabase.from('client_quotes').select('*').order('created_at', { ascending: false }).limit(200);
-    if (stage && STAGES.includes(stage)) query = query.eq('status', stage);
-    const { data } = await query;
-    const leads = (data ?? []) as Lead[];
+export default async function LeadsPage({ searchParams }: { searchParams: Promise<{ stage?: string; env?: string }> }) {
+    const { stage, env } = await searchParams;
+    /* Leads submitted from a preview or a laptop are labelled and hidden by
+       default (SPEC-002). They are still here, one link away, because that is
+       how you check a preview's intake actually worked. */
+    const scope = sourceEnvScope(env);
+    const stageFilter = stage && STAGES.includes(stage) ? stage : null;
+    const leads = await listLeads({ stage: stageFilter, scope });
+    const withStage = (params: Record<string, string>) => {
+        const query = new URLSearchParams(params);
+        return query.size ? `/portal/leads?${query}` : '/portal/leads';
+    };
 
     return (
         <>
             <PageHead eyebrow="Inbox" title="Leads">Every request from the website, newest first. One click converts a lead to a draft quote.</PageHead>
             <nav className="row mb-4" aria-label="Filter by stage">
-                <Link href="/portal/leads" className={`btn btn--sm ${!stage ? 'btn--gold' : 'btn--ghost'}`}>All</Link>
+                <Link href={withStage(scope === 'all' ? { env: 'all' } : {})} className={`btn btn--sm ${!stageFilter ? 'btn--gold' : 'btn--ghost'}`}>All</Link>
                 {STAGES.map((s) => (
-                    <Link key={s} href={`/portal/leads?stage=${s}`} className={`btn btn--sm ${stage === s ? 'btn--gold' : 'btn--ghost'}`}>{s.replace('_', ' ')}</Link>
+                    <Link key={s} href={withStage({ stage: s, ...(scope === 'all' ? { env: 'all' } : {}) })} className={`btn btn--sm ${stageFilter === s ? 'btn--gold' : 'btn--ghost'}`}>{s.replace('_', ' ')}</Link>
                 ))}
+            </nav>
+            <nav className="row mb-4" aria-label="Filter by originating environment">
+                <span className="small muted">Source</span>
+                <Link href={withStage({ ...(stageFilter ? { stage: stageFilter } : {}) })} className={`btn btn--sm ${scope === 'production' ? 'btn--gold' : 'btn--ghost'}`}>Production only</Link>
+                <Link href={withStage({ ...(stageFilter ? { stage: stageFilter } : {}), env: 'all' })} className={`btn btn--sm ${scope === 'all' ? 'btn--gold' : 'btn--ghost'}`}>Include preview &amp; local</Link>
             </nav>
             {leads.length ? (
                 <div className="card table-wrap">

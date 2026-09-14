@@ -1,6 +1,12 @@
 /* Row shapes the portal reads. Kept by hand and narrow: only the columns the
    UI and engine touch. Money columns are integer cents. */
 
+/* The candidate pipeline vocabulary is not restated here. It has one home —
+   `vettingStageOrder` in @/lib/shared, whose five published members come from
+   src/data/careers.mjs — and app/tests/candidates.test.ts pins that against the
+   database CHECK. */
+import type { VettingStage } from '@/lib/shared';
+
 export type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'declined' | 'expired';
 export type JobStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
 export type InvoiceStatus = 'draft' | 'sent' | 'partially_paid' | 'paid' | 'overdue' | 'void';
@@ -25,6 +31,31 @@ export type Lead = {
     sms_consent_at: string | null;
     client_id: string | null;
     first_response_at: string | null;
+    created_at: string;
+};
+
+/** An application from `/careers`. The candidate is not a portal user. */
+export type Candidate = {
+    id: string;
+    ref_code: string;
+    position_id: string;
+    license_level: string;
+    full_name: string;
+    phone: string;
+    email: string;
+    tops_number: string | null;
+    service_branch: string | null;
+    bio: string;
+    vetting_stage: VettingStage;
+    /** Maintained by the database, never by the caller (SPEC-010 migration). */
+    stage_changed_at: string;
+    /** Internal only. Never shown to the candidate, never quoted in an email. */
+    rejection_reason: string | null;
+    internal_notes: string | null;
+    assigned_to: string | null;
+    sms_consent: boolean;
+    sms_consent_at: string | null;
+    source_env: 'production' | 'preview' | 'development';
     created_at: string;
 };
 

@@ -3,7 +3,9 @@ name: CI
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
+  workflow_dispatch:
 
 jobs:
   site:
@@ -58,5 +60,202 @@ jobs:
         run: node scripts/reset-test-db.mjs
       - name: Unit, notification, Stripe, RLS and numbering tests
         run: pnpm exec vitest run
+      # The restore drill (docs/RESTORE-DRILL.md) is the one procedure nobody
+      # rehearses between incidents, and its verifier is the part of it that
+      # has to work at 3am. app/tests/verify-restore.test.ts pins the report
+      # logic over a fixture; only this step proves the SQL itself still runs
+      # — a renamed column or a dropped sequence breaks the drill silently
+      # otherwise. It runs after the suite so the database has rows and the
+      # invoice-number regex in check 3 has something to match.
+      - name: Restore verifier runs against a real database
+        run: node scripts/verify-restore.mjs "$TEST_DATABASE_URL"
       - name: Next.js build
         run: pnpm build
+
+  a11y:
+    name: Accessibility — WCAG 2.1 AA scan (staged, not yet blocking)
+    runs-on: ubuntu-latest
+    # ┌───────────────────────────────────────────────────────────────────┐
+    # │  THIS JOB REPORTS BUT DOES NOT BLOCK — AND THAT IS TEMPORARY.     │
+    # │                                                                   │
+    # │  continue-on-error is set ONLY because the scan currently finds   │
+    # │  48 pre-existing colour-contrast violations that live in          │
+    # │  src/styles/** — files this change does not own and that SPEC-006 │
+    # │  rewrites next. Failing `main` on defects nobody is allowed to    │
+    # │  fix yet would teach everyone to ignore a red check, which is     │
+    # │  worse than having no check.                                      │
+    # │                                                                   │
+    # │  IT FLIPS TO BLOCKING IN THE FOLLOW-UP THAT LANDS THE FIXES.      │
+    # │  That follow-up deletes the `continue-on-error` line below and    │
+    # │  adds `a11y` to the required-checks list. Every violation it must │
+    # │  clear is written up with file, selector, rule id and the exact   │
+    # │  fix in docs/A11Y-AUDIT.md — no investigation needs repeating.    │
+    # │                                                                   │
+    # │  NO AXE RULE IS DISABLED, HERE OR ANYWHERE. Staging the gate is   │
+    # │  not suppressing findings: the scan reports every violation it    │
+    # │  sees, in full, on every run. Do not "fix" a red scan by adding   │
+    # │  --disable; record it in the audit instead.                       │
+    # └───────────────────────────────────────────────────────────────────┘
+    continue-on-error: true
+    env:
+      # Chrome and ChromeDriver are pinned to the SAME Chrome-for-Testing
+      # build. @axe-core/cli drives Chrome through selenium, and a
+      # chromedriver whose major version does not match its browser refuses
+      # to start a session — so these two strings must be changed together.
+      CHROME_VERSION: '153.0.8010.36'
+      AXE_CLI_VERSION: '4.10.2'
+      PUPPETEER_BROWSERS_VERSION: '2.10.10'
+      AXE_TAGS: wcag2a,wcag2aa,wcag21a,wcag21aa
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+
+      # ── static marketing site ──────────────────────────────────────────
+      # npx, not a root dependency: the repository root has no package.json
+      # and keeps none (specs/README.md invariant 2), so a contributor still
+      # needs nothing installed to work on the site.
+      - name: Install the pinned Chrome and matching ChromeDriver
+        run: |
+          npx --yes @puppeteer/browsers@"$PUPPETEER_BROWSERS_VERSION" install chrome@"$CHROME_VERSION" --path "$RUNNER_TEMP/cft"
+          npx --yes @puppeteer/browsers@"$PUPPETEER_BROWSERS_VERSION" install chromedriver@"$CHROME_VERSION" --path "$RUNNER_TEMP/cft"
+
+      - name: Serve the generated site
+        run: |
+          python3 serve.py &
+          for i in $(seq 1 30); do
+            curl -sfo /dev/null http://localhost:5050/ && exit 0
+            sleep 1
+          done
+          echo "preview server never came up"; exit 1
+
+      # Two passes, because one is not honest on this site. At rest the
+      # scroll-reveal holds most of the page at opacity 0, and axe skips
+      # what it cannot see — a default-state scan of `/` reports 5 nodes
+      # and misses 10. Under prefers-reduced-motion reveal.css lifts the
+      # hidden state entirely, so the second pass sees the whole document
+      # AND exercises the reduced-motion presentation.
+      # Every scan step below carries `if: !cancelled()` so that one failing
+      # scan does not hide the others. Without it the first red step would
+      # skip the rest and the log would report a fraction of the truth.
+      - name: axe — public pages, default presentation
+        if: ${{ !cancelled() }}
+        run: |
+          npx --yes @axe-core/cli@"$AXE_CLI_VERSION" \
+            http://localhost:5050/ \
+            http://localhost:5050/careers \
+            http://localhost:5050/privacy \
+            http://localhost:5050/terms \
+            http://localhost:5050/sms-consent \
+            http://localhost:5050/invoice \
+            --chrome-path "$RUNNER_TEMP/cft/chrome/linux-$CHROME_VERSION/chrome-linux64/chrome" \
+            --chromedriver-path "$RUNNER_TEMP/cft/chromedriver/linux-$CHROME_VERSION/chromedriver-linux64/chromedriver" \
+            --chrome-options="no-sandbox,disable-dev-shm-usage,disable-gpu" \
+            --tags "$AXE_TAGS" \
+            --load-delay 2500 \
+            | tee "$RUNNER_TEMP/axe-default.log"
+          # ^ NOTE the absent `--exit`. TO ARM THE GATE: add `--exit` back here
+          # and in the reduced-motion step, delete both summary blocks, and
+          # delete `continue-on-error` at the job level.
+          #
+          # Do NOT stage the gate by keeping --exit and swallowing the status
+          # with a pipe: GitHub runs every `run:` under
+          # `bash --noprofile --norc -eo pipefail`, so a failing command in a
+          # pipeline still fails the step. Without --exit, axe prints every
+          # violation and exits 0 — the scan reports in full, it just does not
+          # paint the check red. A check that is red by design teaches people to
+          # ignore red, and then the red that matters is ignored too.
+          {
+            echo "### axe · default presentation"
+            echo '```'
+            grep -iE "violation|issues? (detected|found)" "$RUNNER_TEMP/axe-default.log" | tail -25 || echo "no violation lines in output"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: axe — public pages, reduced motion (whole document visible)
+        if: ${{ !cancelled() }}
+        run: |
+          npx --yes @axe-core/cli@"$AXE_CLI_VERSION" \
+            http://localhost:5050/ \
+            http://localhost:5050/careers \
+            http://localhost:5050/privacy \
+            http://localhost:5050/terms \
+            http://localhost:5050/sms-consent \
+            http://localhost:5050/invoice \
+            --chrome-path "$RUNNER_TEMP/cft/chrome/linux-$CHROME_VERSION/chrome-linux64/chrome" \
+            --chromedriver-path "$RUNNER_TEMP/cft/chromedriver/linux-$CHROME_VERSION/chromedriver-linux64/chromedriver" \
+            --chrome-options="no-sandbox,disable-dev-shm-usage,disable-gpu,force-prefers-reduced-motion" \
+            --tags "$AXE_TAGS" \
+            --load-delay 2500 \
+            | tee "$RUNNER_TEMP/axe-reduced-motion.log"
+          {
+            echo "### axe · reduced motion (whole document visible)"
+            echo '```'
+            grep -iE "violation|issues? (detected|found)" "$RUNNER_TEMP/axe-reduced-motion.log" | tail -25 || echo "no violation lines in output"
+            echo '```'
+            echo "_Gate is **staged**: violations are reported, not blocking. See docs/A11Y-AUDIT.md._"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ── portal ─────────────────────────────────────────────────────────
+      # app/ is a separate workspace and may carry dependencies, so the
+      # portal half runs on @axe-core/playwright from app/tests/a11y.test.ts.
+      - name: Install portal dependencies
+        if: ${{ !cancelled() }}
+        working-directory: app
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium for Playwright
+        if: ${{ !cancelled() }}
+        working-directory: app
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build and start the portal
+        if: ${{ !cancelled() }}
+        working-directory: app
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
+        run: |
+          pnpm build
+          PORT=3000 pnpm start &
+          for i in $(seq 1 60); do
+            curl -sfo /dev/null http://localhost:3000/login && exit 0
+            sleep 1
+          done
+          echo "portal never came up"; exit 1
+
+      - name: axe — portal screens
+        if: ${{ !cancelled() }}
+        working-directory: app
+        env:
+          A11Y_PORTAL_URL: http://localhost:3000
+        run: pnpm exec vitest run tests/a11y.test.ts
+
+  release-gate:
+    name: Release gate — no placeholder business facts
+    runs-on: ubuntu-latest
+    # Tags and manual runs ONLY. Never on a branch push, never on a pull
+    # request. `node build.mjs --verify-release` exits 1 while the DPS licence
+    # number is still B00000, and only Cameron can supply it — so running this
+    # on push would fail main today and block every other spec in flight.
+    #
+    # The `on:` block above fires this workflow on pushes to main as well, so
+    # this condition is the thing keeping the job off them. Read it as: manual
+    # dispatch, or a push whose ref is a tag. A pull_request event satisfies
+    # neither clause; a push to refs/heads/main fails the startsWith.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/'))
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Generated output matches src/, and no placeholders remain
+        run: node build.mjs --verify-release

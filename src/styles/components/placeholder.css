@@ -3,14 +3,20 @@
    PLACEHOLDER FLAGS
    A business fact that Cameron has not supplied yet (the dispatch line, the
    DPS licence number) renders with a `.placeholder-flag` beside it. The flag
-   is invisible on production hosts and impossible to miss everywhere else:
-   js/modules/env.mjs sets `data-env="preview"` on <html> when the hostname is
-   not in site.productionHosts. A visitor on the live site never sees this;
-   a developer on localhost or a Vercel preview cannot avoid it.
+   is fail-closed: it shows on every host, production included, and needs no
+   JavaScript to appear. Nothing hides it but supplying the fact — set the
+   fact's `placeholder` to false in src/data/site.mjs and the markup stops
+   being generated at all, so there is no flag and no reserved space.
+
+   It used to be gated on `html[data-env="preview"]`, set at runtime by
+   js/modules/env.mjs from the hostname. That made the guardrail loudest where
+   it mattered least and silent on the live site — the one place
+   Tex. Occ. Code §1702.284 actually cares about. The gate is gone, and so is
+   env.mjs (SPEC-001).
    ========================================================================== */
 
 .placeholder-flag {
-    display: none;
+    display: inline-block;
     margin-left: 6px;
     padding: 2px 7px;
     border: 1px dashed var(--color-crimson);
@@ -26,11 +32,7 @@
     white-space: nowrap;
 }
 
-html[data-env="preview"] .placeholder-flag {
-    display: inline-block;
-}
-
-html[data-env="preview"] [data-placeholder] {
+[data-placeholder] {
     outline: 2px dashed var(--color-crimson);
     outline-offset: 2px;
 }

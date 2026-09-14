@@ -36,8 +36,11 @@ const structuredData = () => ({
             '@id': `${site.url}/#organization`,
             name: site.name,
             url: site.url,
-            logo: `${site.url}/${site.logo}`,
-            image: `${site.url}/${site.logo}`,
+            /* Two different pictures because they answer two different
+               questions: `logo` is the square mark a search result puts beside
+               the company name, `image` is the one a rich result shows. */
+            logo: `${site.url}/${site.icons.large}`,
+            image: `${site.url}/${site.ogCard.path}`,
             description: site.seo.organizationDescription,
             telephone: site.phone.e164,
             email: site.email,
@@ -96,7 +99,12 @@ export const head = () => html`
     <meta name="author" content="${site.name}">
     <meta name="theme-color" content="#050504">
     <link rel="canonical" href="${site.url}">
-    <link rel="icon" type="image/png" href="${site.logo}">
+
+    <!-- Icons. The favicon used to be the 1 MB brand plate, fetched on every
+         page load to be painted at 16px. -->
+    <link rel="icon" type="image/png" sizes="32x32" href="${site.icons.favicon}">
+    <link rel="apple-touch-icon" sizes="180x180" href="${site.icons.appleTouch}">
+    <link rel="icon" type="image/png" sizes="512x512" href="${site.icons.large}">
 
     <!-- AI Search Engine Optimization (GEO & LLMs) -->
     <meta name="ai-content-declaration" content="verified-business-profile">
@@ -107,26 +115,36 @@ export const head = () => html`
     <meta property="og:site_name" content="${site.name}">
     <meta property="og:title" content="${site.seo.ogTitle}">
     <meta property="og:description" content="${site.seo.ogDescription}">
-    <meta property="og:image" content="${site.url}/${site.logo}">
+    <meta property="og:image" content="${site.url}/${site.ogCard.path}">
+    <meta property="og:image:width" content="${site.ogCard.width}">
+    <meta property="og:image:height" content="${site.ogCard.height}">
+    <meta property="og:image:alt" content="${site.ogCard.alt}">
+    <meta property="og:image:type" content="image/png">
     <meta property="og:type" content="website">
     <meta property="og:url" content="${site.url}">
 
-    <!-- Twitter Card -->
+    <!-- Twitter Card. summary_large_image wants 1200x630; it used to be handed
+         a 1000x1000 square, which every client letterboxed. -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${site.seo.twitterTitle}">
     <meta name="twitter:description" content="${site.seo.twitterDescription}">
-    <meta name="twitter:image" content="${site.url}/${site.logo}">
+    <meta name="twitter:image" content="${site.url}/${site.ogCard.path}">
+    <meta name="twitter:image:alt" content="${site.ogCard.alt}">
 
     <!-- Schema.org JSON-LD (generated from src/data — never hand-edited) -->
     <script type="application/ld+json">
 ${json(structuredData())}
     </script>
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+    <!-- Typefaces are self-hosted (SPEC-006): the @font-face rules are in
+         css/site.css and the woff2 files in assets/fonts/. The two preconnects
+         and the fonts.googleapis.com stylesheet that used to sit here are gone
+         along with the origin they warmed up. -->
     <link rel="stylesheet" href="css/site.css">
-    <noscript><style>.forge-track { height: 120vh; } .forge-hud-left, .forge-cue { display: none; }</style></noscript>
+
+    <!-- Scripting off: the assembly never runs, so collapse its runway and
+         hide the readouts that would describe it. A stylesheet rather than an
+         inline style block, because style-src is 'self' with no hashes — see
+         src/styles/noscript.css for why that is the better trade. -->
+    <noscript><link rel="stylesheet" href="css/noscript.css"></noscript>
 `;

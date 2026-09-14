@@ -45,7 +45,7 @@ ${careersHead()}
         </defs>
     </svg>
 
-    <a href="#open-postings" class="skip-link">Skip to open postings</a>
+    <a href="#main" class="skip-link">Skip to main content</a>
 
     <canvas id="tactical-bg-canvas" aria-hidden="true"></canvas>
     <div class="cursor-spotlight" id="cursorSpotlight" aria-hidden="true"></div>
@@ -53,7 +53,7 @@ ${careersHead()}
 ${drawer(true)}
 ${nav(true)}
 
-    <main id="main">
+    <main id="main" tabindex="-1">
 ${careersHero()}
 ${careersPrequal()}
 ${careersBenefits()}

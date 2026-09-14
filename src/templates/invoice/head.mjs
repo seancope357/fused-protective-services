@@ -16,12 +16,11 @@ export const invoiceHead = () => html`
     <title>Invoicing — ${site.name}</title>
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#050504">
-    <link rel="icon" type="image/png" href="${site.logo}">
+    <link rel="icon" type="image/png" sizes="32x32" href="${site.icons.favicon}">
+    <link rel="apple-touch-icon" sizes="180x180" href="${site.icons.appleTouch}">
 
-    <!-- Google Fonts — same faces as the site so the document matches the brand -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+    <!-- Same faces as the site so the document matches the brand, now served
+         from assets/fonts/ (SPEC-006). css/invoice.css includes base.css, so
+         it carries the same @font-face rules css/site.css does. -->
     <link rel="stylesheet" href="css/invoice.css">
 `;

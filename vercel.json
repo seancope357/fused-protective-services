@@ -6,10 +6,30 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=()" }
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'sha256-+eYmK97DpAYFHdzmEBWGuuB3ya1Ghmb59zfhwcaLSts=' 'sha256-10L/IpYeIr6N9o6RHm7/RAWmn7tVxw16xmmisEHhD+o=' 'sha256-9A3D6TG4Oo2P/9gS7H0b0uGRlRAHcbohwfBJcMBLOPg=' 'sha256-oQ2s20FbyWaNpgoeiSFIbtcggLVpK388S7ydtNEBZ0A=' 'sha256-z/NtZUtsN6uMl/IOL6qZlPKIuP8PdgqUtCL3epuk+I4='; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'; upgrade-insecure-requests"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(), microphone=(), camera=()"
+        }
       ]
     }
   ]

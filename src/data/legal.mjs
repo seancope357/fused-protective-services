@@ -60,7 +60,9 @@ export const legalPages = [
                 heading: 'Security and retention',
                 body: [
                     'Data is stored in the United States with encryption in transit and at rest. Access is limited to authorised staff and, for client portal accounts, to the client the record belongs to.',
-                    'Lead and application records are retained while they are relevant to an engagement or hiring decision and then for the period required by law.'
+                    'Lead and application records are retained while they are relevant to an engagement or hiring decision and then for the period required by law.',
+                    'A careers application — including any licence number and service history you provide — is kept with the hiring record it belongs to. Where an applicant is hired, the record is retained for as long as Texas Department of Public Safety record-keeping requirements apply.',
+                    `You may ask us to delete an application that is not subject to those requirements by emailing ${site.email}.`
                 ]
             },
             {

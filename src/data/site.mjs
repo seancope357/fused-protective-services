@@ -11,8 +11,9 @@
 
    Confirmed as the dispatch line by Sean on 2026-09-09. If it ever changes,
    edit `display` and `e164` here; nothing else needs to move. Setting
-   `placeholder` back to true re-enables the build warning and the red flag on
-   non-production hosts (see src/templates/partials.mjs and js/modules/env.mjs). */
+   `placeholder` back to true re-enables the build warning, the red flag on
+   every host (see src/templates/partials.mjs), and a failing
+   `node build.mjs --verify-release`. */
 const phone = {
     display: '(512) 555-0199',
     e164: '+15125550199',
@@ -36,7 +37,47 @@ export const site = {
     shortName: 'FUSED',
     subtitle: 'Protective Services',
     motto: 'DEFENSE • DISCRETION • INTEGRITY',
-    logo: 'assets/logo.png',
+
+    /* The brand plate every page paints — nav, hero, footer, invoice — and the
+       texture js/logo-forge.js maps onto its 65,536 cubes. One file for both
+       jobs, so a first view fetches it once.
+
+       WebP rather than PNG, and at full 1000x1000 rather than downscaled: the
+       forge's sharpness is a property of this file (the cube grid is a fixed
+       256 rows whatever the source), and measurement on a real browser put a
+       512 downscale 22% down on acutance while q95 WebP at full size is 95%
+       and a fifth of the bytes. See scripts/build-assets.sh.
+
+       There is no <picture> fallback because this site cannot render in a
+       browser that would need one: css/site.css is built around @layer, which
+       shipped a year and a half AFTER WebP was universal. A browser that
+       cannot decode this file cannot lay out the page it sits on. */
+    logo: 'assets/logo.webp',
+
+    /* The same plate as PNG at the largest size anything paints it. Nothing on
+       the marketing site links it; app/scripts/sync-shared.mjs mirrors it into
+       the portal, which serves its logo from its own origin. */
+    logoFallback: 'assets/logo-512.png',
+
+    /* Cropped to the shield alone — at 32px the FUSED wordmark under it is
+       noise. Generated and committed by scripts/build-assets.sh; build.mjs
+       asserts each one exists, because a renamed icon is otherwise a broken
+       image nobody notices. */
+    icons: {
+        favicon: 'assets/icon-32.png',
+        appleTouch: 'assets/icon-180.png',
+        large: 'assets/icon-512.png'
+    },
+
+    /* The social card. Width and height are stated because Twitter and
+       Facebook both lay the card out before they have fetched the image, and
+       `alt` because a shared link is read aloud as often as it is looked at. */
+    ogCard: {
+        path: 'assets/og-card.png',
+        width: 1200,
+        height: 630,
+        alt: 'Fused Protective Services — the gold shield emblem beside the FUSED wordmark on a carbon field, over the line "Armed and unarmed officers, VIP executive close protection, and rapid dispatch across Austin, San Antonio, and Texas."'
+    },
 
     /* Stated rather than read from the clock: the build must produce the same
        bytes today and next January, or `node build.mjs --check` starts failing
@@ -47,14 +88,23 @@ export const site = {
     licenseNumber,
     email: 'dispatch@fusedprotectiveservices.com',
 
-    /* Hosts that serve the real site. Any other host (localhost, a Vercel
-       preview URL) is treated as non-production by js/modules/env.mjs, which
-       reveals the placeholder flags. The production alias on Vercel is listed
-       because it is the public address until the custom domain is connected. */
+    /* Hosts that serve the real site: the apex and www, nothing else.
+
+       This list no longer has anything to do with placeholder flags — those
+       are fail-closed and show on every host (SPEC-001). Its one live reader
+       is api/_lib/http.mjs, which builds the CORS origin allowlist from it.
+       src/templates/page.mjs still copies it into the page's config JSON, but
+       nothing on the client reads it now that js/modules/env.mjs is gone; that
+       emission is dead weight and can be dropped with its own change.
+
+       `fused-protective-services.vercel.app` used to be listed here and was
+       removed: a deploy alias is not the production site, and treating it as
+       one is what let a placeholder licence number render unflagged on the
+       public URL. Vercel's own hostnames are still allowed for CORS at
+       runtime through the VERCEL_* environment variables. */
     productionHosts: [
         'fusedprotectiveservices.com',
-        'www.fusedprotectiveservices.com',
-        'fused-protective-services.vercel.app'
+        'www.fusedprotectiveservices.com'
     ],
 
     address: {
