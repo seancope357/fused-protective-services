@@ -37,14 +37,17 @@ export function InvoicePaper({ invoice, payUrl, qrSvg }: { invoice: Invoice; pay
                 </dl>
             </div>
 
-            <table className="mt-4">
-                <thead><tr><th>Service</th><th className="num">Officers</th><th className="num">Hours</th><th className="num">Rate</th><th className="num">Amount</th></tr></thead>
-                <tbody>
-                    {invoice.line_items.map((l, i) => (
-                        <tr key={i}><td>{l.description}</td><td className="num">{l.officers}</td><td className="num">{l.hours}</td><td className="num">{formatMoney(l.rate_cents)}</td><td className="num">{formatMoney(l.amount_cents)}</td></tr>
-                    ))}
-                </tbody>
-            </table>
+            {/* Only the line items scroll sideways on a narrow phone; the paper never does. */}
+            <div className="table-wrap mt-4">
+                <table>
+                    <thead><tr><th>Service</th><th className="num">Officers</th><th className="num">Hours</th><th className="num">Rate</th><th className="num">Amount</th></tr></thead>
+                    <tbody>
+                        {invoice.line_items.map((l, i) => (
+                            <tr key={i}><td>{l.description}</td><td className="num">{l.officers}</td><td className="num">{l.hours}</td><td className="num">{formatMoney(l.rate_cents)}</td><td className="num">{formatMoney(l.amount_cents)}</td></tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
             <div className="paper__totals">
                 <div><span>Subtotal</span><span>{formatMoney(invoice.subtotal_cents)}</span></div>
                 {invoice.tax_rate_pct > 0 ? <div><span>Sales tax ({invoice.tax_rate_pct}%)</span><span>{formatMoney(invoice.tax_cents)}</span></div> : null}
@@ -55,7 +58,10 @@ export function InvoicePaper({ invoice, payUrl, qrSvg }: { invoice: Invoice; pay
             {invoice.notes ? <section className="paper__section"><div className="paper__label">Notes</div><p>{invoice.notes}</p></section> : null}
             {invoice.terms ? <section className="paper__section"><div className="paper__label">Terms</div><p>{invoice.terms}</p></section> : null}
             <section className="paper__section row row--between" style={{ alignItems: 'flex-start' }}>
-                <div style={{ flex: 1 }}>
+                {/* A 220px basis lets the QR code drop below the text on a narrow phone.
+                    Where both fit (tablet, desktop, print) the text still grows to fill the
+                    line exactly as flex: 1 did, so the printed page is unchanged. */}
+                <div style={{ flex: '1 1 220px' }}>
                     <div className="paper__label">{invoiceDefaults.paymentCopy.heading}</div>
                     <p>{invoiceDefaults.paymentCopy.instructions}</p>
                     {payUrl && balance > 0 ? <p className="small"><a href={payUrl}>{payUrl.replace(/^https?:\/\//, '')}</a></p> : null}

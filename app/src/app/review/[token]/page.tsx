@@ -10,6 +10,8 @@ import { site, logoSrc } from '@/lib/shared';
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Leave a review' };
 
+/* Public, reached from an emailed link, usually on a phone held in one hand:
+   one column, 44px stars, a full-width submit at the bottom of a short form. */
 export default async function ReviewPage({ params, searchParams }: { params: Promise<{ token: string }>; searchParams: Promise<SearchStatus> }) {
     const { token } = await params;
     if (!/^[0-9a-f]{48}$/.test(token)) notFound();
@@ -17,35 +19,39 @@ export default async function ReviewPage({ params, searchParams }: { params: Pro
     if (!review) notFound();
     const job = review.jobs as { title: string; starts_at: string } | null;
     const client = review.clients as { name: string; billing_contact_name: string | null } | null;
+    const context = [job?.title, job ? fmtDateOnly(job.starts_at.slice(0, 10)) : null, client?.name].filter(Boolean).join(' · ');
 
     return (
-        <div className="auth-shell">
+        <main id="main" className="auth-shell">
             <div className="card card--gold stack" style={{ width: 'min(560px, 100%)' }}>
-                <div className="row" style={{ gap: 10 }}>
-                    <img src={logoSrc} alt="" width={40} height={40} style={{ borderRadius: 8 }} />
-                    <div><div className="shell__brand-title">{site.shortName}</div><div className="shell__brand-sub">How did we do?</div></div>
+                <div className="brand">
+                    <img src={logoSrc} alt="" width={34} height={34} />
+                    <div><div className="brand__title">{site.shortName}</div><div className="brand__sub">Client review</div></div>
                 </div>
-                <p>{job?.title} · {fmtDateOnly(job?.starts_at.slice(0, 10))} · {client?.name}</p>
+                <div>
+                    <h1>How did we do?</h1>
+                    {context ? <p className="mt-2 wrap-anywhere">{context}</p> : null}
+                </div>
                 <StatusFromSearch params={await searchParams} />
                 {review.status === 'submitted' ? (
-                    <p className="alert alert--good">Thank you — your review is on file{review.rating ? ` (${review.rating}/5)` : ''}.</p>
+                    <p className="alert alert--good">Thank you — we&rsquo;ve received your review{review.rating ? ` (${review.rating} out of 5)` : ''}.</p>
                 ) : (
                     <form action={submitReview} className="stack">
                         <input type="hidden" name="token" value={token} />
                         <fieldset style={{ border: 0 }}>
-                            <legend className="field__label mb-2">Rating</legend>
+                            <legend className="field__label mb-2">Your rating</legend>
                             <div className="stars" role="radiogroup" aria-label="Star rating">
                                 {[1, 2, 3, 4, 5].map((n) => <span key={n}><input type="radio" id={`star-${n}`} name="rating" value={n} required /><label htmlFor={`star-${n}`} aria-label={`${n} star${n === 1 ? '' : 's'}`}>★</label></span>)}
                             </div>
                         </fieldset>
-                        <Field id="body" label="What stood out?"><textarea id="body" name="body" rows={4} maxLength={4000} /></Field>
-                        <Field id="author_name" label="Your name (as it may appear)"><input id="author_name" name="author_name" defaultValue={client?.billing_contact_name ?? ''} /></Field>
+                        <Field id="body" label="What stood out?"><textarea id="body" name="body" rows={4} maxLength={4000} autoCapitalize="sentences" /></Field>
+                        <Field id="author_name" label="Your name, as you'd like it shown"><input id="author_name" name="author_name" type="text" defaultValue={client?.billing_contact_name ?? ''} autoComplete="name" autoCapitalize="words" enterKeyHint="done" /></Field>
                         <div className="field field--check"><input id="permission_to_publish" name="permission_to_publish" type="checkbox" /><label htmlFor="permission_to_publish">{site.name} may publish this review with my name and company on its website.</label></div>
-                        <button className="btn btn--gold" type="submit">Submit review</button>
+                        <button className="btn btn--gold btn--block" type="submit">Send my review</button>
                     </form>
                 )}
-                <p className="small muted">{site.phone.display} · {site.email}</p>
+                <p className="small muted wrap-anywhere">Questions? <a href={`tel:${site.phone.e164}`}>{site.phone.display}</a> · <a href={`mailto:${site.email}`}>{site.email}</a></p>
             </div>
-        </div>
+        </main>
     );
 }
