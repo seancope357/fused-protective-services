@@ -150,7 +150,19 @@ jobs:
             --chrome-options="no-sandbox,disable-dev-shm-usage,disable-gpu" \
             --tags "$AXE_TAGS" \
             --load-delay 2500 \
-            --exit
+            --exit | tee "$RUNNER_TEMP/axe-default.log"
+          # ^ TO ARM THE GATE: delete `| tee ...` here and in the reduced-motion
+          # step, delete both summary blocks, and delete `continue-on-error` at
+          # the job level. axe's own --exit then fails the check on any
+          # violation. Until then the pipe makes the step's status tee's, so the
+          # scan reports without turning the check red — a check that is red by
+          # design teaches people to ignore red.
+          {
+            echo "### axe · default presentation"
+            echo '```'
+            grep -iE "violation|issues? (detected|found)" "$RUNNER_TEMP/axe-default.log" | tail -25 || echo "no violation lines in output"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: axe — public pages, reduced motion (whole document visible)
         if: ${{ !cancelled() }}
@@ -167,7 +179,14 @@ jobs:
             --chrome-options="no-sandbox,disable-dev-shm-usage,disable-gpu,force-prefers-reduced-motion" \
             --tags "$AXE_TAGS" \
             --load-delay 2500 \
-            --exit
+            --exit | tee "$RUNNER_TEMP/axe-reduced-motion.log"
+          {
+            echo "### axe · reduced motion (whole document visible)"
+            echo '```'
+            grep -iE "violation|issues? (detected|found)" "$RUNNER_TEMP/axe-reduced-motion.log" | tail -25 || echo "no violation lines in output"
+            echo '```'
+            echo "_Gate is **staged**: violations are reported, not blocking. See docs/A11Y-AUDIT.md._"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # ── portal ─────────────────────────────────────────────────────────
       # app/ is a separate workspace and may carry dependencies, so the
