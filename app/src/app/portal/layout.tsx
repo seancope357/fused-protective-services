@@ -1,17 +1,20 @@
 import { requireStaff } from '@/lib/auth';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { countLeads } from '@/lib/domain/queries';
 import { Shell } from '@/components/shell';
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
     const session = await requireStaff();
     const supabase = await createSupabaseServerClient();
-    const [{ count: newLeads }, { count: overdue }] = await Promise.all([
-        supabase.from('client_quotes').select('id', { count: 'exact', head: true }).eq('status', 'new'),
+    /* The Leads badge counts production rows only (SPEC-002) — a badge that
+       counts preview submissions sends the owner after work that isn't there. */
+    const [newLeads, { count: overdue }] = await Promise.all([
+        countLeads({ stage: 'new' }),
         supabase.from('invoices').select('id', { count: 'exact', head: true }).eq('status', 'overdue')
     ]);
     const items = [
         { href: '/portal', label: 'Today' },
-        { href: '/portal/leads', label: 'Leads', count: newLeads ?? 0 },
+        { href: '/portal/leads', label: 'Leads', count: newLeads },
         { href: '/portal/quotes', label: 'Quotes & proposals' },
         { href: '/portal/jobs', label: 'Jobs' },
         { href: '/portal/invoices', label: 'Invoices', count: overdue ?? 0 },

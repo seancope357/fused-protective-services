@@ -135,6 +135,11 @@
     .timeline__item { display: grid; grid-template-columns: 110px 1fr; gap: 12px; font-size: 13.5px; }
     .timeline__when { color: var(--text-tertiary); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
     .placeholder-flag { display: inline-block; margin-left: 6px; padding: 2px 7px; border: 1px dashed var(--color-crimson); border-radius: var(--radius-sm); color: var(--color-crimson); font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+    /* Non-production marker. Full bleed, above the shell, hard to mistake for
+       chrome: a preview must never read as the live portal. */
+    .env-banner { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; padding: 8px 20px; background: var(--color-crimson); color: #fff6f6; font-size: 13px; line-height: 1.4; border-bottom: 2px solid rgba(0, 0, 0, 0.35); }
+    .env-banner__tag { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; padding: 2px 8px; border: 1px solid rgba(255, 255, 255, 0.55); border-radius: var(--radius-sm); }
+    .env-banner code { font-weight: 700; color: #fff; }
     .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
     .calendar__day { min-height: 92px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 6px; font-size: 12px; background: var(--color-surface-glass); }
     .calendar__day--today { border-color: var(--border-gold-bright); }

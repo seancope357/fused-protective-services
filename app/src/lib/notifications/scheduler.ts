@@ -17,8 +17,11 @@ export async function runTick(now = new Date()): Promise<TickReport> {
     const report: TickReport = { at: now.toISOString() };
     const today = localYmd(now);
 
-    /* ---- Lead unanswered after 2h → owner SMS (once per lead) ---- */
-    const { data: leads } = await db.from('client_quotes').select('*').eq('status', 'new').is('first_response_at', null).gte('created_at', new Date(now.getTime() - 7 * 86400000).toISOString());
+    /* ---- Lead unanswered after 2h → owner SMS (once per lead) ----
+       Production rows only (SPEC-002). This is the rule that pages a phone; a
+       lead submitted from a preview must never ring it, even in the window
+       before the preview Supabase branch exists and previews still write here. */
+    const { data: leads } = await db.from('client_quotes').select('*').eq('status', 'new').eq('source_env', 'production').is('first_response_at', null).gte('created_at', new Date(now.getTime() - 7 * 86400000).toISOString());
     let n = 0;
     for (const lead of unansweredLeads((leads ?? []) as Lead[], now)) {
         if (await alreadySent('lead_unanswered_2h', 'client_quote', lead.id)) continue;
@@ -79,7 +82,7 @@ export async function runTick(now = new Date()): Promise<TickReport> {
     if (isDigestHour(now) && !(await alreadySent('daily_digest', 'digest', DIGEST_ENTITY, today))) {
         const dayStart = new Date(`${today}T00:00:00-05:00`);
         const { data: todays } = await db.from('jobs').select('*').gte('starts_at', new Date(dayStart.getTime() - 12 * 3600000).toISOString()).lte('starts_at', new Date(dayStart.getTime() + 36 * 3600000).toISOString());
-        const { data: newLeads } = await db.from('client_quotes').select('*').eq('status', 'new').order('created_at', { ascending: false }).limit(20);
+        const { data: newLeads } = await db.from('client_quotes').select('*').eq('status', 'new').eq('source_env', 'production').order('created_at', { ascending: false }).limit(20);
         await dispatch('daily_digest', {
             digest: {
                 jobsToday: jobsToday((todays ?? []) as Job[], now),
