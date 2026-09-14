@@ -63,8 +63,20 @@ export const officerBenefits = [
     }
 ];
 
+/* The five stages the public site publishes, each carrying the machine id used
+   by the CHECK on public.candidate_applications.vetting_stage (SPEC-010). The
+   ids are the contract: the careers page renders the copy, the portal derives
+   every pipeline label from these entries through @/lib/shared, and
+   app/tests/candidates.test.ts fails if this list and the CHECK disagree.
+
+   Two CHECK values deliberately have no entry here, because neither is a stage
+   a candidate is evaluated in: `application_received` is the state a row
+   arrives in before stage 01 begins, and `rejected` is the exit available from
+   any stage. Publishing either as a sixth or seventh "stage" would misdescribe
+   the protocol the site advertises. */
 export const vettingStages = [
     {
+        id: 'tops_audit',
         step: '01',
         name: 'Application & License Audit',
         badge: 'STAGE 1: VERIFICATION',
@@ -73,6 +85,7 @@ export const vettingStages = [
         checkpoint: 'Active Texas DPS Level II, III, or IV license confirmed; operational experience verified.'
     },
     {
+        id: 'background_mmpi2',
         step: '02',
         name: 'Background & Psychological',
         badge: 'STAGE 2: INTEGRITY',
@@ -81,6 +94,7 @@ export const vettingStages = [
         checkpoint: 'Zero felony convictions, clean drug panel, passed psychological screening.'
     },
     {
+        id: 'range_physical',
         step: '03',
         name: 'Tactical & Physical Readiness',
         badge: 'STAGE 3: PROFICIENCY',
@@ -89,6 +103,7 @@ export const vettingStages = [
         checkpoint: '90%+ range score, verified defensive tactics competence.'
     },
     {
+        id: 'command_interview',
         step: '04',
         name: 'Command Staff Board Interview',
         badge: 'STAGE 4: ETHICS',
@@ -97,6 +112,7 @@ export const vettingStages = [
         checkpoint: 'Direct sign-off from Chief of Operations Cameron Harrell.'
     },
     {
+        id: 'active_roster',
         step: '05',
         name: 'Roster Activation & Deployment',
         badge: 'STAGE 5: ACTIVE DUTY',

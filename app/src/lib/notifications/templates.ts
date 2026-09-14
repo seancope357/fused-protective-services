@@ -11,8 +11,8 @@
 import { emailShell } from '../../../shared/api/_lib/intake-messages.mjs';
 import { formatMoney } from '@/lib/money';
 import { fmtDateTime, fmtDateOnly, fmtTime } from '@/lib/format';
-import { site, divisionByQuoteValue } from '@/lib/shared';
-import type { Client, Invoice, Job, Lead, Proposal, Quote, Review, Site, Payment } from '@/lib/db/types';
+import { site, divisionByQuoteValue, positionTitle, vettingStageById, vettingStageLabel } from '@/lib/shared';
+import type { Candidate, Client, Invoice, Job, Lead, Proposal, Quote, Review, Site, Payment } from '@/lib/db/types';
 
 export type Audience = 'owner' | 'client';
 export type Channel = 'email' | 'sms';
@@ -21,6 +21,7 @@ export type EmailMessage = { subject: string; text: string; html: string };
 
 export type Ctx = {
     client?: Client | null;
+    candidate?: Candidate;
     lead?: Lead;
     quote?: Quote;
     proposal?: Proposal;
@@ -53,6 +54,45 @@ const firstName = (c?: Client | null) => (c?.billing_contact_name || c?.name || 
 const divisionName = (v?: string | null) => divisionByQuoteValue(v)?.heading ?? v ?? 'Security detail';
 const jobWhen = (job: Job) => `${fmtDateTime(job.starts_at)} – ${fmtTime(job.ends_at)}`;
 const siteLine = (s?: Site | null) => (s ? [s.name, s.address_line1, s.city && `${s.city}, ${s.state ?? 'TX'} ${s.postal_code ?? ''}`.trim()].filter(Boolean).join(' · ') : 'Location per proposal');
+const careersUrl = `${site.url}/careers.html`;
+
+/* ---------- Candidates ----------
+
+   The engine resolves a `client`-audience recipient from `ctx.client`, and a
+   candidate is the external counterparty on a candidate record exactly as a
+   client is on a job. Rather than teach the engine a third audience — which
+   would mean changing engine.ts, log.ts and the notifications CHECK for one
+   pipeline — the candidate is adapted to the shape the engine already resolves.
+
+   Two consequences, both deliberate: these sends log with `recipient_role:
+   'client'`, and SMS is impossible regardless of the consent the careers form
+   collected, because no candidate rule declares an `sms` channel and the
+   adapter never claims consent. A candidate is emailed or not contacted. */
+export const candidateRecipient = (candidate: Candidate): Client => ({
+    id: candidate.id,
+    kind: 'individual',
+    name: candidate.full_name,
+    billing_contact_name: candidate.full_name,
+    billing_email: candidate.email || null,
+    billing_phone: null,
+    billing_address_line1: null,
+    billing_address_line2: null,
+    billing_city: null,
+    billing_state: null,
+    billing_postal_code: null,
+    default_net_term_id: '',
+    default_tax_rate_pct: 0,
+    tax_jurisdiction: null,
+    tax_exempt: false,
+    stripe_customer_id: null,
+    sms_consent: false,
+    sms_consent_at: null,
+    sms_opted_out_at: null,
+    notes: null,
+    created_at: candidate.created_at
+});
+
+const candidateName = (c?: Candidate) => (c?.full_name || 'there').split(' ')[0];
 
 function email(title: string, intro: string, rows: [string, string][], outroText: string[], cta?: { href: string; label: string }): EmailMessage {
     const text = [title, '', intro, '', ...rows.map(([k, v]) => `${k}: ${v}`), '', ...outroText, cta ? `\n${cta.label}: ${cta.href}` : '', '', dispatchLine].join('\n');
@@ -72,6 +112,60 @@ export const rules: Rule[] = [
         audience: 'owner',
         channels: ['sms'],
         sms: ({ lead, link }) => `FUSED: lead ${lead!.ref_code} (${lead!.full_name}, ${divisionName(lead!.service_division)}) has had no response for 2 hours. ${lead!.phone}. ${link ?? ''}`.trim()
+    },
+
+    /* ---- Candidates (SPEC-010) ----
+
+       Two rules, both to the candidate, both email. There is deliberately no
+       rule for reaching `active_roster`: a job offer is Cameron's to make in
+       person, not the notification engine's. There is also no owner rule for a
+       new application — `/api/intake` already alerts dispatch on every
+       submission and logs it; see the note in the PR. */
+    {
+        trigger: 'candidate_stage_advanced',
+        audience: 'client',
+        channels: ['email'],
+        email: ({ candidate }) => {
+            const stage = vettingStageById(candidate!.vetting_stage);
+            return email(
+                `Your application is moving forward — ${candidate!.ref_code}`,
+                `${candidateName(candidate)}, your application has advanced to the next stage of our vetting protocol.`,
+                [
+                    ['Reference', candidate!.ref_code],
+                    ['Position', positionTitle(candidate!.position_id)],
+                    ['Stage', stage?.heading ?? vettingStageLabel(candidate!.vetting_stage)],
+                    ...(stage?.checkpoint ? ([['What this stage checks', stage.checkpoint]] as [string, string][]) : [])
+                ],
+                [
+                    stage?.body ?? 'A member of command staff will contact you with what happens next.',
+                    'A member of command staff will contact you to arrange it. Keep your reference code to hand; it identifies your file.'
+                ],
+                { href: careersUrl, label: 'Read the full vetting protocol' }
+            );
+        }
+    },
+    {
+        /* Brief, respectful, and silent about why. The internal
+           `rejection_reason` never leaves the portal, and nothing here states or
+           implies anything about a background check, a psychological evaluation
+           or a licence. Cameron approves this wording before it can send. */
+        trigger: 'candidate_rejected',
+        audience: 'client',
+        channels: ['email'],
+        email: ({ candidate }) =>
+            email(
+                `Your application to ${site.name} — ${candidate!.ref_code}`,
+                `${candidateName(candidate)}, thank you for applying to ${site.name}, and for the time your application took.`,
+                [
+                    ['Reference', candidate!.ref_code],
+                    ['Position', positionTitle(candidate!.position_id)]
+                ],
+                [
+                    'We have completed our review and will not be taking your application further.',
+                    'We do not discuss individual decisions. You are welcome to apply again for a future posting.',
+                    'Thank you again for your interest, and we wish you well.'
+                ]
+            )
     },
 
     /* ---- Proposals ---- */
