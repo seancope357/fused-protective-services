@@ -132,8 +132,10 @@ The engine publishes two distinct progress clocks on `document.documentElement`:
 > `--assembly` reaches `1.0000` the instant the user stops scrolling, but cubes may still be settling. Any downstream logic asserting completion **must strictly monitor `--assembly-settled`**.
 
 ### Resiliency & Fallbacks
-* **CDN Redundancy:** Three.js is fetched from `cdnjs.cloudflare.com` with a secondary fallback to `unpkg.com`.
-* **Fallback Mounting:** If WebGL is unsupported, hardware-disabled, or the CDN is blocked, the engine sets `html[data-forge-fallback="true"]`. The CSS collapses the multi-height scroll track and mounts a high-resolution 2D fallback shield (`assets/logo.png`).
+* **Three.js is vendored, not fetched.** `js/logo-forge.js` does a static `import * as THREE from './vendor/three.module.js'`. There is no CDN, no fallback host, and no "every host is unreachable" branch — those were removed by SPEC-006. `js/vendor/three.module.js` holds r160 byte-for-byte from the URL the old dynamic import named, with the MIT header intact, a provenance comment recording the version, source URL and sha256, and the full permission notice in `js/vendor/three.LICENSE`. `tests/csp.test.mjs` re-checks the hash, so a silently patched vendor file fails the suite.
+  **The page now has no external script dependency of any kind**, which is what lets `script-src` be `'self'` with no allowlisted origin. To upgrade three.js, follow the recipe in `docs/RUNBOOK.md` — never patch vendored code in place.
+* **Fonts are vendored too.** Cinzel, Outfit and JetBrains Mono are variable fonts served from `assets/fonts/` (10 woff2, unicode-range gated so a visitor fetches two of them), declared as `@font-face` in `src/styles/base.css`, with OFL licences and an `assets/fonts/SOURCES.txt` manifest committed alongside. No `fonts.googleapis.com`, no `fonts.gstatic.com`, no preconnects.
+* **Fallback Mounting:** If WebGL is unsupported or hardware-disabled, or the context is lost, the engine sets `html[data-forge-fallback="true"]`. The CSS collapses the multi-height scroll track and mounts a high-resolution 2D fallback shield (`assets/logo.png`).
 * **Reduced Motion:** If `prefers-reduced-motion: reduce` is active, the WebGL loop disables kinetic scattering and immediately positions the camera at the assembled coordinate.
 
 ---

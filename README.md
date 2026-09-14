@@ -61,9 +61,10 @@ It publishes two clocks. `--assembly` carries **scroll** position and paces the 
 beats. `--assembly-settled` carries the **camera's** real progress and is the only one
 anything may use to claim completion — `--assembly` hits 1 the instant the scroll does,
 while cubes are still arriving. Reduced motion holds the assembled emblem on a collapsed
-track; if WebGL or the three.js CDN (jsdelivr → unpkg fallback) is unreachable, a static
-emblem mounts instead (`data-forge-fallback`). three.js is the page's only external
-script dependency.
+track; if WebGL is unavailable or the context is lost, a static emblem mounts instead
+(`data-forge-fallback`). three.js is vendored at `js/vendor/three.module.js` and imported
+statically — **the page loads nothing from a third-party origin**, which is what lets the
+Content-Security-Policy be `default-src 'self'` with no allowlisted host.
 
 ---
 

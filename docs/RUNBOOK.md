@@ -310,6 +310,39 @@ Restoring the database is [`RESTORE-DRILL.md`](RESTORE-DRILL.md) — a procedure
 
 ---
 
+## 8b. Changing the marketing site's security headers
+
+`vercel.json` is **generated**. Do not edit it: change `vercelConfig()` in `build.mjs`, run
+`node build.mjs`, and commit the result. `node build.mjs --check` fails on a hand edit.
+
+`script-src` carries a sha256 for every inline `<script>` block, and those blocks are built from
+`src/data/`. Editing a tier rate, a division or an FAQ answer moves a hash — which is why the
+header is generated rather than maintained by hand. Always rebuild and commit `vercel.json`
+alongside the data change.
+
+`python3 serve.py` sends the same headers, read out of `vercel.json`, so a violation surfaces
+locally instead of in production. It refuses to start if `vercel.json` is missing or has no
+`/(.*)` rule. Set `FPS_PREVIEW_PORT` to run two checkouts at once (defaults to 5050).
+
+**Sweeping for violations after a markup change.** Run `python3 serve.py`, then load `/`,
+`/careers`, `/invoice`, `/privacy`, `/terms` and `/sms-consent` with the console open. Scroll each
+page to the bottom — the reveal modules and the forge only run in view, and a violation that only
+happens on scroll is still a violation. Any `Refused to…` line is a defect in the change, not in
+the policy: fix the markup, do not loosen a directive.
+
+**Upgrading three.js.** Download the same jsDelivr URL at the new version, replace everything below
+the `upstream bytes begin` marker in `js/vendor/three.module.js`, update the version, URL and
+sha256 in that file's header and `THREE_SHA256` in `tests/csp.test.mjs`, then re-sweep. Never patch
+vendored code in place.
+
+**Adding or changing a font.** Re-request the Google Fonts CSS with a current Chrome user agent,
+save the woff2 into `assets/fonts/`, add its family, subset, weights, bytes, sha256 and source to
+`assets/fonts/SOURCES.txt`, and declare it in `src/styles/base.css`. The build fails if a declared
+font is missing; the tests fail if a committed font's hash does not match the manifest, or if a
+committed font is not declared.
+
+---
+
 ## 9. Environment variable index
 
 | Variable | Project | Required for |
@@ -322,7 +355,10 @@ Restoring the database is [`RESTORE-DRILL.md`](RESTORE-DRILL.md) — a procedure
 | `CRON_SECRET` | portal | scheduler |
 | `INTAKE_HASH_SALT` | root | optional hash salt |
 | `RESEND_API_KEY` | both | email |
-| `DISPATCH_ALERT_FROM` | both | verified sender; required for any email to the public |
+| `DISPATCH_ALERT_FROM` | both | verified sender; required for any email to the public. **Also gates error alerting** — without it `report()` logs the skip as `no_verified_sender` and emails nothing (GO_LIVE D1a) |
+| `OPS_ALERT_TO` | both | where stack traces go. Nothing breaks without it and nothing is faked: alerts fall back to `DISPATCH_ALERT_TO`, and with neither set `report()` records the skip as `no_recipient`. Set it so a stack trace reaches an engineer rather than whoever is on the dispatch line. Comma-separated. |
+| `SENTRY_DSN` | portal | Sentry, server and edge runtimes only. Nothing breaks without it — `initSentry()` logs that it is unset and returns false; errors are still logged and still emailed. **This is the normal state today**; there is no Sentry project yet. A browser DSN would be `NEXT_PUBLIC_SENTRY_DSN` *and* a `connect-src` change, which a test currently blocks on purpose. |
+| `ALERT_DEDUPE_SECONDS` | both | optional; defaults to 900 (15 min). Only worth setting during a noisy incident. Non-numeric or non-positive falls back to 900. |
 | `DISPATCH_ALERT_TO` | both | owner alert inbox (fallback for Settings) |
 | `DISPATCH_ALERT_SMS_TO` | both | owner alert mobile (fallback for Settings) |
 | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` | both | SMS; inbound signature check |

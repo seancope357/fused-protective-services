@@ -154,10 +154,36 @@ done until that step passes.
 None of this exists today. It is the difference between software that works and software
 you can run a business on.
 
-- [ ] **D1 · Error monitoring.** → [**SPEC-003**](../specs/SPEC-003-error-reporting.md) There is no Sentry, no error reporting, nothing. A failed
-      Stripe webhook, a broken cron tick or a 500 on the intake function is currently
-      discovered by a customer. Wire one project-wide handler for both Vercel projects and
-      alert to a channel someone reads. **Owner: engineering.**
+- [x] **D1 · Error monitoring.** ✅ Built — [**SPEC-003**](../specs/SPEC-003-error-reporting.md).
+      Asymmetric by design, because the constraints are: `api/_lib/report.mjs` is a
+      zero-dependency reporter for the static site and `api/` (structured log line always, ops
+      email at `error` severity, wrapped so a throw inside the reporter can never take down the
+      handler it was reporting from — proven by a test that makes the transport throw);
+      `@sentry/nextjs` in the portal, **server and edge runtimes only**, `tracesSampleRate: 0`,
+      no session replay. Browser errors reach `/api/client-error` with no PII — never a form
+      value, never the query string. Alerts are deduplicated through `public.alert_gate` so ten
+      thousand failures produce a handful of emails with a suppressed count, not ten thousand.
+      *Two things worth knowing:* the Sentry SDK is server-side only (confirmed by grepping the
+      built client bundle: zero occurrences), so it needed **no portal CSP change** — and a test
+      now pins `connect-src` so whoever adds a browser SDK gets a failing test telling them a
+      security review is due. **Owner: engineering — done.**
+- [ ] **D1a · Error alerting is dark until B1.** The reporter skips with `no_verified_sender`
+      and emails nothing until `DISPATCH_ALERT_FROM` is set — it logs every time, and never
+      claims a send it did not make. This follows SPEC-003 to the letter, but note the
+      codebase's own convention differs: owner-audience mail elsewhere falls back to Resend's
+      `onboarding@resend.dev`, which only delivers to the Resend account owner. If Sean wants
+      alerts before B1 and is the account owner, it is a one-line change in each reporter.
+      **Owner: engineering, decide with B1.**
+- [ ] **D1b · Two acceptance criteria are implemented but untested.** Stated rather than
+      quietly counted as done: (7) the Stripe webhook reports before every non-2xx with the
+      event id in context, and (8) a failing cron rule does not abort the remaining rules.
+      Both were verified by reading the code, not by a test. Acceptance 8 is the one that
+      matters — a rule that aborts the tick means no reminders and no overdue chasers, with no
+      symptom. Needs a chainable Supabase double that throws for one table.
+      **Owner: engineering.**
+- [ ] **D1c · Set `OPS_ALERT_TO`.** Without it, alerts fall back to `DISPATCH_ALERT_TO` and a
+      stack trace reaches whoever is on the dispatch line rather than an engineer. With
+      neither set, `report()` records the skip as `no_recipient`. **Owner: Sean.**
 - [ ] **D2 · Uptime checks** → [**SPEC-004**](../specs/SPEC-004-health-and-heartbeat.md) on `/`, `/careers`, `POST /api/intake` (synthetic, honeypot-
       tripped so it delivers nothing), the portal login page, and the hourly
       `/api/cron/tick`. A silently dead cron means no reminders, no overdue chasers and no
@@ -206,12 +232,28 @@ you can run a business on.
 
 ## Gate E — Quality before spending money on traffic
 
-- [ ] **E1 · Content-Security-Policy on the marketing site.** → [**SPEC-006**](../specs/SPEC-006-marketing-site-csp.md) The portal has a nonce-based
-      CSP and HSTS; `vercel.json` at the repo root sets four headers and no CSP — on the
-      surface that actually collects names, phone numbers and emails. The code standards
-      already forbid inline handlers and inline styles, so a strict policy
-      (`self` + the two three.js CDNs + Google Fonts) is mostly a matter of writing it.
-      Add HSTS there too. **Owner: engineering.**
+- [x] **E1 · CSP and HSTS on the marketing site.** ✅ Built — [**SPEC-006**](../specs/SPEC-006-marketing-site-csp.md).
+      Every page ships `default-src 'self'` with **no allowlisted origin**, no `unsafe-inline`
+      and no `unsafe-eval`; `frame-ancestors 'none'` with `X-Frame-Options: DENY` to agree with
+      it; HSTS `max-age=63072000; includeSubDomains; preload`. The spec proposed allowlisting
+      the two three.js CDNs and Google Fonts — instead three.js and all three typefaces are
+      now served from our own origin, so the policy needs no exception at all. `vercel.json` is
+      **generated** by `build.mjs` (it carries a sha256 per inline `<script>`, which moves
+      whenever `src/data/` changes) and is covered by `--check`; a hand edit fails the build.
+      `serve.py` reads the same header set back, so a violation surfaces locally.
+      *Verified:* zero violations on all six pages in Chromium with the policy **enforcing**,
+      plus an 18/18 negative control proving the policy is actually live — injected `<style>`,
+      `style=""`, inline `onclick` and cross-origin `fetch` all blocked, CSSOM still working.
+      Zero violations alone is also what a *missing* policy looks like, which is why the
+      negative control is the evidence that counts. **Owner: engineering — done.**
+- [ ] **E1a · Sweep Firefox and Safari once a preview deploy exists.** Chromium was swept
+      locally; the other two engines were not, because they are not installed here. Nothing in
+      this policy is engine-divergent (no nonces, no `strict-dynamic`, no reporting endpoint),
+      so this is confirmation rather than expected work. **Owner: engineering, at first deploy.**
+- [ ] **E1b · HSTS preload submission — do NOT do this yet.** `preload` in the header is only a
+      declaration of intent until the domain is submitted at hstspreload.org. Removal from that
+      list takes months, so submit only once the apex and `www` both serve HTTPS correctly.
+      **Owner: Sean, after C1/C2.**
 - [x] **E2 · Brand assets right-sized.** → [**SPEC-007**](../specs/SPEC-007-brand-assets.md)
       The favicon was the 1,095,464-byte brand plate; it is now `assets/icon-32.png`
       at **575 bytes**, with an apple-touch icon and a 512 icon linked alongside.

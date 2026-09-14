@@ -16,19 +16,25 @@ has nothing unbuilt in its `Depends on` line.
 | :-- | :--- | :--- | :--- | :--- | :--- |
 | [001](SPEC-001-placeholder-guardrail.md) | Fail-closed placeholder guardrail | A1 | S | — | ✅ **Done** |
 | [002](SPEC-002-environment-separation.md) | Preview must not touch production | C3, C4 | M | — | ✅ **Done** (code; branch is Sean's) |
-| [003](SPEC-003-error-reporting.md) | Error reporting and alerting | D1 | M | 002 | **Ready** |
+| [003](SPEC-003-error-reporting.md) | Error reporting and alerting | D1 | M | 002 | ✅ **Done** (2 criteria untested — GO_LIVE D1b) |
 | [004](SPEC-004-health-and-heartbeat.md) | Health checks + cron dead-man's switch | D2 | M | 003 | **Ready** |
-| [005](SPEC-005-conversion-analytics.md) | Cookieless conversion analytics | D3 | M | 002 | **Ready** |
-| [006](SPEC-006-marketing-site-csp.md) | CSP + HSTS for the marketing site | E1 | M | — | **Ready** |
+| [005](SPEC-005-conversion-analytics.md) | Cookieless conversion analytics | D3 | M | 002 | ⏸ **Recommended cut from launch** |
+| [006](SPEC-006-marketing-site-csp.md) | CSP + HSTS for the marketing site | E1 | M | — | ✅ **Done** (Chromium swept; FF/Safari at first deploy) |
 | [007](SPEC-007-brand-assets.md) | Favicon, OG card, page weight | E2 | S | — | ✅ **Done** (−960 KB) |
 | [008](SPEC-008-accessibility-gate.md) | Accessibility conformance gate in CI | E4 | M | — | ◐ **Audited**, gate staged; fixes in wave 3 |
-| [009](SPEC-009-performance-budget.md) | Performance budget for the intro | E3 | M | 006, 007 | **Ready** |
+| [009](SPEC-009-performance-budget.md) | Performance budget for the intro | E3 | M | 006, 007 | ⏸ **Recommended cut from launch** |
 | [010](SPEC-010-candidate-ats.md) | Candidate ATS in the portal | F3 | L | 002 | ✅ **Done** (emails wait on B1) |
 | [011](SPEC-011-incident-and-restore.md) | Incident, rollback and restore drill | D4, D8 | S | — | ◐ **Docs done**, drill unrun (Sean) |
 
-Suggested order if agents run in parallel: **001, 006, 007, 008, 011** are independent and
-can start at once. **002** unblocks **003 → 004**, **005** and **010**. **009** wants
-006 and 007 landed first or it measures the wrong thing.
+**Status as of 2026-09-14.** Seven of eleven are done: 001, 002, 003, 006, 007, 010, 011,
+plus 008 audited with its gate staged pending two brand-token decisions. **004** (uptime +
+cron dead-man's switch) is the one genuinely unbuilt spec that still matters for launch —
+its dependency, 003, has now landed. **005** and **009** are recommended cut from launch
+scope: analytics tells you how launch went and a perf budget prevents future regression;
+neither is a precondition for launching, and each adds surface area on day one.
+
+What actually blocks launch now is not in this directory — it is Twilio 10DLC registration,
+attorney review, and DNS → Resend. See [`docs/GO_LIVE.md`](../docs/GO_LIVE.md).
 
 ## Not buildable here
 
