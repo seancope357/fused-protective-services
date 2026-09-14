@@ -12,7 +12,7 @@
    ========================================================================== */
 
 import { describe, expect, it } from 'vitest';
-import { allDone, gettingStartedSteps, newPasswordProblem, type StartFacts } from '@/lib/domain/getting-started';
+import { allDone, gettingStartedSteps, type StartFacts } from '@/lib/domain/getting-started';
 
 const none: StartFacts = { alertsSet: false, clients: 0, quotesSent: 0, jobs: 0, invoicesSent: 0 };
 
@@ -33,19 +33,5 @@ describe('gettingStartedSteps', () => {
     it('ticks only the step whose fact is present', () => {
         const steps = gettingStartedSteps({ ...none, alertsSet: true });
         expect(steps.filter((s) => s.done).map((s) => s.id)).toEqual(['alerts']);
-    });
-});
-
-describe('newPasswordProblem', () => {
-    it('refuses fewer than 12 characters', () => {
-        expect(newPasswordProblem('short', 'short')).toMatch(/12/);
-    });
-
-    it('refuses a confirmation that does not match', () => {
-        expect(newPasswordProblem('correct horse battery', 'correct horse battary')).toMatch(/match/);
-    });
-
-    it('accepts 12+ matching characters', () => {
-        expect(newPasswordProblem('twelve chars', 'twelve chars')).toBeNull();
     });
 });

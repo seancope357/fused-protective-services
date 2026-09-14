@@ -32,7 +32,7 @@ export default async function ClientInvoicePage({ params, searchParams }: { para
             >
                 <Badge status={invoice.status} /> · balance <Money cents={balance} />
             </PageHead>
-            <div className="grid grid--2 mt-4" style={{ alignItems: 'start' }}>
+            <div className="split mt-4">
                 <div className="stack no-print">
                     <PayPanel invoice={invoice} payments={payments} status={status} returnTo={returnTo} payButton={!payable} />
                 </div>

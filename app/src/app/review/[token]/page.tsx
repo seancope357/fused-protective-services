@@ -38,7 +38,7 @@ export default async function ReviewPage({ params, searchParams }: { params: Pro
                 ) : (
                     <form action={submitReview} className="stack">
                         <input type="hidden" name="token" value={token} />
-                        <fieldset style={{ border: 0 }}>
+                        <fieldset>
                             <legend className="field__label mb-2">Your rating</legend>
                             <div className="stars" role="radiogroup" aria-label="Star rating">
                                 {[1, 2, 3, 4, 5].map((n) => <span key={n}><input type="radio" id={`star-${n}`} name="rating" value={n} required /><label htmlFor={`star-${n}`} aria-label={`${n} star${n === 1 ? '' : 's'}`}>★</label></span>)}

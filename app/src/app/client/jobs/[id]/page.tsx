@@ -40,7 +40,7 @@ export default async function ClientJobPage({ params }: { params: Promise<{ id: 
             >
                 <Badge status={job.status} /> · {divisionByQuoteValue(job.division_quote_value)?.heading ?? job.division_quote_value}
             </PageHead>
-            <div className="grid grid--2" style={{ alignItems: 'start' }}>
+            <div className="grid grid--2 align-start">
                 <section className="card card--gold">
                     <h2 className="mb-4">Pre-detail brief</h2>
                     <dl className="kv">

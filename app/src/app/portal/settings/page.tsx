@@ -4,7 +4,7 @@ import { getSession } from '@/lib/auth';
 import { PageHead, Field, PlaceholderFlag, Disclosure } from '@/components/ui';
 import { StatusFromSearch, type SearchStatus } from '@/components/status-from-search';
 import { saveSettings, createStaffUser, changeOwnPassword } from '@/lib/actions/settings';
-import { MIN_PASSWORD_LENGTH } from '@/lib/domain/getting-started';
+import { MIN_PASSWORD_LENGTH } from '@/lib/security/policy';
 import { site, tiers, netTerms, taxDefaults, invoiceDefaults } from '@/lib/shared';
 import { statusLabel } from '@/lib/format';
 import { rules, type Rule } from '@/lib/notifications/templates';
@@ -64,7 +64,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <StatusFromSearch params={await searchParams} />
 
             {/* Source order is the phone order: the things Cameron changes come first. */}
-            <div className="grid grid--2 mt-4" style={{ alignItems: 'start' }}>
+            <div className="grid grid--2 mt-4 align-start">
                 <div className="stack">
                     <form action={saveSettings} className="card stack">
                         <h2>Alerts and defaults</h2>
@@ -162,7 +162,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 
                     <Disclosure summary="Automatic messages">
                         <p className="small">The portal sends these on its own. Every one is recorded in the Message log.</p>
-                        <ul className="small" style={{ paddingLeft: 18, marginTop: 8, lineHeight: 1.7 }}>
+                        <ul className="bullets small mt-2">
                             {rules.map((r) => <li key={`${r.trigger}-${r.audience}`}>{ruleSentence(r)}</li>)}
                         </ul>
                     </Disclosure>

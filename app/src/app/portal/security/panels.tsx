@@ -24,11 +24,11 @@ export function EnrollmentPanel() {
        scanners need the contrast. */
     return (
         <div className="stack">
-            <ol className="small" style={{ paddingLeft: 18, lineHeight: 1.8 }}>
+            <ol className="steps small">
                 <li>Scan this code with your authenticator app. On the phone the app is on? Open &ldquo;Can&rsquo;t scan?&rdquo; below and copy the key into the app instead.</li>
                 <li>Enter the 6-digit code the app shows to finish.</li>
             </ol>
-            <img src={start.qr} alt="QR code for the authenticator app" width={200} height={200} style={{ background: 'white', borderRadius: 8, padding: 8, maxWidth: '100%', height: 'auto', boxSizing: 'content-box' }} />
+            <img src={start.qr} alt="QR code for the authenticator app" width={200} height={200} className="qr-code" />
             <details className="disclosure">
                 <summary>Can&rsquo;t scan? Enter the key manually</summary>
                 <div className="disclosure__body">

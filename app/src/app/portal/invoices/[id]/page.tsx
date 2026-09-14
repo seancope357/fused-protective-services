@@ -116,7 +116,7 @@ export default async function InvoicePage({ params, searchParams }: { params: Pr
             </PageHead>
             <StatusFromSearch params={await searchParams} />
 
-            <div className="grid grid--2 mt-4" style={{ alignItems: 'start' }}>
+            <div className="grid grid--2 mt-4 align-start">
                 <div className="stack no-print">
                     {editable ? (
                         <form action={updateInvoice} className="card stack">

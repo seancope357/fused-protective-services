@@ -1,6 +1,7 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { requireStaff } from '@/lib/auth';
+import { isMfaExempt } from '@/lib/security/policy';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { countCandidates, countLeads } from '@/lib/domain/queries';
 import { Shell } from '@/components/shell';
@@ -11,7 +12,11 @@ export default async function PortalLayout({ children }: { children: React.React
     /* An account made from Settings starts on a temporary password. After its
        first two-factor sign-in it sets its own before anything else (SPEC-012).
        The proxy has already enforced MFA by the time this runs. */
-    if (session.mustChangePassword && (await headers()).get('x-pathname') !== '/portal/welcome') redirect('/portal/welcome');
+    /* MFA-exempt pages (Security, where a new account enrols) must not bounce to
+       /portal/welcome, or the proxy sends the account straight back: enrol
+       first, then set the password. */
+    const path = (await headers()).get('x-pathname') ?? '';
+    if (session.mustChangePassword && path !== '/portal/welcome' && !isMfaExempt(path)) redirect('/portal/welcome');
     const supabase = await createSupabaseServerClient();
     /* The Leads and Candidates badges count production rows only (SPEC-002) — a
        badge that counts preview submissions sends the owner after work that

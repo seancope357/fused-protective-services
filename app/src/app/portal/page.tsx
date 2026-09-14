@@ -109,7 +109,7 @@ export default async function Dashboard() {
                         <h2 id="h-start">Getting started</h2>
                         <span className="small muted">{doneCount} of {steps.length} done</span>
                     </div>
-                    <ol className="stack" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                    <ol className="stack list-plain">
                         {steps.map((step, index) => (
                             <li key={step.id}>
                                 {step.done ? (

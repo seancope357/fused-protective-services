@@ -16,11 +16,13 @@ const show = (k: string, v: unknown): string => {
     Summaries, recipients and old/new values are free text (an email address, a
     JSON blob), so every line may break anywhere rather than widen a phone. */
 export function Timeline({ events, title = 'Activity' }: { events: TimelineEvent[]; title?: string }) {
+    /* Unique per title, so two timelines on one page cannot share an id. */
+    const headingId = `h-timeline-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
     return (
-        <section className="card" aria-labelledby="h-timeline">
-            <div className="card__title"><h2 id="h-timeline">{title}</h2><span className="small muted">{events.length} events</span></div>
+        <section className="card" aria-labelledby={headingId}>
+            <div className="card__title"><h2 id={headingId}>{title}</h2><span className="small muted">{events.length} events</span></div>
             {events.length ? (
-                <ol className="timeline" style={{ listStyle: 'none' }}>
+                <ol className="timeline">
                     {events.map((e) => (
                         <li key={e.id} className="timeline__item">
                             <span className="timeline__when">{fmtDateTime(e.at)}</span>

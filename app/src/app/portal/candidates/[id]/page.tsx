@@ -92,7 +92,7 @@ export default async function CandidatePage({
                         </p>
 
                         {/* The base reset zeroes padding; without list-style the markers would hang outside the card. */}
-                        <ol className="stack" style={{ listStyle: 'none' }}>
+                        <ol className="stack list-plain">
                             {vettingStageOrder.map((sid) => {
                                 const s = vettingStageById(sid)!;
                                 const reached = !rejected && vettingStageOrder.indexOf(candidate.vetting_stage as typeof vettingStageOrder[number]) >= vettingStageOrder.indexOf(sid);

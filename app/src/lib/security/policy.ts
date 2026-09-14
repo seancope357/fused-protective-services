@@ -53,3 +53,19 @@ export const LOGIN_LIMITS = {
     perEmail: 5,
     windowSeconds: 15 * 60
 };
+
+/* ---------- Passwords ----------
+   One rule for a new password, shared by "Change my password" and the
+   first-sign-in welcome page (SPEC-012), so the two can never disagree. */
+
+/** Shortest password the portal accepts. Stricter than Supabase's own minimum,
+    which is configured per project and cannot be relied on to match. */
+export const MIN_PASSWORD_LENGTH = 12;
+
+/** Why a new password is refused, in words for the person typing it, or null
+    when it is acceptable. Never echoes the password. */
+export function newPasswordProblem(password: string, confirm: string): string | null {
+    if (password.length < MIN_PASSWORD_LENGTH) return `Use at least ${MIN_PASSWORD_LENGTH} characters.`;
+    if (password !== confirm) return 'The two passwords do not match.';
+    return null;
+}

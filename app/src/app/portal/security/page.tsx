@@ -35,7 +35,7 @@ export default async function SecurityPage({ searchParams }: { searchParams: Pro
                     </p>
                 </section>
             ) : null}
-            <div className="grid grid--2 mt-4" style={{ alignItems: 'start' }}>
+            <div className="grid grid--2 mt-4 align-start">
                 {enrolled ? (
                     <section className="card stack">
                         <h2>Authenticator app</h2>
@@ -53,7 +53,7 @@ export default async function SecurityPage({ searchParams }: { searchParams: Pro
                 )}
                 <section className="card stack">
                     <h2>How access is protected</h2>
-                    <ul className="small" style={{ paddingLeft: 18, lineHeight: 1.8 }}>
+                    <ul className="bullets small">
                         <li>Staff data access is refused by the database itself unless the session carries a verified second factor.</li>
                         <li>Sign-in attempts are limited per address and per email.</li>
                         <li>Sessions expire after inactivity and after a fixed maximum.</li>

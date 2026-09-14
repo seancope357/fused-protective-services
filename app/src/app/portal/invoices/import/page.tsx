@@ -17,7 +17,7 @@ export default async function ImportPage({ searchParams }: { searchParams: Promi
             <section className="card mt-4">
                 <h2 className="mb-2">How to import</h2>
                 {/* The base reset zeroes list padding; the numbers are the point of this list. */}
-                <ol className="stack small" style={{ paddingLeft: '1.25rem' }}>
+                <ol className="steps small">
                     <li>In that browser, open <a href={`${site.url}/invoice`} className="wrap-anywhere">{site.url.replace(/^https?:\/\//, '')}/invoice</a>.</li>
                     <li>Press <strong>Export saved invoices</strong>.</li>
                     <li>Paste everything it gives you into the box below, then press <strong>Import</strong>.</li>

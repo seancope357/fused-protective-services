@@ -43,7 +43,7 @@ export default async function PayPage({ params, searchParams }: { params: Promis
                 </div>
                 <div className="row"><PrintButton /><a className="btn btn--ghost" href="/login">Client portal</a></div>
             </header>
-            <main id="main" className="grid grid--2" style={{ alignItems: 'start' }}>
+            <main id="main" className="split">
                 <div className="stack no-print"><PayPanel invoice={invoice as Invoice} payments={(payments ?? []) as Payment[]} status={status} /></div>
                 <InvoicePaper invoice={invoice as Invoice} payUrl={payUrl} qrSvg={await qrSvg(payUrl)} />
             </main>

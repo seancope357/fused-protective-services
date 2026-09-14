@@ -21,6 +21,9 @@ export type Column<T> = {
     num?: boolean;
     /** Hide below 600px ('phone') or below 1024px ('tablet'). */
     hide?: 'phone' | 'tablet';
+    /** Prose (a review, a message body): on a phone card it spans the card,
+        left-aligned under its label, instead of a right-aligned value. */
+    wide?: boolean;
 };
 
 export function DataTable<T>({
@@ -62,6 +65,7 @@ export function DataTable<T>({
                                     data-primary={column.primary || undefined}
                                     data-num={column.num || undefined}
                                     data-hide={column.hide}
+                                    data-wide={column.wide || undefined}
                                 >
                                     {column.cell(row)}
                                 </td>

@@ -18,20 +18,15 @@ const reviewText = (r: Row) => (
     </>
 );
 
-/* The job is the card title and opens the job. A review is prose, and a phone
-   card right-aligns every label/value line, so on a phone the text sits under
-   the title instead of in its own line; the Review column returns from 600px.
-   Exactly one of the two copies is displayed at any width. */
+/* The job is the card title and opens the job. The review is prose, so its
+   column is `wide`: left-aligned across the card on a phone. */
 const columns: Column<Row>[] = [
     {
         key: 'job',
         header: 'Job',
         primary: true,
         cell: (r) => (
-            <>
-                <Link href={`/portal/jobs/${r.job_id}`}>{r.jobs?.title ?? r.job_id}</Link>
-                <div className="only-phone small wrap-anywhere mt-2" style={{ fontWeight: 400 }}>{reviewText(r)}</div>
-            </>
+            <Link href={`/portal/jobs/${r.job_id}`}>{r.jobs?.title ?? r.job_id}</Link>
         )
     },
     { key: 'client', header: 'Client', cell: (r) => r.clients?.name ?? '—' },
@@ -40,7 +35,7 @@ const columns: Column<Row>[] = [
         header: 'Rating',
         cell: (r) => (r.rating ? <span role="img" aria-label={`${r.rating} out of 5`}>{`${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}`}</span> : '—')
     },
-    { key: 'review', header: 'Review', hide: 'phone', cell: (r) => <div className="small wrap-anywhere">{reviewText(r)}</div> },
+    { key: 'review', header: 'Review', wide: true, cell: (r) => <div className="small wrap-anywhere">{reviewText(r)}</div> },
     {
         key: 'status',
         header: 'Status',
@@ -88,7 +83,7 @@ export default async function ReviewsPage({ searchParams }: { searchParams: Prom
                     <Disclosure summary="For Sean: website snippet">
                         <p className="small">Send this to Sean to publish these reviews on the website.</p>
                         <p className="small muted mt-2">Technical detail: paste into <span className="mono">src/data/reviews.mjs</span> and rebuild; the schema.org rating then appears with these {published.length} reviews behind it.</p>
-                        <pre className="mono small mt-4 wrap-anywhere" style={{ whiteSpace: 'pre-wrap' }}>{`export const reviews = [\n${exportSnippet}\n];`}</pre>
+                        <pre className="mono small mt-4 wrap-anywhere pre-wrap">{`export const reviews = [\n${exportSnippet}\n];`}</pre>
                     </Disclosure>
                 </section>
             ) : null}

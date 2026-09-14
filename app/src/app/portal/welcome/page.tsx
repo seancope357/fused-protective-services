@@ -3,7 +3,7 @@ import { requireStaff } from '@/lib/auth';
 import { PageHead, Field } from '@/components/ui';
 import { StatusFromSearch, type SearchStatus } from '@/components/status-from-search';
 import { setInitialPassword } from '@/lib/actions/settings';
-import { MIN_PASSWORD_LENGTH } from '@/lib/domain/getting-started';
+import { MIN_PASSWORD_LENGTH } from '@/lib/security/policy';
 
 export const dynamic = 'force-dynamic';
 

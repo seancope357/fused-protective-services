@@ -2,7 +2,7 @@
 
 import { requireStaff } from '@/lib/auth';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { newPasswordProblem } from '@/lib/domain/getting-started';
+import { newPasswordProblem } from '@/lib/security/policy';
 import { done, str } from './util';
 
 const KEYS = ['owner_name', 'owner_email', 'owner_phone', 'default_tax_rate_pct', 'default_net_term_id', 'default_deposit_pct', 'brief_arrival_window', 'proposal_terms'] as const;

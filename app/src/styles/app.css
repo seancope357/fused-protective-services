@@ -216,6 +216,12 @@
     .grid--2, .grid--3 { grid-template-columns: minmax(0, 1fr); }
     .grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .span-all { grid-column: 1 / -1; }
+    /* A side panel beside a document (pay page): stacked until 1024px, because
+       below that the paper would be squeezed to ~350px and its line items scroll. */
+    .split { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+    @media (min-width: 1024px) {
+        .split { grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 24px; }
+    }
     .stack { display: grid; gap: 14px; }
     .stack > * { min-width: 0; }
     .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -383,6 +389,8 @@
     .dt td[data-primary] a:focus-visible { outline: none; }
     .dt tr:has(td[data-primary] a:focus-visible) { outline: 2px solid var(--logo-gold-specular); outline-offset: 2px; }
     .dt td :is(a, button, input, select, label, summary):not(td[data-primary] a) { position: relative; z-index: 1; }
+    .dt td[data-wide] { display: block; text-align: left; }
+    .dt td[data-wide]::before { display: block; max-width: none; margin-bottom: 2px; }
     .dt [data-hide="phone"], .dt [data-hide="tablet"] { display: none; }
 
     @media (min-width: 600px) {
@@ -401,7 +409,8 @@
         .dt th, .dt td { display: table-cell; padding: 11px 12px; border-bottom: 1px solid var(--border-subtle); text-align: left; vertical-align: middle; }
         .dt tbody tr:last-child td { border-bottom: 0; }
         .dt td { font-size: 14px; overflow-wrap: break-word; }
-        .dt td::before { content: none; }
+        .dt td::before, .dt td[data-wide]::before { content: none; }
+        .dt td[data-wide] { display: table-cell; }
         .dt td:not([data-primary]) { text-align: left; }
         .dt td[data-primary] { font-size: 14px; font-weight: 600; }
         .dt [data-num] { text-align: right; }
@@ -423,7 +432,10 @@
     .kv dt { color: var(--text-tertiary); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.1em; padding-top: 10px; }
     .kv dt:first-child { padding-top: 0; }
     .kv dd { color: var(--text-primary); white-space: pre-wrap; overflow-wrap: anywhere; }
-    .timeline { display: grid; gap: 14px; }
+    .timeline { display: grid; gap: 14px; list-style: none; }
+    /* Numbered instructions inside a card (import steps, first-time setup). */
+    .steps { display: grid; gap: 6px; padding-left: 1.4em; color: var(--text-secondary); }
+    .steps li::marker { color: var(--logo-gold-bevel); font-weight: 700; }
     .timeline__item { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; font-size: 14px; overflow-wrap: anywhere; }
     .timeline__when { color: var(--text-tertiary); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
     @media (min-width: 600px) {
@@ -469,7 +481,12 @@
     .stars { display: inline-flex; gap: 4px; }
     .stars input { position: absolute; opacity: 0; width: 1px; height: 1px; }
     .stars label { display: inline-flex; align-items: center; justify-content: center; min-width: var(--tap); min-height: var(--tap); cursor: pointer; font-size: 30px; color: var(--text-tertiary); }
-    .stars input:checked ~ label, .stars label:hover, .stars label:has(~ input:checked) { color: var(--logo-gold-glint); }
+    /* Each star is <span><input><label></span>. Light the checked star and every
+       star before it; while hovering, preview up to the hovered star instead. */
+    .stars span:has(input:checked) label, .stars span:has(~ span input:checked) label { color: var(--logo-gold-glint); }
+    .stars:has(label:hover) span label { color: var(--text-tertiary); }
+    .stars:has(label:hover) span:has(label:hover) label, .stars:has(label:hover) span:has(~ span label:hover) label { color: var(--logo-gold-glint); }
+    .qr-code { display: block; width: min(200px, 100%); height: auto; background: #fff; padding: 8px; border-radius: 8px; }
     .stars input:focus-visible + label { outline: 2px solid var(--logo-gold-specular); border-radius: 4px; }
 
     /* The paper: proposal and invoice documents render gold-on-white so a
@@ -494,7 +511,6 @@
     .paper__section p, .paper__section li { font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
     .paper__sign { margin-top: 26px; padding: 16px; border: 1px solid #e7e5e4; border-radius: 8px; background: #fafaf9; }
     .paper .badge { border-color: #d6d3d1; color: #57534e; background: #f5f5f4; }
-    .paper .table-wrap { margin: 0 -4px; }
     .qr { width: 132px; height: 132px; }
     @media (min-width: 600px) {
         .paper { padding: clamp(22px, 4vw, 44px); }
@@ -525,10 +541,15 @@
     .status-bad { color: var(--status-bad); }
     .status-warn { color: var(--status-warn); }
     .wrap-anywhere { overflow-wrap: anywhere; }
-    .only-phone { display: revert; }
-    .hide-phone { display: none !important; }
+    /* revert-layer hands display back to whatever the component layer set, so a
+       flex row or an inline-flex button keeps its display when shown. */
+    .hide-phone { display: none; }
     @media (min-width: 600px) {
-        .only-phone { display: none !important; }
-        .hide-phone { display: revert !important; }
+        .only-phone { display: none; }
+        .hide-phone { display: revert-layer; }
     }
+    .list-plain { list-style: none; padding: 0; }
+    .bullets { display: grid; gap: 2px; padding-left: 1.2em; line-height: 1.7; }
+    .align-start { align-items: start; }
+    .pre-wrap { white-space: pre-wrap; }
 }
