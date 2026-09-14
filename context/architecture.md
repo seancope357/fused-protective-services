@@ -8,9 +8,9 @@ This document details the software architecture, compilation pipeline, templatin
 
 The entire platform is built with a zero-dependency architecture:
 
-* **No `package.json` or `node_modules`:** There are zero npm dependencies at runtime or build time.
+* **No root `package.json` or `node_modules`:** The static site and `api/` have zero npm dependencies at runtime or build time. The operations portal in `app/` is a separate pnpm workspace with its own dependencies (see the end of this document).
 * **Pure Node.js ESM:** The build pipeline relies strictly on Node's native standard library (`node:fs`, `node:url`, `node:path`).
-* **Deployable Anywhere:** Because all generated assets (`index.html`, `invoice.html`, `css/*.css`) are checked into Git, the repository can be hosted instantly by dragging the root directory onto Vercel, Netlify, or Cloudflare Pages without a build step.
+* **Committed Output:** Every generated file (all pages, `css/*.css`, and `vercel.json`) is checked into Git, so Vercel serves the root with no build step. The security headers live in the generated `vercel.json`, so another static host would need them re-created before it could serve this site safely.
 
 ```mermaid
 graph TD
@@ -32,10 +32,10 @@ graph TD
     end
 
     subgraph "Generated Artifacts (Committed)"
-        A1[index.html]
-        A2[css/site.css]
-        A3[invoice.html]
-        A4[css/invoice.css]
+        A1[index.html + careers.html]
+        A2[css/site.css, invoice.css, noscript.css]
+        A3[legal pages + invoice.html]
+        A4[vercel.json headers]
     end
 
     D1 & D2 & D3 & D4 --> B
@@ -64,13 +64,14 @@ This guarantees that:
 5. `utilities` always win specificity over components without using `!important`.
 
 ### 2. Build Targets
-The compiler builds three distinct application bundles:
+The compiler builds three page bundles plus the deployment config:
 1. **Marketing & Quote Intake (`index.html` + `css/site.css`):** Dark tactical UI, WebGL intro, interactive quiz, budget calculator, and quote intake form.
 2. **Legal pages and the legacy invoice export (`privacy.html`, `terms.html`, `sms-consent.html`, `invoice.html`):** generated from `src/data/legal.mjs` and `src/templates/invoice/page.mjs`.
 3. **Careers & Recruitment Portal (`careers.html` + `css/site.css`):** Interactive job board, 5-stage vetting protocol, 60-second eligibility pre-check, and candidate intake form with Google Jobs Schema.org markup.
+4. **`css/noscript.css` and `vercel.json`:** no-JavaScript fallback styles, and the Vercel config with clean URLs plus the Content-Security-Policy (a sha256 for every inline JSON `<script>` block), HSTS and frame headers. `vercel.json` changes whenever `src/data/` does; see `docs/RUNBOOK.md` §8b.
 
 ### 3. Drift Verification (`--check`)
-In CI/CD or pre-commit hooks, `node build.mjs --check` verifies that all committed HTML and CSS files match `src/` byte-for-byte. If any developer has manually edited a generated file or failed to rebuild after editing `src/`, the process exits with code `1`.
+In CI/CD or pre-commit hooks, `node build.mjs --check` verifies that every committed generated file, `vercel.json` included, matches `src/` byte-for-byte. `node build.mjs --verify-release` additionally exits `1` while any `placeholder: true` fact remains. If any developer has manually edited a generated file or failed to rebuild after editing `src/`, the process exits with code `1`.
 
 ---
 
@@ -135,7 +136,7 @@ The engine publishes two distinct progress clocks on `document.documentElement`:
 * **Three.js is vendored, not fetched.** `js/logo-forge.js` does a static `import * as THREE from './vendor/three.module.js'`. There is no CDN, no fallback host, and no "every host is unreachable" branch — those were removed by SPEC-006. `js/vendor/three.module.js` holds r160 byte-for-byte from the URL the old dynamic import named, with the MIT header intact, a provenance comment recording the version, source URL and sha256, and the full permission notice in `js/vendor/three.LICENSE`. `tests/csp.test.mjs` re-checks the hash, so a silently patched vendor file fails the suite.
   **The page now has no external script dependency of any kind**, which is what lets `script-src` be `'self'` with no allowlisted origin. To upgrade three.js, follow the recipe in `docs/RUNBOOK.md` — never patch vendored code in place.
 * **Fonts are vendored too.** Cinzel, Outfit and JetBrains Mono are variable fonts served from `assets/fonts/` (10 woff2, unicode-range gated so a visitor fetches two of them), declared as `@font-face` in `src/styles/base.css`, with OFL licences and an `assets/fonts/SOURCES.txt` manifest committed alongside. No `fonts.googleapis.com`, no `fonts.gstatic.com`, no preconnects.
-* **Fallback Mounting:** If WebGL is unsupported or hardware-disabled, or the context is lost, the engine sets `html[data-forge-fallback="true"]`. The CSS collapses the multi-height scroll track and mounts a high-resolution 2D fallback shield (`assets/logo.png`).
+* **Fallback Mounting:** If WebGL is unsupported or hardware-disabled, or the context is lost, the engine sets `html[data-forge-fallback="true"]`. The CSS collapses the multi-height scroll track and mounts a static 2D fallback shield (the brand plate; the unserved `assets/logo.png` master is never linked).
 * **Reduced Motion:** If `prefers-reduced-motion: reduce` is active, the WebGL loop disables kinetic scattering and immediately positions the camera at the assembled coordinate.
 
 ---
@@ -177,8 +178,14 @@ The browser-only invoice builder was retired in Phase 1. `invoice.html` (still g
 
 Everything authenticated lives in a second workspace so the zero-dependency marketing build stays untouched:
 
-* **Stack:** Next.js 16 App Router (TypeScript, Turbopack, pnpm), Supabase (Postgres, Auth, RLS), Stripe, Resend, Twilio. Server components + server actions; the only client components are the login forms and a print button.
+* **Stack:** Next.js 16 App Router (TypeScript, Turbopack, pnpm), Supabase (Postgres, Auth, RLS), Stripe, Resend, Twilio. Server components + server actions; the only client components are the login and MFA forms, the Security panel, and a print button.
 * **Host:** Vercel project `fused-portal`, root directory `app/`, served at `fused-portal.vercel.app` (→ `app.fusedprotectiveservices.com`). Chosen over `/portal/*` on the marketing host so auth cookies stay on the app origin and the static project remains a pure static deploy.
 * **Shared facts:** `app/scripts/sync-shared.mjs` mirrors `src/data`, `src/lib`, `src/styles/tokens.css` and `api/_lib` into `app/shared/` (gitignored) before build/typecheck/test; `app/src/lib/shared.ts` is the single import point. The portal and the site can never disagree on a rate, a division name, a term or the dispatch line.
 * **Design language:** `app/src/styles/app.css` adds layout and component vocabulary on top of the site's `tokens.css`; the client-facing paper (proposal, invoice) is gold-on-white and prints to one Letter page.
 * **Layout:** `app/src/app` (routes), `app/src/lib/{auth,actions,domain,notifications,stripe,qr,money,format}`, `app/src/components`, `app/tests`, `app/scripts`.
+* **Security:** staff TOTP is enforced in the database by `is_staff()`; sign-in attempts are rate-limited through `intake_gate`; sessions end after 8 h idle or 72 h total; a nonce-based CSP and HSTS are set by `app/src/proxy.ts` and `next.config.ts`. Next 16 with a `src/` layout runs only `src/proxy.ts`, never a root `proxy.ts`.
+* **Audit trail:** `public.audit_log` is trigger-fed and append-only; record timelines and Portal → Activity read it.
+* **Candidate ATS:** Portal → Candidates lists and stages `/careers` applications one stage at a time, production rows only (SPEC-010).
+* **Environment separation:** `deployEnv()` (`api/_lib/env.mjs`) returns `production` only when `VERCEL_ENV` says so. Non-production rows carry `source_env`, non-production sends are skipped and reported as `non_production_env`, and the scheduler filters to production rows.
+* **Observability:** `api/_lib/report.mjs` on the static side and `@sentry/nextjs` in the portal (server and edge only, inactive until `SENTRY_DSN` is set). Browser errors reach `/api/client-error` without PII; alert storms are deduplicated through `alert_gate()`.
+* **Migrations are not deployed by Git.** A push ships code but never changes the hosted database; apply new migrations by hand before or with the code that needs them (`docs/RUNBOOK.md` §1).

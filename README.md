@@ -4,7 +4,7 @@ The official high-converting website and security detail quote intake engine for
 
 ---
 
-> **`index.html`, `css/site.css`, `invoice.html`, and `css/invoice.css` are generated. Do not edit them by hand.**
+> **`index.html`, `careers.html`, `invoice.html`, `privacy.html`, `terms.html`, `sms-consent.html`, `css/*.css` and `vercel.json` are generated. Do not edit them by hand.**
 > Change `src/`, then run `node build.mjs`.
 > Full blueprint: **[PROJECT_CONTEXT.md](PROJECT_CONTEXT.md)**.
 
@@ -14,24 +14,34 @@ The official high-converting website and security detail quote intake engine for
 
 ```
 fused-protective-services/
-├── build.mjs             # The whole toolchain — zero dependencies
-├── index.html            # GENERATED — do not edit
-├── invoice.html          # GENERATED — internal invoicing tool (/invoice)
-├── css/site.css          # GENERATED — do not edit
-├── css/invoice.css       # GENERATED — do not edit
-├── serve.py              # 1-Click Local Preview Server (http://localhost:5050)
+├── build.mjs             # The static-site toolchain — zero dependencies
+├── index.html            # GENERATED — marketing & intake page
+├── careers.html          # GENERATED — recruiting page (/careers)
+├── privacy.html          # GENERATED — legal pages, with terms.html and sms-consent.html
+├── invoice.html          # GENERATED — legacy invoice export (/invoice)
+├── vercel.json           # GENERATED — clean URLs and security headers (CSP hashes)
+├── css/                  # GENERATED — site.css, invoice.css, noscript.css
+├── serve.py              # Local preview server (http://localhost:5050), production headers
 ├── src/
 │   ├── lib/html.mjs      # Escaping tagged template
-│   ├── data/             # Every fact the site states (divisions, FAQ, rates…)
+│   ├── data/             # Every fact the site states (divisions, FAQ, rates, careers, legal…)
 │   ├── templates/        # One module per page section
 │   └── styles/           # One module per component, none over 300 LOC
 ├── js/
 │   ├── app.mjs           # Entry point; initialises every widget
 │   ├── modules/          # One module per interactive surface
+│   ├── vendor/           # three.js r160, vendored (no CDN)
 │   └── logo-forge.js     # Scroll-driven WebGL voxel assembly of the emblem
+├── api/                  # Vercel functions: /api/intake, /api/client-error
+├── app/                  # Operations portal — Next.js + Supabase, its own package.json
+├── supabase/migrations/  # Additive Postgres migrations
+├── tests/                # node --test suites for the site and api/
 ├── assets/
-│   ├── logo.png          # 3D Brushed Gold Shield Logo (also the voxel source)
+│   ├── logo.png          # Brand master (not served; logo.webp is the served plate)
+│   ├── fonts/            # Self-hosted Cinzel, Outfit, JetBrains Mono
 │   └── o-scroll.html     # Standalone Pixel Scroll Forge original (reference)
+├── docs/                 # GO_LIVE, RUNBOOK, OPEN_QUESTIONS, INCIDENT, RESTORE-DRILL, A11Y-AUDIT
+├── specs/                # The engineering half of go-live, one spec per PR
 ├── PROJECT_CONTEXT.md    # Definitive build blueprint — read this first
 └── README.md             # Deployment & Configuration Guide
 ```
@@ -44,12 +54,13 @@ from a single list — before this, those were three hand-maintained copies that
 already drifted apart.
 
 ```bash
-node build.mjs           # write index.html + css/site.css and invoice.html + css/invoice.css
+node build.mjs           # write every generated page, stylesheet and vercel.json
 node build.mjs --check   # fail if committed output drifted from src/ (CI / pre-push)
 ```
 
-No `package.json`, no lockfile, nothing to install. The generated files are committed,
-so the site still deploys by dragging the directory at a host.
+No root `package.json`, no lockfile, nothing to install for the site (the portal in
+`app/` is a separate workspace). The generated files are committed, so Vercel serves the
+root with no build step.
 
 ### 🧊 "The Assembly" intro
 
@@ -78,16 +89,20 @@ Open your browser to: `http://localhost:5050`
 
 ---
 
-## 🌐 Instant Deployment to Live Domain
+## 🌐 Deployment
 
-### Option 1: Vercel (Recommended — Free & 10 Seconds)
+Both Vercel projects are connected to GitHub: every push to `main` deploys the site
+(`fused-protective-services`) and the portal (`fused-portal`) to production, and every
+pull request gets a preview of each. Manual fallback for the site, from the repo root:
+
 ```bash
-cd /Users/cope/projects/fused-protective-services
-npx vercel --prod
+vercel --prod
 ```
 
-### Option 2: Cloudflare Pages / Netlify / GitHub Pages
-Drag and drop the `/Users/cope/projects/fused-protective-services` directory into the Netlify/Cloudflare dashboard to link a custom domain (e.g. `fusedprotectiveservices.com`).
+Other static hosts are not drop-in replacements: the Content-Security-Policy and HSTS
+headers live in the generated `vercel.json`, and `/api/intake` is a Vercel function.
+Merging does not migrate the database — apply new files in `supabase/migrations/` by hand
+([`docs/RUNBOOK.md`](docs/RUNBOOK.md) §1).
 
 ---
 
@@ -120,11 +135,15 @@ same `src/data` files this site is generated from. Setup order:
 [`docs/RUNBOOK.md`](docs/RUNBOOK.md). `/invoice` on this site now only exports the
 old browser-stored invoices for import into the portal.
 
-## ☎️ Setting the real phone number and licence number
+## ☎️ The licence number and the dispatch line
 
-`(512) 555-0199` is a placeholder from the range reserved for fiction, and `B00000`
-stands in for the DPS licence number. Set `phone` and `licenseNumber` once in
-[`src/data/site.mjs`](src/data/site.mjs), flip each `placeholder` to `false`, run
-`node build.mjs`, and the nav, drawer, dispatch bar, footer, schema.org record, and
-confirmation emails all follow. Until then the build warns and every non-production
-host shows a red PLACEHOLDER flag beside each value.
+`B00000` stands in for the DPS licence number. Set `licenseNumber` in
+[`src/data/site.mjs`](src/data/site.mjs), flip its `placeholder` to `false`, and run
+`node build.mjs`; the footer, schema.org record, proposals and invoices all follow. Until
+then the build warns, a red PLACEHOLDER flag renders beside it on **every** host, and
+`node build.mjs --verify-release` exits 1.
+
+The dispatch phone `(512) 555-0199` is marked confirmed, but it sits in the 555-01xx
+block reserved for fiction — dial it before launch ([`docs/GO_LIVE.md`](docs/GO_LIVE.md) A2).
+Changing `phone` in `site.mjs` updates the nav, drawer, dispatch bar, footer, schema.org
+record and confirmation emails at once.

@@ -146,6 +146,7 @@ Officer compensation (`src/data/careers.mjs` → `payScales`) is pegged to what 
 
 * **Gear Policy:** Own approved duty gear is preferred. A repayable gear stipend is available at hire and is recovered through scheduled deductions from pay (`gearPolicy`).
 * **Experience Standard:** Confirmed, skilled civilian protective personnel are recruited alongside military veterans and law enforcement; experience is verified in vetting Stage 1.
+* **Application Copy (2026-09-14):** The careers application is headed “OFFICER APPLICATION” and tells candidates their profile goes directly to Fused Protective Services. Applications are addressed to the company, not to Cameron Harrell by name (Sean's decision). Cameron still appears as the executive interviewer in the vetting stages.
 
 ---
 
@@ -162,17 +163,17 @@ The copy addresses safety, discretion, confidence, and the ability to focus on e
 
 ---
 
-## 🧾 Internal Invoicing Subsystem (`/invoice`)
+## 🧾 Invoicing Model
 
-In addition to client acquisition, the web platform includes a private, standalone invoicing engine for Cameron Harrell:
+Invoicing moved into the operations portal in Phase 1 (2026-09-09). The business rules still come from `src/data/invoice.mjs`:
 
-* **Access Route:** `/invoice` (`invoice.html`)
-* **Invoice Numbering Standard:** `FPS-YYYY-####` (e.g., `FPS-2026-0001`). The counter advances strictly on invoice save.
+* **Invoice Numbering Standard:** `FPS-YYYY-####` (e.g., `FPS-2026-0001`), minted by Postgres so numbers never collide.
 * **Payment Terms:**
   * Due on Receipt (0 days)
   * Net 7 (7 days)
   * Net 15 (15 days)
   * Net 30 (30 days — *Default*)
-* **Tax Policy:** Default rate is **8.25%** (Austin combined state 6.25% + local 2.00% sales tax on security services).
-* **Storage Model:** Saved client invoices persist in client-side `localStorage`. No server database is required.
-* **Export Model:** Browser print dialog triggers `@media print` CSS formatted precisely for single-page Letter paper.
+* **Tax Policy:** Default rate is **8.25%** (Austin combined state 6.25% + local 2.00% sales tax on security services), with per-client and per-site overrides and a tax-exempt flag. Pending CPA confirmation (`docs/OPEN_QUESTIONS.md` §4).
+* **Deposits:** Optional deposit % per quote or job; the balance invoice credits the deposit pre-tax.
+* **Payment:** Stripe Checkout (card + ACH) for the stored balance only; the Stripe webhook is the source of truth.
+* **Legacy Records:** `/invoice` on the marketing site only exports invoices the retired browser tool left in `localStorage`, for Portal → Invoices → Import legacy.

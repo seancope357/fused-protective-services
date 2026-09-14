@@ -1,7 +1,7 @@
 # 📈 PROGRESS — Fused Protective Services
 
 > **Living operational status, completed milestones, active workstreams, and known gaps.**  
-> *Last Updated: 2026-09-14 — go-live gate list, eleven specs, six shipped. See PR #10.*
+> *Last Updated: 2026-09-14 — PR #10 go-live work (seven of eleven specs done), client-facing copy refinements, and a documentation audit.*
 
 Latest focused implementation status: [Client-facing website refinements](context/progress-tracker.md).
 
@@ -12,7 +12,7 @@ Latest focused implementation status: [Client-facing website refinements](contex
 | Dimension | Current Status | Notes |
 | :--- | :--- | :--- |
 | **Compiler & Build Pipeline** | 🟢 **Passing (Zero Drift)** | `node build.mjs --check` validates byte-identical output. |
-| **Dependencies** | 🟢 **Zero Dependencies** | Pure Node.js ESM. No `package.json` or `node_modules`. |
+| **Dependencies** | 🟢 **Zero Dependencies (site)** | Static site and `api/`: pure Node.js ESM, no root `package.json`. The portal in `app/` is a separate pnpm workspace. |
 | **Marketing Web Platform** | 🟢 **Production Ready** | All 7 divisions, estimator, assessment quiz, and intake live. Zero third-party origins; three.js and the fonts are vendored. |
 | **Operations Portal** | 🟢 **Live** | `app/` (Next.js 16 + Supabase) at https://fused-portal.vercel.app — leads → quotes → proposals → jobs → invoices → payments → reviews, client portal, notification engine, hourly scheduler. Owner account exists. |
 | **Invoicing** | 🟢 **Server-side** | Numbers minted by Postgres; payments from the Stripe webhook. The old `/invoice` page is now an export tool for legacy browser records; import at Portal → Invoices → Import legacy. |
@@ -20,8 +20,8 @@ Latest focused implementation status: [Client-facing website refinements](contex
 | **Payments** | 🟡 **Code live, no Stripe keys** | Pay page and webhook deployed; `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` absent, so the pay button explains that online payment is unavailable. |
 | **Legal pages** | 🟡 **Draft** | `/privacy`, `/terms`, `/sms-consent` generated from `src/data/legal.mjs`, banner-marked pending attorney review, `noindex`. |
 | **Careers & Recruiting Portal** | 🟢 **Production Ready** | `/careers` live with filterable jobs, 5-stage vetting, & pre-qual. |
-| **Context Engineering** | 🟢 **Complete (7 Modules)** | Modular domain documentation live in [`context/`](file:///Users/cope/projects/fused-protective-services/context/index.md). |
-| **Lead Persistence** | 🟢 **Live (hosted Supabase)** | `/api/intake` on production writes to the hosted `fused-protective-services` Supabase project; verified end to end 2026-09-08. |
+| **Context Engineering** | 🟢 **Current (8 documents)** | Seven domain documents plus the current-unit tracker in [`context/`](context/index.md); audited against the code 2026-09-14. |
+| **Lead Persistence** | 🔴 **At risk — 3 migrations unapplied** | Code deployed 2026-09-14 (PR #10) writes `source_env` on every intake insert, but the hosted project stops at `20260910000009_audit_log`: `source_env`, `candidates_ats` and `alert_gate` are not applied (checked 2026-09-14). Apply them in filename order (`docs/RUNBOOK.md` §1), then re-verify a submission. Last verified end to end 2026-09-08. |
 | **Dispatch Alerts** | 🟡 **Code shipped, Resend not installed** | Owner email, emergency SMS, and visitor confirmation are all wired in `api/intake.mjs`; `RESEND_API_KEY` and the Twilio variables are absent. Steps in `docs/RUNBOOK.md`. Until then leads persist and nobody is notified. |
 | **Intake Abuse Controls** | 🟢 **Live** | Same-origin CORS, honeypot, per-IP rate limit and duplicate window (`public.intake_gate`). |
 | **Stripe Checkout** | 🟢 **Honest** | Amount read from the stored invoice by id; 503 without a key. No mock links anywhere. |
@@ -57,7 +57,7 @@ Latest focused implementation status: [Client-facing website refinements](contex
 ### Phase 3: Interactive Experiences & WebGL Assembly Engine
 - [x] Integrated scroll-driven Three.js WebGL voxel assembly engine (`js/logo-forge.js`, ~65k cubes).
 - [x] Established dual-clock contract: `--assembly` (scroll position) vs `--assembly-settled` (camera arrival).
-- [x] Implemented CDN fallback redundancy (jsDelivr $\rightarrow$ unpkg) and static fallback plate (`data-forge-fallback`).
+- [x] Implemented CDN fallback redundancy (jsDelivr $\rightarrow$ unpkg) and static fallback plate (`data-forge-fallback`). *Superseded 2026-09-14 by SPEC-006: three.js is vendored at `js/vendor/three.module.js`; there is no CDN.*
 - [x] Built ambient particle background canvas and interactive cursor spotlight glow (`ambient.mjs`).
 - [x] Designed bespoke 2D gold tactical SVG emblem library (officially rejected 3D icon replacement for clarity and performance).
 
@@ -68,7 +68,7 @@ Latest focused implementation status: [Client-facing website refinements](contex
 - [x] Built interactive Coverage & Budget Estimator with dynamic officer/hour sliders and tier selectors.
 - [x] Built Security Detail Intake form with automated pre-fill from quiz/estimator and screen reader live region status (`#formStatus`).
 
-### Phase 5: Internal Invoicing Subsystem (`/invoice`)
+### Phase 5: Internal Invoicing Subsystem (`/invoice`) — *superseded by the portal in Phase 1 (2026-09-09); `/invoice` now only exports legacy records*
 - [x] Created standalone `/invoice` builder route (`invoice.html` + `css/invoice.css`).
 - [x] Configured auto-numbering format (`FPS-YYYY-####`) incrementing strictly on invoice save.
 - [x] Integrated automated payment terms (Due on Receipt, Net 7, Net 15, Net 30 default) and due-date calculation.
@@ -76,7 +76,7 @@ Latest focused implementation status: [Client-facing website refinements](contex
 - [x] Implemented `@media print` single-page Letter stylesheet (`invoice-print.css`).
 - [x] Integrated browser `localStorage` invoice store (`fps_invoices_v1`).
 
-### Phase 6: 7-File Context Engineering Architecture
+### Phase 6: 7-File Context Engineering Architecture (an eighth, `context/progress-tracker.md`, now tracks the current unit)
 - [x] Transformed monolithic blueprint into 7 specialized domain steering documents in [`context/`](file:///Users/cope/projects/fused-protective-services/context/):
   1. [`context/index.md`](file:///Users/cope/projects/fused-protective-services/context/index.md) — Master Index, The One Rule, Task Router.
   2. [`context/business.md`](file:///Users/cope/projects/fused-protective-services/context/business.md) — Client, 7 Divisions, Rate Cards, Quiz Logic.
@@ -150,7 +150,7 @@ Latest focused implementation status: [Client-facing website refinements](contex
 - [x] **Legal pages** — `privacy.html`, `terms.html`, `sms-consent.html` generated by `build.mjs` from `src/data/legal.mjs`, draft-banner until `reviewed: true`.
 - [x] **Legacy invoices** — `/invoice` shows the browser's saved records as JSON to paste into Portal → Invoices → Import legacy (totals recomputed and checked; sequence bumped past imported numbers).
 - [x] **Tests** — 38 in `app/tests` (tax arithmetic, deposit/balance maths, legacy parsing, notification rules and scheduler conditions, Stripe event interpretation, shift materialisation, RLS, 40-way concurrent numbering, payment idempotency) + 7 intake tests. CI runs both suites, typecheck and `next build`.
-- [x] **Deployed** — `fused-portal` Vercel project (prebuilt CLI deploy; Git auto-deploy needs two dashboard settings, see `docs/RUNBOOK.md` §5b). Owner account created; cron verified on production.
+- [x] **Deployed** — `fused-portal` Vercel project, Git-connected since 2026-09-09: every push to `main` deploys both projects (`docs/RUNBOOK.md` §5b). Owner account created; cron verified on production.
 - [ ] **Blocked on accounts** — Resend sender, Twilio, Stripe keys, custom domains (`docs/OPEN_QUESTIONS.md`).
 
 ### Phase 0: Stop the bleeding (2026-09-09)
@@ -211,7 +211,7 @@ continuously rather than at the end. Full narrative in PR #10.
       inventing backup numbers would be worse than an honest blank. Its verifier now runs in CI
       against a real migrated database, so the SQL is proven continuously rather than first
       discovered broken during an incident.
-- [ ] **SPEC-006 (CSP + self-hosting) and SPEC-003 (error reporting)** — in flight at session end.
+- [x] **SPEC-006 (CSP + self-hosted three.js and fonts) and SPEC-003 (error reporting)** — merged in PR #10 the same day. SPEC-003 has two acceptance criteria verified by reading rather than by test (GO_LIVE D1b).
 - [ ] **SPEC-005 (analytics) and SPEC-009 (perf budget)** — recommended **cut from launch scope**.
       Analytics tells you how launch went; a perf budget prevents future regression. Neither is a
       precondition for launching, and each adds surface area on day one.
@@ -238,13 +238,24 @@ spec shipped no deleter because the DPS retention floor for hired officers is a 
 A privacy policy must not promise a purge that does not run, so the published copy states what the
 system actually does and the fixed period became gate **F3a**.
 
+**Deployed ahead of its migrations.** PR #10 added `20260914000000_source_env`, `20260914120000_candidates_ats`
+and `20260914140000_alert_gate`, and the Git deploy shipped code that uses them, but none were applied to the
+hosted project (checked 2026-09-14). Merging does not migrate the database; apply by hand (`docs/RUNBOOK.md` §1).
+
+### Client-facing copy refinements (2026-09-14)
+
+- [x] Removed the “FPS // Assembly Protocol” hero badge (`1387db3`) and shortened the scroll cue to “SCROLL ↓” (`83003e0`).
+- [x] Rewrote the four How It Works steps in client language; tactical badges, metadata strips and simulated terminal logs are gone from `src/data/protocol.mjs` (`696e114`).
+- [x] Careers application header: removed the “COMMAND INTAKE” badge and the word “TRANSMIT” (heading now “OFFICER APPLICATION”), and the lead now says applications go to Fused Protective Services instead of naming Cameron Harrell (`6c0ffee`). Cameron is still named in the executive-interview stage and the page keywords, pending Sean's direction.
+- [x] Each change was made in `src/`, regenerated, drift-checked, and confirmed on production.
+
 ---
 
 ---
 
 ## ⚠️ Known Gaps & Immediate Operational Decisions (Cameron's Call)
 
-Tracked in [`docs/OPEN_QUESTIONS.md`](file:///Users/cope/projects/fused-protective-services/docs/OPEN_QUESTIONS.md): dispatch phone, DPS licence number, alert recipients, sales-tax confirmation, Resend terms, Twilio 10DLC, custom domain.
+Tracked in [`docs/OPEN_QUESTIONS.md`](file:///Users/cope/projects/fused-protective-services/docs/OPEN_QUESTIONS.md): proof that the dispatch line rings, DPS licence number, alert recipients, sales-tax confirmation, Resend sender, Twilio 10DLC, Stripe keys, custom domain.
 
 ## 🚀 Go-live gates
 
@@ -253,10 +264,10 @@ is the ordered launch gate list — legal and licensing, the lead-to-cash delive
 domains and environment separation, operational readiness, site quality, and Cameron's
 day-one dry run. Every box names an owner and a verification step.
 
-**Ticked so far: C4, D8, E2, F3.** Advanced: A1, C3, D4, E4. It raised the items this
-tracker did not carry — of those, the restore drill, environment separation, the
-accessibility check and the candidate screen are now built or written; error monitoring,
-uptime checks, analytics and the marketing-site CSP are not.
+**Ticked so far: C4, D1, D8, E1, E2, F3.** Advanced: A1, C3, D4, E4. It raised the items
+this tracker did not carry — of those, the restore drill, environment separation, the
+accessibility check, the candidate screen, error monitoring and the marketing-site CSP are
+now built or written; uptime checks (SPEC-004) and analytics are not.
 
 **The launch-blocking remainder is not engineering.** The critical path is Twilio 10DLC
 registration (business days, needs the EIN), attorney review, and DNS → Resend — a chain,
@@ -267,8 +278,8 @@ when those accounts land.
 The buildable half is broken into eleven specs in
 [`specs/`](specs/README.md) — one branch and one pull request each, with a status table,
 a dependency order, the invariants every spec inherits, and a shared definition of done.
-**Done: 001, 002, 007, 010, 011**, plus 008 audited with its gate staged. **In flight:
-006, 003.** **Recommended cut from launch scope: 005, 009.**
+**Done: 001, 002, 003, 006, 007, 010, 011**, plus 008 audited with its gate staged.
+**Ready to build: 004.** **Recommended cut from launch scope: 005, 009.**
 
 ---
 
@@ -276,10 +287,10 @@ a dependency order, the invariants every spec inherits, and a shared definition 
 
 | Priority | Item | Description | Dependencies |
 | :---: | :--- | :--- | :--- |
-| **P0** | **Install Resend** | Accept marketplace terms in browser, then `vercel integration add resend --name fused-dispatch-alerts`. Turns on lead emails. | Sean, 2 minutes |
+| **P0** | **Apply the 2026-09-14 migrations** | `20260914000000_source_env`, `20260914120000_candidates_ats` and `20260914140000_alert_gate` are on `main` and deployed code depends on them, but the hosted project stops at `20260910000009`. Apply in filename order, align versions, then verify a quote submission persists. | Sean (Supabase access) |
 | **P1** | **Point alerts at Cameron** | Set `DISPATCH_ALERT_TO` to Cameron's dispatch inbox. | Cameron's email |
 | **P1** | **HubSpot CRM Activation** | Input Cameron's HubSpot Access Token / Webhook into Vercel env. | Cameron's HubSpot account |
-| **P1** | **Set Real Phone Line** | Update `phone` in `site.mjs` with Cameron's active dispatch line. | Cameron's phone number |
+| **P1** | **Prove the dispatch line rings** | Gate A2: `(512) 555-0199` is marked confirmed in `site.mjs`, but it sits in the 555-01xx block reserved for fiction. Dial it from an outside phone. | Cameron / Sean |
 | **P1** | **Twilio credentials** | Code is live; set the four Twilio variables and `DISPATCH_ALERT_SMS_TO` (`docs/RUNBOOK.md` §3). | Twilio account, 10DLC |
 | **P0** | **Resend sender + Stripe keys + Twilio** | Everything client-facing waits on these accounts (`docs/RUNBOOK.md` §2–4). | Sean, Cameron |
 | **P0** | **Two brand-token decisions** | Blocking the accessibility gate. (1) `--text-tertiary` `#78716c` → `#8f8a86` — clears 42 of 48 violations, measured 5.74–5.97:1 against every surface it lands on. (2) A `--gradient-gold-brushed-ui` clamped at `#a1814c` for interactive faces; the decorative gradient stays as is. Both reversible; the current values fail WCAG AA. | Cameron/Sean to approve the look |

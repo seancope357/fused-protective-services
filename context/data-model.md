@@ -67,16 +67,28 @@ Defines brand identity, SEO copy, contact numbers, and site metrics.
 
 ```typescript
 interface SiteConfig {
-    url: string;                     // Canonical origin
+    url: string;                     // Canonical origin (custom domain; DNS not yet live)
     name: string;                    // "Fused Protective Services"
     shortName: string;               // "FUSED"
+    subtitle: string;                // "Protective Services"
     motto: string;                   // "DEFENSE • DISCRETION • INTEGRITY"
+    logo: string;                    // "assets/logo.webp" — served brand plate and voxel source
+    logoFallback: string;            // "assets/logo-512.png"
+    icons: object;                   // Favicon, apple-touch and 512 icon paths
+    ogCard: object;                  // 1200×630 social card path and metadata
     copyrightYear: number;           // Fixed integer (e.g. 2026) for build determinism
     phone: {
-        display: string;             // "(512) 555-0199" (Placeholder)
+        display: string;             // "(512) 555-0199" — marked confirmed; unproven (GO_LIVE A2)
         e164: string;                // "+15125550199"
+        placeholder: boolean;        // false
+    };
+    licenseNumber: {
+        label: string;               // "Texas DPS Private Security Licence"
+        value: string;               // "B00000"
+        placeholder: boolean;        // true — red flag on every host; --verify-release fails
     };
     email: string;                   // "dispatch@fusedprotectiveservices.com"
+    productionHosts: string[];       // Apex and www only; feeds the CORS allowlist in api/_lib/http.mjs
     address: {
         locality: string;            // "Austin"
         region: string;              // "TX"
@@ -85,10 +97,11 @@ interface SiteConfig {
         longitude: string;           // "-97.7431"
     };
     areaServed: Array<{ type: 'City' | 'State'; name: string }>;
-    rating: { value: string; count: string; best: string };
     seo: Record<string, string>;     // Titles, OpenGraph, Twitter, ChatGPT/Perplexity copy
 }
 ```
+
+`site.mjs` also exports `navItems`, `portalUrl` (`https://app.fusedprotectiveservices.com`), `legalLinks`, `heroMetrics` and `standards`. There is no `rating` field: the schema.org rating derives only from `src/data/reviews.mjs`.
 
 ### 2. `src/data/divisions.mjs` — The 7 Divisions
 The primary catalog of services rendered into the bookshelf, form, and SEO schemas.
@@ -191,7 +204,7 @@ export const armedPreferences = {
 ```
 
 ### 8. `src/data/invoice.mjs` — Invoicing Vocabulary
-Governs numbering, payment terms, and Texas tax configuration for `/invoice`.
+Governs numbering, payment terms, and Texas tax defaults. The portal reads it through `app/shared/`; `next_invoice_number(prefix, pad)` takes its prefix and padding from here.
 
 ```javascript
 export const numbering = { prefix: 'FPS', pad: 4 };
@@ -230,9 +243,15 @@ interface Position {
 }
 ```
 
+### 10. `src/data/legal.mjs` — Legal Pages
+Source for `privacy.html`, `terms.html` and `sms-consent.html`. Carries `reviewed` / `reviewedOn`; until counsel signs off, every page renders a draft banner and is `noindex`. Two `TODO(cameron)` paragraphs (cancellation, liability) remain.
+
+### 11. `src/data/reviews.mjs` — Real Reviews Only
+Published reviews exported from Portal → Reviews. An empty list emits no `aggregateRating`; the rating appears only when real reviews exist.
+
 ---
 
-## 🛠️ Step-by-Step Runbook: Adding a 7th Division
+## 🛠️ Step-by-Step Runbook: Adding an 8th Division
 
 To add a new security division (e.g., *K9 Detection & Patrol Units*), follow this procedure:
 
@@ -240,8 +259,8 @@ To add a new security division (e.g., *K9 Detection & Patrol Units*), follow thi
 2. Append a new division object to the `divisions` array:
    ```javascript
    {
-       id: 'div-07',
-       code: 'DIV-07 // K9',
+       id: 'div-08',
+       code: 'DIV-08 // K9',
        icon: 'k9',                   // Ensure icon exists in src/data/icons.mjs
        spineTitle: 'K9 TACTICAL PATROL',
        badge: 'CANINE DETECTION SQUAD',
@@ -261,8 +280,8 @@ To add a new security division (e.g., *K9 Detection & Patrol Units*), follow thi
    }
    ```
 3. Run `node build.mjs`.
-4. Run `node build.mjs --check` to verify zero drift.
-5. The 7th division will automatically appear in:
+4. Run `node build.mjs --check` to verify zero drift, and commit the regenerated `vercel.json` with the pages (its CSP hashes move when the data islands change).
+5. The new division will automatically appear in:
    - The interactive bookshelf spine rail.
    - The quote form `<select>` menu.
    - The `<script type="application/ld+json">` `OfferCatalog` block for search engines.
@@ -299,6 +318,8 @@ CREATE TABLE public.client_quotes (
 );
 ```
 
+Added later: `source_env TEXT NOT NULL DEFAULT 'production'` (`20260914000000_source_env`), labelling which deployment wrote the row. Deployed intake code writes it; see `context/workflows.md` for the hosted migration status.
+
 #### Client Deal State Machine
 ```mermaid
 stateDiagram-v2
@@ -334,6 +355,8 @@ CREATE TABLE public.candidate_applications (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 ```
+
+Added later: `source_env` (`20260914000000_source_env`), and the portal ATS columns `assigned_to`, `stage_changed_at` (maintained by `trg_candidate_stage_changed_at`), `rejection_reason` and `internal_notes` (`20260914120000_candidates_ats`). Portal → Candidates advances stages one at a time and audits every change.
 
 #### Officer Vetting State Machine
 ```mermaid

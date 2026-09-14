@@ -272,7 +272,7 @@ you can run a business on.
       run them as the last step of this gate after DNS cutover (C1). **Owner: engineering.**
 
 - [ ] **E3 · Mobile performance budget.** → [**SPEC-009**](../specs/SPEC-009-performance-budget.md) The intro assembles ~65,000 voxel cubes over
-      WebGL, with three.js pulled from jsDelivr (unpkg fallback). Measure Core Web Vitals
+      WebGL, with three.js served from our own origin (vendored since SPEC-006). Measure Core Web Vitals
       on a mid-range Android over 4G and set a budget. The reduced-motion and
       no-WebGL fallbacks exist; confirm they look deliberate. **Owner: engineering.**
 - [ ] **E4 · Accessibility pass against the stated WCAG 2.1 AA baseline.** → [**SPEC-008**](../specs/SPEC-008-accessibility-gate.md)

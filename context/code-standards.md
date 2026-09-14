@@ -29,6 +29,8 @@ heading: 'Executive & VIP Protection'
 ### 1. Zero Inline Event Handlers, Zero Inline Styles
 The repository ships with **zero** inline JavaScript attributes (`onclick=...`, `onchange=...`) and **zero** inline `style="..."` attributes (with the sole exception of the dynamic WebGL canvas `--assembly` property update in `logo-forge.js`).
 
+The marketing site's Content-Security-Policy (`default-src 'self'`, no `unsafe-inline`, no `unsafe-eval`) now enforces this in the browser: an inline handler, a `style=""` attribute or an injected `<style>` is blocked. Setting properties through the CSSOM still works. The only inline `<script>` blocks are JSON data islands, each hashed into the generated `vercel.json`, so editing their data means rebuilding and committing `vercel.json` too.
+
 * **Delegated Event Listeners:** Interactive surfaces must attach delegated event listeners in their corresponding `js/modules/*.mjs` module.
 * **Semantic Target Binding:** Use `data-*` attributes for JavaScript binding rather than styling classes:
   ```html
@@ -50,7 +52,7 @@ Never hardcode division names, phone numbers, or hourly rates inside `js/`.
 
 ### 3. File Size Budgets & Upstream Invariants
 * **Strict 300 LOC Module Limit:** Style modules (`src/styles/components/*.css`) and template modules (`src/templates/*.mjs`) should not exceed ~300 lines of code. If a module grows beyond this limit, refactor it into cohesive sub-components.
-* **The `logo-forge.js` Exception:** `js/logo-forge.js` is deliberately maintained whole at ~530 LOC. It is an upstream port of the *Pixel Scroll Forge* engine. Slicing it would make re-syncing upstream bug fixes (e.g., frame-delta clamping, seam overlap repairs) a complex merge instead of a direct diff. Prefer upstream parity over local modularization.
+* **The `logo-forge.js` Exception:** `js/logo-forge.js` is deliberately maintained whole (~560 LOC). It is an upstream port of the *Pixel Scroll Forge* engine. Slicing it would make re-syncing upstream bug fixes (e.g., frame-delta clamping, seam overlap repairs) a complex merge instead of a direct diff. Prefer upstream parity over local modularization.
 
 ---
 

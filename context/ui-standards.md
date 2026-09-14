@@ -63,8 +63,9 @@ The animated WebGL particle mesh and voxel canvas sit behind page content. Legib
 ## 📐 Typography & Font Hierarchy
 
 * **Primary Typeface:** `'Outfit', -apple-system, BlinkMacSystemFont, sans-serif`
+* **Self-Hosted Faces:** Cinzel, Outfit and JetBrains Mono are served from `assets/fonts/` and declared in `src/styles/base.css`. There are no Google Fonts requests; the marketing-site CSP allows no third-party origin.
 * **Heading Style:** Bold, architectural, high-contrast, uppercase where tactical codes are displayed.
-* **Tactical Callout Format:** Code prefixes (e.g. `DIV-01 // PPO`, `RECON_DIAGNOSTIC_V4.LOG`) must feature:
+* **Tactical Callout Format:** Code prefixes (e.g. `DIV-01 // PPO`, `POS-01 // PPO`) must feature:
   * Monospaced or structured uppercase sans-serif
   * `letter-spacing: 0.12em` to `0.18em`
   * High-visibility badge borders (`--border-gold-subtle`)
@@ -179,6 +180,10 @@ Animations follow real-world physical inertia curves defined in `tokens.css`:
 * **Scroll indicator:** Display “SCROLL” with the existing downward arrow. Preserve the cue's fade as scrolling begins; “TO ASSEMBLE” was removed at Sean's request on 2026-09-14.
 * `--assembly`: Bound to viewport scroll offset (`0.0000` to `1.0000`). Used for pacing copy beat opacities.
 * `--assembly-settled`: Bound to physical camera matrix convergence. The only clock that may trigger full-scene completion.
+
+### Visitor-Facing Copy Decisions
+* **Careers application header** (`src/templates/careers/apply.mjs`): the heading is “OFFICER APPLICATION” with no badge above it, and the lead says applications go “directly to Fused Protective Services.” The “COMMAND INTAKE” badge and the word “TRANSMIT” were removed, and applications are no longer addressed to Cameron Harrell by name, at Sean's request on 2026-09-14. Cameron is still named in the executive-interview vetting stage and the careers `keywords` meta tag; change those only on Sean's direction.
+* **Keep implementation jargon off client-facing explanations.** The hero badge, the “TO ASSEMBLE” scroll wording, the How It Works tactical badges and terminal logs, and the careers intake badge were all removed on 2026-09-14 for the same reason.
 
 ---
 

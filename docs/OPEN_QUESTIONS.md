@@ -5,7 +5,7 @@ The ordered launch gates that consume these answers live in
 
 Every item here is a business fact the code cannot invent, or an account only a human
 can open. Each names the file or setting and what happens if it is left alone.
-Placeholders are flagged in red on every non-production host so none can ship quietly.
+Placeholders are flagged in red on every host, production included, so none can ship quietly.
 
 ## 1. Dispatch phone number — resolved 2026-09-09
 

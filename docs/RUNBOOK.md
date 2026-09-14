@@ -21,8 +21,11 @@ Only the portal needs Stripe webhook and cron secrets.
 
 ## 0. Order of operations
 
-1. **Supabase** — provisioned (`zphyvnouierjwjqjvahs`, via Vercel Marketplace). All ten
-   migrations are applied. Apply any new migration before deploying code that needs it.
+1. **Supabase** — provisioned (`zphyvnouierjwjqjvahs`, via Vercel Marketplace). **12 of 15
+   migrations applied (checked 2026-09-14):** `20260914000000_source_env`,
+   `20260914120000_candidates_ats` and `20260914140000_alert_gate` are not, and deployed
+   code depends on them. A Git deploy never migrates the database — apply any new
+   migration before deploying code that needs it.
 2. **Portal project** — created, Git-connected, deploys on push (§5).
 3. **Owner account** — created for Sean (§6). Create Cameron's from Settings once signed in.
 4. **Resend** — verify the domain, install, set `DISPATCH_ALERT_FROM`. Until this is done
@@ -223,7 +226,7 @@ invoice shows **paid** with one payment row; Message log shows `payment_received
 
 ## 5. Portal deployment
 
-### 5a. Deploying today (CLI, prebuilt)
+### 5a. Manual deploy (CLI, prebuilt)
 
 ```bash
 cd app
