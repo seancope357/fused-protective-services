@@ -216,10 +216,26 @@ you can run a business on.
       WebGL, with three.js pulled from jsDelivr (unpkg fallback). Measure Core Web Vitals
       on a mid-range Android over 4G and set a budget. The reduced-motion and
       no-WebGL fallbacks exist; confirm they look deliberate. **Owner: engineering.**
-- [ ] **E4 · Accessibility pass against the stated WCAG 2.1 AA baseline.** → [**SPEC-008**](../specs/SPEC-008-accessibility-gate.md) `context/ui-standards.md`
-      claims AA; CI checks drift and unit tests, not accessibility. Run axe over both pages
-      plus the portal's forms, and keyboard-walk the quote form, the bookshelf, the protocol
-      tablist and the drawer. Add the check to CI so the claim stays true. **Owner: engineering.**
+- [ ] **E4 · Accessibility pass against the stated WCAG 2.1 AA baseline.** → [**SPEC-008**](../specs/SPEC-008-accessibility-gate.md)
+      **Audited; gate staged, not armed.** [`A11Y-AUDIT.md`](A11Y-AUDIT.md) (2026-09-14)
+      records the full pass: 48 axe violations, every one `color-contrast` and serious,
+      **42 of them from a single token**, plus twelve manual findings each carrying file,
+      line, selector, rule id and the exact fix. The portal's sign-in screen is clean.
+      The keyboard funnel works end to end, including escaping the scroll-driven intro —
+      measured against the real 350vh track, not the collapsed fallback.
+      The `a11y` job runs on every push and PR and reports every violation, but carries
+      `continue-on-error: true` because the remaining defects live in files SPEC-006 and
+      SPEC-007 own. No axe rule is disabled anywhere.
+      **To close this gate:** land the audit's Part E fix list, delete that one line, and
+      add `a11y` to required checks. Two items need a design decision first — **A-01**, the
+      `--text-tertiary` value, and **A11Y-05**, the gold gradient on interactive faces;
+      `context/ui-standards.md` owns both tokens. **Owner: engineering.**
+      *Already fixed here:* **A11Y-01/02** — the skip link on `/` pointed at
+      `#capabilities`, three sections into `<main>`, so a keyboard or screen-reader visitor
+      skipped the entire hero and never reached either primary CTA. `/careers` was the same.
+      Both now target `#main`, and all four `<main>` elements carry `tabindex="-1"` so
+      activation actually moves focus rather than relying on Chrome's fallback.
+
 - [ ] **E5 · Search Console + Bing Webmaster, sitemap submitted** after C1 — not before, or
       you index a hostname that does not resolve. **Owner: Sean.**
 - [ ] **E6 · Google Business Profile** for Austin and San Antonio, NAP consistent with

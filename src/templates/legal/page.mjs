@@ -37,7 +37,7 @@ ${head(page)}
 ${drawer(true)}
 ${nav(true)}
 
-    <main id="main" class="legal-main">
+    <main id="main" tabindex="-1" class="legal-main">
         <article class="container legal-doc">
             <header class="legal-head">
                 <span class="section-tag">${page.eyebrow}</span>
