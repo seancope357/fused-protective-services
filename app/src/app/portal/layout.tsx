@@ -9,15 +9,28 @@ import { vettingStageOrder } from '@/lib/shared';
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
     const session = await requireStaff();
-    /* An account made from Settings starts on a temporary password. After its
-       first two-factor sign-in it sets its own before anything else (SPEC-012).
-       The proxy has already enforced MFA by the time this runs. */
-    /* The proxy enforces this on every request from the session token; this
-       server-side read (getUser, always fresh) is defence in depth. MFA-exempt
-       pages (Security, where a new account enrols) are left alone: enrol first,
-       then set the password. */
+    /* An account made from Settings starts on a temporary password and sets its
+       own after its first two-factor sign-in (SPEC-012). The proxy enforces this
+       on every request from the session token; this read (getUser, always fresh)
+       is defence in depth. MFA-exempt pages (Security, where a new account
+       enrols) are left alone: enrol first, then set the password. */
     const path = (await headers()).get('x-pathname') ?? '';
     if (session.mustChangePassword && path !== '/portal/welcome' && !isMfaExempt(path)) redirect('/portal/welcome');
+    if (session.mustChangePassword) {
+        /* Until the password is set every destination redirects back here, so
+           the frame offers none: no nav links (each prefetch would only bounce),
+           just the page and a way to sign out. */
+        return (
+            <div className="auth-shell">
+                <main id="main" className="auth-card stack">
+                    {children}
+                    <form action="/auth/signout" method="post">
+                        <button type="submit" className="btn btn--ghost btn--sm">Sign out</button>
+                    </form>
+                </main>
+            </div>
+        );
+    }
     const supabase = await createSupabaseServerClient();
     /* The Leads and Candidates badges count production rows only (SPEC-002) — a
        badge that counts preview submissions sends the owner after work that

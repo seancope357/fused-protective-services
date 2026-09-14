@@ -404,6 +404,9 @@
     .dt td :is(a, button, input, select, label, summary):not(td[data-primary] a) { position: relative; z-index: 1; }
     .dt td[data-wide] { display: block; text-align: left; }
     .dt td[data-wide]::before { display: block; max-width: none; margin-bottom: 2px; }
+    /* A phone number or email that is the whole value is a tap target in its
+       own right: give it the full 44px, not the height of its text. */
+    .dt td:not([data-primary]) a:only-child, .kv dd > a:only-child { display: inline-flex; align-items: center; min-height: var(--tap); }
     .dt :is(td, th)[data-hide="phone"], .dt :is(td, th)[data-hide="tablet"] { display: none; }
 
     @media (min-width: 600px) {
