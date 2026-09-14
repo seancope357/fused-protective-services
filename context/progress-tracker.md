@@ -18,6 +18,7 @@ Every admin and client screen usable on a phone, a tablet and a desktop, and a f
 - Independent review: one major finding (the password change could be skipped by client-side navigation) and six minors, all fixed test-first.
 - Pre-existing bugs fixed on the way: recurring shifts generated in UTC (wrong weekday; last evening dropped; INTERVAL by 7-day blocks; the autumn repeated hour), activity links 404ing for child records, saving a site erasing address line 2, checkout ignoring its return path, Today counting jobs from their first shift, calendar Previous/Next skipping months, calendar grid ARIA, the local banner reading "project 127".
 - `pnpm typecheck`, `pnpm test` (194 passed) and `pnpm build` pass.
+- Follow-up (branch `fix/site-client-contrast`): quote and job sites must belong to the chosen client — the pickers follow the client and every save checks the pair; `--text-tertiary` is `#8f8a86` (approved by Sean).
 
 ## In Progress
 
@@ -29,7 +30,6 @@ Cameron's first sign-in on the real portal proves criterion 8: create his owner 
 
 ## Open Questions
 
-- `--text-tertiary` `#78716c` → `#8f8a86`: approve the look (clears most remaining contrast findings in the portal and the site).
 - Confirm the hosted Supabase `secure_password_change` setting before Cameron's account is created.
 
 ## Architecture Decisions

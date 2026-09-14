@@ -116,7 +116,7 @@ automated backlog.
 
 ## Part A — Automated findings (all `color-contrast`, all serious)
 
-### A-01 · `--text-tertiary` is below AA at every size it is used — 42 nodes
+### A-01 · `--text-tertiary` is below AA at every size it is used — 42 nodes · ✅ fixed 2026-09-14 (`#8f8a86`, approved by Sean)
 
 **Rule:** `color-contrast` · **WCAG:** 1.4.3 (AA) · **Impact:** serious
 **Root cause:** `src/styles/tokens.css:42` — `--text-tertiary: #78716c;`
@@ -803,7 +803,7 @@ let the `a11y` job flip to blocking.
 
 | # | ID | Severity | Change | Files | Blocks the gate? |
 | :-- | :--- | :--- | :--- | :--- | :--: |
-| 1 | A-01 | Serious | `--text-tertiary: #78716c` → `#8f8a86` — **clears 42 of 48 nodes** | `src/styles/tokens.css:42` | ✅ |
+| 1 | A-01 | Serious | `--text-tertiary: #78716c` → `#8f8a86` — **clears 42 of 48 nodes** · **applied 2026-09-14** | `src/styles/tokens.css:42` | ✅ |
 | 2 | A-02 | Serious | `.standard-index` alpha `0.35` → `0.62` | `src/styles/components/standards.css:46` | ✅ |
 | 3 | A-03 + A11Y-06 | Serious | Add `.inv-moved a { color: var(--logo-gold-highlight); overflow-wrap: anywhere; }` | `src/styles/components/legal.css` | ✅ |
 | 4 | A-04 | Serious | `.estimator-disclaimer` `#64748b` → `var(--text-tertiary)` | `src/styles/components/estimator.css:158` | ✅ |
