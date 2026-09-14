@@ -96,6 +96,7 @@ export function entityHref(entityType: string, id: string): string | null {
         case 'quote': case 'proposal': return `/portal/quotes/${id}`;
         case 'job': case 'shift': case 'review': return `/portal/jobs/${id}`;
         case 'invoice': case 'payment': return `/portal/invoices/${id}`;
+        case 'candidate': return `/portal/candidates/${id}`;
         case 'setting': return '/portal/settings';
         default: return null;
     }

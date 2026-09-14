@@ -265,11 +265,26 @@ you can run a business on.
 - [ ] **F2 · Portal → Settings populated:** alert recipients, default deposit %
       ([§7](OPEN_QUESTIONS.md)), tax defaults and any exempt clients, integrations check all
       green. **Owner: Cameron.**
-- [ ] **F3 · Decide what happens to candidate applications.** → [**SPEC-010**](../specs/SPEC-010-candidate-ats.md) `/careers` writes to
-      `candidate_applications` and emails dispatch, but **the portal has no screen for
-      them** — there is no way to review, stage or reject a candidate except in email and
-      the Supabase table editor. Either build the ATS inbox or agree explicitly that
-      recruiting runs out of the inbox for now. **Owner: Cameron decides, engineering builds.**
+- [x] **F3 · Candidate ATS.** ✅ Built — [**SPEC-010**](../specs/SPEC-010-candidate-ats.md).
+      `/portal/candidates` lists, filters and stages applications from `/careers`, production
+      rows only; `/portal/candidates/[id]` carries the full application, internal notes,
+      assignment, rejection and the audit timeline. Stages advance one at a time and cannot
+      skip; a rejection can be re-opened; every change is audited with actor and diff.
+      Two things stay human: the candidate emails do not send until **B1** (verified Resend
+      sender) — until then they render, log and skip with `no_verified_sender` — and reaching
+      `active_roster` deliberately creates no `officers` row, so activating an officer
+      (pay rate, assignments) remains a manual Phase 2 step. *Verify:* Portal → Candidates,
+      stage a test application through to rejection and re-open it; the Activity feed links
+      the row. **Owner: engineering — done.**
+- [ ] **F3a · Settle the application retention period.** The privacy policy now says a
+      careers application is kept with its hiring record and, for a hired applicant, for as
+      long as DPS record-keeping requires — which is true of what the system does today:
+      **nothing deletes applications automatically.** A fixed period (SPEC-010 proposed 24
+      months for unsuccessful applicants) cannot be published until either a deleter ships or
+      counsel sets the floor, because a policy must not promise a purge that does not run.
+      Decide with the same counsel review as **A3**; if a period is set, engineering adds the
+      deletion to the cron tick and the policy sentence changes with it.
+      **Owner: Cameron + counsel decides, engineering builds.**
 - [ ] **F4 · Set expectations on the officer portal.** `/officer` is an honest stub: sign-in,
       role and RLS scoping work; assigned shifts, clock-in and checkpoint scans are Phase 2.
       Do not promise officers an app in recruiting material yet. **Owner: Cameron.**

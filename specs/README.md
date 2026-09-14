@@ -23,7 +23,7 @@ has nothing unbuilt in its `Depends on` line.
 | [007](SPEC-007-brand-assets.md) | Favicon, OG card, page weight | E2 | S | — | ✅ **Done** (−960 KB) |
 | [008](SPEC-008-accessibility-gate.md) | Accessibility conformance gate in CI | E4 | M | — | ◐ **Audited**, gate staged; fixes in wave 3 |
 | [009](SPEC-009-performance-budget.md) | Performance budget for the intro | E3 | M | 006, 007 | **Ready** |
-| [010](SPEC-010-candidate-ats.md) | Candidate ATS in the portal | F3 | L | 002 | 🔨 **In progress** |
+| [010](SPEC-010-candidate-ats.md) | Candidate ATS in the portal | F3 | L | 002 | ✅ **Done** (emails wait on B1) |
 | [011](SPEC-011-incident-and-restore.md) | Incident, rollback and restore drill | D4, D8 | S | — | ◐ **Docs done**, drill unrun (Sean) |
 
 Suggested order if agents run in parallel: **001, 006, 007, 008, 011** are independent and
