@@ -182,7 +182,7 @@ Animations follow real-world physical inertia curves defined in `tokens.css`:
 * `--assembly-settled`: Bound to physical camera matrix convergence. The only clock that may trigger full-scene completion.
 
 ### Visitor-Facing Copy Decisions
-* **Careers application header** (`src/templates/careers/apply.mjs`): the heading is “OFFICER APPLICATION” with no badge above it, and the lead says applications go “directly to Fused Protective Services.” The “COMMAND INTAKE” badge and the word “TRANSMIT” were removed, and applications are no longer addressed to Cameron Harrell by name, at Sean's request on 2026-09-14. Cameron is still named in the executive-interview vetting stage and the careers `keywords` meta tag; change those only on Sean's direction.
+* **Careers application header** (`src/templates/careers/apply.mjs`): the heading is “OFFICER APPLICATION” with no badge above it, and the lead says applications go “directly to Fused Protective Services.” The “COMMAND INTAKE” badge and the word “TRANSMIT” were removed, and applications are no longer addressed to Cameron Harrell by name, at Sean's request on 2026-09-14. The executive-interview vetting stage (“Executive Interview with Fused Leadership”), its sign-off line, the careers `keywords`, and the post-submit confirmation (“Application Received”, in `js/modules/careers.mjs`) name the company too. Visitor-facing careers copy never names a person.
 * **Keep implementation jargon off client-facing explanations.** The hero badge, the “TO ASSEMBLE” scroll wording, the How It Works tactical badges and terminal logs, and the careers intake badge were all removed on 2026-09-14 for the same reason.
 
 ---

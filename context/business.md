@@ -146,7 +146,7 @@ Officer compensation (`src/data/careers.mjs` → `payScales`) is pegged to what 
 
 * **Gear Policy:** Own approved duty gear is preferred. A repayable gear stipend is available at hire and is recovered through scheduled deductions from pay (`gearPolicy`).
 * **Experience Standard:** Confirmed, skilled civilian protective personnel are recruited alongside military veterans and law enforcement; experience is verified in vetting Stage 1.
-* **Application Copy (2026-09-14):** The careers application is headed “OFFICER APPLICATION” and tells candidates their profile goes directly to Fused Protective Services. Applications are addressed to the company, not to Cameron Harrell by name (Sean's decision). Cameron still appears as the executive interviewer in the vetting stages.
+* **Application Copy (2026-09-14):** The careers application is headed “OFFICER APPLICATION” and tells candidates their profile goes directly to Fused Protective Services. Applications are addressed to the company, not to Cameron Harrell by name (Sean's decision). The vetting interview stage (“Executive Interview with Fused Leadership”) and the submission confirmation name the company as well.
 
 ---
 

@@ -93,7 +93,7 @@ Shared transports live in `api/_lib/` (`http.mjs`, `supabase.mjs`, `email.mjs`, 
 
 Stripe keys belong to the portal only; the static site no longer has a Stripe function. Full index, setup order and verification steps: [`docs/RUNBOOK.md`](../docs/RUNBOOK.md) §9.
 
-Hosted Supabase project: `fused-protective-services` (ref `zphyvnouierjwjqjvahs`, us-east-1), provisioned 2026-09-08 through the Vercel Marketplace. The recorded migration history matches the file names, so `supabase db push` will not try to re-apply what is there. **Checked 2026-09-14: the hosted history stops at `20260910000009_audit_log`.** `20260914000000_source_env`, `20260914120000_candidates_ats` and `20260914140000_alert_gate` are on `main` and deployed code uses them, but they are not applied.
+Hosted Supabase project: `fused-protective-services` (ref `zphyvnouierjwjqjvahs`, us-east-1), provisioned 2026-09-08 through the Vercel Marketplace. The recorded migration history matches the file names, so `supabase db push` will not try to re-apply what is there. **Checked 2026-09-14: all fifteen are applied.** The last three (`source_env`, `candidates_ats`, `alert_gate`) were applied through the Supabase connector shortly after PR #10 deployed code that needed them; their recorded versions were then set to the filenames.
 
 #### Offline backup
 Both `js/modules/quote-form.mjs` and `js/modules/careers.mjs` still write the payload to `localStorage` (`last_fused_quote`, `last_fused_candidate_app`) before transmitting. If the network itself is unreachable the client falls back to a local reference code; this is a convenience, not a delivery path.
@@ -123,7 +123,7 @@ pnpm test:db        # rebuilds the local test database from every migration, the
 
 ## 🗄️ Supabase Backend & Database Architecture
 
-* **PostgreSQL Schema Location:** [`supabase/migrations/`](file:///Users/cope/projects/fused-protective-services/supabase/migrations/) — fifteen migrations, applied in filename order (core schema, search_path hardening, intake gate, profiles/roles, clients/sites, quotes/proposals, jobs/shifts, invoices/payments, reviews/notifications/settings, function grants, staff MFA, audit log, `source_env`, candidate ATS, alert dedupe). The last three are not yet on the hosted project (see above). Additive only; never edit an applied file.
+* **PostgreSQL Schema Location:** [`supabase/migrations/`](file:///Users/cope/projects/fused-protective-services/supabase/migrations/) — fifteen migrations, applied in filename order (core schema, search_path hardening, intake gate, profiles/roles, clients/sites, quotes/proposals, jobs/shifts, invoices/payments, reviews/notifications/settings, function grants, staff MFA, audit log, `source_env`, candidate ATS, alert dedupe). Additive only; never edit an applied file.
 * **Local test database:** `supabase/tests/auth_shim.sql` + `app/scripts/reset-test-db.mjs` rebuild a plain Postgres with the `auth` schema stub and every migration; `app/tests/db/` proves RLS isolation, numbering under concurrency and webhook idempotency.
 * **Vercel Serverless Functions:** [`api/intake.mjs`](../api/intake.mjs), [`api/client-error.mjs`](../api/client-error.mjs), shared code in `api/_lib/`
 

@@ -21,7 +21,7 @@ Latest focused implementation status: [Client-facing website refinements](contex
 | **Legal pages** | 🟡 **Draft** | `/privacy`, `/terms`, `/sms-consent` generated from `src/data/legal.mjs`, banner-marked pending attorney review, `noindex`. |
 | **Careers & Recruiting Portal** | 🟢 **Production Ready** | `/careers` live with filterable jobs, 5-stage vetting, & pre-qual. |
 | **Context Engineering** | 🟢 **Current (8 documents)** | Seven domain documents plus the current-unit tracker in [`context/`](context/index.md); audited against the code 2026-09-14. |
-| **Lead Persistence** | 🔴 **At risk — 3 migrations unapplied** | Code deployed 2026-09-14 (PR #10) writes `source_env` on every intake insert, but the hosted project stops at `20260910000009_audit_log`: `source_env`, `candidates_ats` and `alert_gate` are not applied (checked 2026-09-14). Apply them in filename order (`docs/RUNBOOK.md` §1), then re-verify a submission. Last verified end to end 2026-09-08. |
+| **Lead Persistence** | 🟢 **Live (hosted Supabase)** | All 15 migrations applied, versions aligned to filenames (2026-09-14). A labelled production test lead (`TX-FPS-Z8NHSG`) persisted with `source_env = production` and was then deleted; the portal cron tick returns 200. |
 | **Dispatch Alerts** | 🟡 **Code shipped, Resend not installed** | Owner email, emergency SMS, and visitor confirmation are all wired in `api/intake.mjs`; `RESEND_API_KEY` and the Twilio variables are absent. Steps in `docs/RUNBOOK.md`. Until then leads persist and nobody is notified. |
 | **Intake Abuse Controls** | 🟢 **Live** | Same-origin CORS, honeypot, per-IP rate limit and duplicate window (`public.intake_gate`). |
 | **Stripe Checkout** | 🟢 **Honest** | Amount read from the stored invoice by id; 503 without a key. No mock links anywhere. |
@@ -241,12 +241,13 @@ system actually does and the fixed period became gate **F3a**.
 **Deployed ahead of its migrations.** PR #10 added `20260914000000_source_env`, `20260914120000_candidates_ats`
 and `20260914140000_alert_gate`, and the Git deploy shipped code that uses them, but none were applied to the
 hosted project (checked 2026-09-14). Merging does not migrate the database; apply by hand (`docs/RUNBOOK.md` §1).
+All three were applied and verified the same afternoon; the only quote on file predates the deploy.
 
 ### Client-facing copy refinements (2026-09-14)
 
 - [x] Removed the “FPS // Assembly Protocol” hero badge (`1387db3`) and shortened the scroll cue to “SCROLL ↓” (`83003e0`).
 - [x] Rewrote the four How It Works steps in client language; tactical badges, metadata strips and simulated terminal logs are gone from `src/data/protocol.mjs` (`696e114`).
-- [x] Careers application header: removed the “COMMAND INTAKE” badge and the word “TRANSMIT” (heading now “OFFICER APPLICATION”), and the lead now says applications go to Fused Protective Services instead of naming Cameron Harrell (`6c0ffee`). Cameron is still named in the executive-interview stage and the page keywords, pending Sean's direction.
+- [x] Careers application header: removed the “COMMAND INTAKE” badge and the word “TRANSMIT” (heading now “OFFICER APPLICATION”), and the lead now says applications go to Fused Protective Services instead of naming Cameron Harrell (`6c0ffee`). The interview stage, its sign-off line, the careers keywords and the post-submit confirmation followed (`66a0884`); the careers page no longer names Cameron.
 - [x] Each change was made in `src/`, regenerated, drift-checked, and confirmed on production.
 
 ---
@@ -287,7 +288,6 @@ a dependency order, the invariants every spec inherits, and a shared definition 
 
 | Priority | Item | Description | Dependencies |
 | :---: | :--- | :--- | :--- |
-| **P0** | **Apply the 2026-09-14 migrations** | `20260914000000_source_env`, `20260914120000_candidates_ats` and `20260914140000_alert_gate` are on `main` and deployed code depends on them, but the hosted project stops at `20260910000009`. Apply in filename order, align versions, then verify a quote submission persists. | Sean (Supabase access) |
 | **P1** | **Point alerts at Cameron** | Set `DISPATCH_ALERT_TO` to Cameron's dispatch inbox. | Cameron's email |
 | **P1** | **HubSpot CRM Activation** | Input Cameron's HubSpot Access Token / Webhook into Vercel env. | Cameron's HubSpot account |
 | **P1** | **Prove the dispatch line rings** | Gate A2: `(512) 555-0199` is marked confirmed in `site.mjs`, but it sits in the 555-01xx block reserved for fiction. Dial it from an outside phone. | Cameron / Sean |
