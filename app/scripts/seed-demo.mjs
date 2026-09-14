@@ -376,6 +376,14 @@ async function seed() {
     const { session: ownerDb, secret, factorId } = await enrolTotp(ownerUser.email, ownerUser.password);
     log('owner created with a verified TOTP factor');
 
+    /* A second staff account caught mid first sign-in (SPEC-012): authenticator
+       enrolled, temporary password still flagged, so the capture can reach
+       /portal/welcome the way a newly added staff member would. */
+    const staffUser = await createUser(`staff@${DEMO_DOMAIN}`, { role: 'staff', full_name: 'Jordan Ellis' });
+    const { secret: staffSecret } = await enrolTotp(staffUser.email, staffUser.password);
+    must(await admin.auth.admin.updateUserById(staffUser.id, { app_metadata: { must_change_password: true } }), 'flag staff for first sign-in');
+    log('staff created mid first sign-in (authenticator enrolled, must change password)');
+
     const clientUser = await createUser(`client@${DEMO_DOMAIN}`, { role: 'client', client_id: clients.moontower.id, full_name: 'Dana Whitfield' });
 
     const officers = await insert(admin, 'officers', [
@@ -678,6 +686,7 @@ async function seed() {
         chmodSync(path, 0o600);
     };
     write('owner.json', { email: ownerUser.email, password: ownerUser.password, totpSecret: secret, factorId, userId: ownerUser.id, fullName: 'Cameron Harrell', role: 'owner' });
+    write('staff.json', { email: staffUser.email, password: staffUser.password, totpSecret: staffSecret, userId: staffUser.id, fullName: 'Jordan Ellis', role: 'staff', mustChangePassword: true });
     write('client.json', { email: clientUser.email, userId: clientUser.id, clientId: clients.moontower.id, clientName: clients.moontower.name, signIn: 'magic link: auth.admin.generateLink → /auth/confirm?token_hash=…&type=magiclink&next=/client' });
     write('officer.json', { email: officerUser.email, userId: officerUser.id, officerId: officers[0].id, signIn: 'magic link, as client.json' });
     write('ids.json', {

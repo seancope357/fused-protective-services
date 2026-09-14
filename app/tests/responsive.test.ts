@@ -109,7 +109,7 @@ type Ids = {
     clientProposal: string; clientJob: string; clientInvoice: string; payToken: string; reviewToken: string;
 };
 
-type Auth = 'none' | 'owner-partial' | 'owner' | 'client' | 'officer';
+type Auth = 'none' | 'owner-partial' | 'owner' | 'staff-first' | 'client' | 'officer';
 
 type Screen = {
     name: string;
@@ -149,6 +149,7 @@ const SCREENS: Screen[] = [
     S('portal-notifications', '/portal/notifications', 'owner'),
     S('portal-settings', '/portal/settings', 'owner'),
     S('portal-security', '/portal/security', 'owner'),
+    S('portal-welcome', '/portal/welcome', 'staff-first'),
 
     S('client-overview', '/client', 'client'),
     S('client-proposals', '/client/proposals', 'client'),
@@ -386,8 +387,8 @@ d('responsive capture', () => {
        email + password, then /login/mfa with a code from the seeded secret.
        The half-signed-in state (aal1, factor enrolled) is kept too, because it
        is the only state in which /login/mfa renders. */
-    async function signInOwner() {
-        const owner = readJson<{ email: string; password: string; totpSecret: string }>('owner.json');
+    async function signInStaff(file: string, key: 'owner' | 'staff-first', partialKey?: 'owner-partial') {
+        const owner = readJson<{ email: string; password: string; totpSecret: string }>(file);
         const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
         try {
             const page = await context.newPage();
@@ -406,7 +407,7 @@ d('responsive capture', () => {
                 throw new Error(`password sign-in did not reach /login/mfa (at ${page.url()}): ${alert || 'no message'}`);
             });
             await page.waitForLoadState('networkidle').catch(() => {});
-            states['owner-partial'] = await context.storageState();
+            if (partialKey) states[partialKey] = await context.storageState();
 
             for (let attempt = 0; attempt < 2; attempt++) {
                 await waitForFreshStep(6);
@@ -421,7 +422,7 @@ d('responsive capture', () => {
                 await new Promise((r) => setTimeout(r, 31_000));
             }
             await page.waitForLoadState('networkidle').catch(() => {});
-            states.owner = await context.storageState();
+            states[key] = await context.storageState();
         } finally {
             await context.close();
         }
@@ -448,7 +449,9 @@ d('responsive capture', () => {
         ids = readJson<Ids>('ids.json');
         browser = await chromium.launch();
         const needs = new Set(ACTIVE.map((s) => s.auth));
-        if (needs.has('owner') || needs.has('owner-partial')) await signInOwner();
+        if (needs.has('owner') || needs.has('owner-partial')) await signInStaff('owner.json', 'owner', 'owner-partial');
+        /* The staff account lands on /portal/welcome after two-factor: its password is still temporary. */
+        if (needs.has('staff-first')) await signInStaff('staff.json', 'staff-first');
         if (needs.has('client')) states.client = await mintSession(readJson<{ email: string }>('client.json').email, '/client');
         if (needs.has('officer')) states.officer = await mintSession(readJson<{ email: string }>('officer.json').email, '/officer');
     }, 300_000);
