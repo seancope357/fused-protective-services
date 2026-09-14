@@ -3,7 +3,9 @@ name: CI
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
+  workflow_dispatch:
 
 jobs:
   site:
@@ -60,3 +62,26 @@ jobs:
         run: pnpm exec vitest run
       - name: Next.js build
         run: pnpm build
+
+  release-gate:
+    name: Release gate — no placeholder business facts
+    runs-on: ubuntu-latest
+    # Tags and manual runs ONLY. Never on a branch push, never on a pull
+    # request. `node build.mjs --verify-release` exits 1 while the DPS licence
+    # number is still B00000, and only Cameron can supply it — so running this
+    # on push would fail main today and block every other spec in flight.
+    #
+    # The `on:` block above fires this workflow on pushes to main as well, so
+    # this condition is the thing keeping the job off them. Read it as: manual
+    # dispatch, or a push whose ref is a tag. A pull_request event satisfies
+    # neither clause; a push to refs/heads/main fails the startsWith.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/'))
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Generated output matches src/, and no placeholders remain
+        run: node build.mjs --verify-release

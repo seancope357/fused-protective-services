@@ -11,8 +11,9 @@
 
    Confirmed as the dispatch line by Sean on 2026-09-09. If it ever changes,
    edit `display` and `e164` here; nothing else needs to move. Setting
-   `placeholder` back to true re-enables the build warning and the red flag on
-   non-production hosts (see src/templates/partials.mjs and js/modules/env.mjs). */
+   `placeholder` back to true re-enables the build warning, the red flag on
+   every host (see src/templates/partials.mjs), and a failing
+   `node build.mjs --verify-release`. */
 const phone = {
     display: '(512) 555-0199',
     e164: '+15125550199',
@@ -47,14 +48,23 @@ export const site = {
     licenseNumber,
     email: 'dispatch@fusedprotectiveservices.com',
 
-    /* Hosts that serve the real site. Any other host (localhost, a Vercel
-       preview URL) is treated as non-production by js/modules/env.mjs, which
-       reveals the placeholder flags. The production alias on Vercel is listed
-       because it is the public address until the custom domain is connected. */
+    /* Hosts that serve the real site: the apex and www, nothing else.
+
+       This list no longer has anything to do with placeholder flags — those
+       are fail-closed and show on every host (SPEC-001). Its one live reader
+       is api/_lib/http.mjs, which builds the CORS origin allowlist from it.
+       src/templates/page.mjs still copies it into the page's config JSON, but
+       nothing on the client reads it now that js/modules/env.mjs is gone; that
+       emission is dead weight and can be dropped with its own change.
+
+       `fused-protective-services.vercel.app` used to be listed here and was
+       removed: a deploy alias is not the production site, and treating it as
+       one is what let a placeholder licence number render unflagged on the
+       public URL. Vercel's own hostnames are still allowed for CORS at
+       runtime through the VERCEL_* environment variables. */
     productionHosts: [
         'fusedprotectiveservices.com',
-        'www.fusedprotectiveservices.com',
-        'fused-protective-services.vercel.app'
+        'www.fusedprotectiveservices.com'
     ],
 
     address: {
