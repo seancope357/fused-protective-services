@@ -195,7 +195,12 @@ you can run a business on.
       whom. Writing it corrected four things this runbook had wrong — see the note in
       [RUNBOOK §8](RUNBOOK.md). Re-read it once SPEC-003 and SPEC-004 land, so the
       alert an engineer receives names the section that handles it.
-      **Owner: engineering.**
+      The drill's verifier (`app/scripts/verify-restore.mjs`) now runs in CI on every
+      push, against the freshly migrated database, after the test suite has put rows in
+      it — so its SQL is proven continuously rather than first discovered broken during
+      an incident. Both cases were checked by hand before wiring it up: a populated
+      database (20/20 tables, 39 policies, sequence at 236) and a virgin restore
+      (all tables empty, next mint 1); both exit 0. **Owner: engineering.**
 
 ---
 

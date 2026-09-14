@@ -60,6 +60,15 @@ jobs:
         run: node scripts/reset-test-db.mjs
       - name: Unit, notification, Stripe, RLS and numbering tests
         run: pnpm exec vitest run
+      # The restore drill (docs/RESTORE-DRILL.md) is the one procedure nobody
+      # rehearses between incidents, and its verifier is the part of it that
+      # has to work at 3am. app/tests/verify-restore.test.ts pins the report
+      # logic over a fixture; only this step proves the SQL itself still runs
+      # — a renamed column or a dropped sequence breaks the drill silently
+      # otherwise. It runs after the suite so the database has rows and the
+      # invoice-number regex in check 3 has something to match.
+      - name: Restore verifier runs against a real database
+        run: node scripts/verify-restore.mjs "$TEST_DATABASE_URL"
       - name: Next.js build
         run: pnpm build
 
