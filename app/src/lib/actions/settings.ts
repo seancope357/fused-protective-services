@@ -37,13 +37,19 @@ export async function saveSettings(formData: FormData): Promise<void> {
 
 /** Lets the signed-in staff member change their own password. */
 export async function changeOwnPassword(formData: FormData): Promise<void> {
-    await requireStaff();
+    const session = await requireStaff();
     const password = secret(formData, 'password');
     const problem = newPasswordProblem(password, secret(formData, 'confirm'));
     if (problem) done('/portal/settings', problem, 'bad');
     const supabase = await createSupabaseServerClient();
     const { error } = await supabase.auth.updateUser({ password });
     if (error) done('/portal/settings', passwordError(error.code, error.message), 'bad');
+    /* Changing the password here also satisfies a first-sign-in flag. */
+    if (session.mustChangePassword) {
+        const { supabaseAdmin } = await import('@/lib/supabase/admin');
+        await supabaseAdmin().auth.admin.updateUserById(session.userId, { app_metadata: { must_change_password: false } });
+        await supabase.auth.refreshSession();
+    }
     done('/portal/settings', 'Password changed.');
 }
 
@@ -77,6 +83,14 @@ export async function setInitialPassword(formData: FormData): Promise<void> {
        and will clear the flag; the message says so rather than implying
        nothing happened. */
     if (flagError) done('/portal/welcome', 'Your new password is saved, but the portal could not finish setting up your account. Choose another new password and try once more.', 'bad');
+    /* The proxy reads the flag from the session token, which still carries the
+       old value. Refresh it; if that fails, a fresh sign-in issues a clean one
+       rather than leaving the account bouncing between Today and this page. */
+    const { error: refreshError } = await supabase.auth.refreshSession();
+    if (refreshError) {
+        await supabase.auth.signOut();
+        done('/login', 'Your password is set. Sign in again with your new password.');
+    }
     done('/portal', 'Your password is set. Welcome to the portal.');
 }
 

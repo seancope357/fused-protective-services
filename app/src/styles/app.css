@@ -404,7 +404,7 @@
     .dt td :is(a, button, input, select, label, summary):not(td[data-primary] a) { position: relative; z-index: 1; }
     .dt td[data-wide] { display: block; text-align: left; }
     .dt td[data-wide]::before { display: block; max-width: none; margin-bottom: 2px; }
-    .dt [data-hide="phone"], .dt [data-hide="tablet"] { display: none; }
+    .dt :is(td, th)[data-hide="phone"], .dt :is(td, th)[data-hide="tablet"] { display: none; }
 
     @media (min-width: 600px) {
         .card { padding: 18px 20px; }
@@ -432,10 +432,10 @@
         .dt td:not([data-primary]) > :only-child { margin-left: 0; }
         .dt tr:has(td[data-primary] a:hover) td { background: var(--color-surface-glass); }
         .dt tr:has(td[data-primary] a:focus-visible) { outline-offset: -2px; }
-        .dt [data-hide="phone"] { display: table-cell; }
+        .dt :is(td, th)[data-hide="phone"] { display: table-cell; }
     }
     @media (min-width: 1024px) {
-        .dt [data-hide="tablet"] { display: table-cell; }
+        .dt :is(td, th)[data-hide="tablet"] { display: table-cell; }
     }
     @media (min-width: 1024px) and (pointer: fine) {
         .btn--sm { min-height: 34px; }
@@ -544,7 +544,7 @@
         .no-print, .sidebar, .topbar, .tabbar, .sheet, .page-head__primary, .env-banner { display: none !important; }
         .shell { display: block; }
         .shell__main, .shell__main:has(.page-head__primary) { padding: 0; max-width: none; }
-        .paper { box-shadow: none; border-radius: 0; padding: 0; }
+        .paper { box-shadow: none; border-radius: 0; }
         .table-wrap { background: none; overflow: visible; }
         .paper .table-wrap table { min-width: 0; }
         .paper__brand { flex-direction: row; justify-content: space-between; align-items: center; }

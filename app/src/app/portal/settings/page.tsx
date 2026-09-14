@@ -72,10 +72,10 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                             <input id="owner_name" name="owner_name" defaultValue={s.owner_name ?? ''} placeholder="Cameron Harrell" autoComplete="name" />
                         </Field>
                         <Field id="owner_email" label="Email for alerts" hint="Separate more than one with commas. If blank, alerts go to the address set up during installation.">
-                            <input id="owner_email" name="owner_email" type="email" multiple inputMode="email" autoComplete="email" defaultValue={s.owner_email ?? ''} placeholder="name@example.com" aria-describedby="owner_email-hint" />
+                            <input id="owner_email" name="owner_email" type="text" inputMode="email" autoCapitalize="none" spellCheck={false} autoComplete="email" defaultValue={s.owner_email ?? ''} placeholder="name@example.com" aria-describedby="owner_email-hint" />
                         </Field>
                         <Field id="owner_phone" label="Mobile number for text alerts" hint="Include +1, e.g. +15125550123. If blank, texts go to the number set up during installation.">
-                            <input id="owner_phone" name="owner_phone" type="tel" inputMode="tel" autoComplete="tel" pattern="\+[0-9]{8,15}" title="Start with +1, then the 10-digit number, no spaces" defaultValue={s.owner_phone ?? ''} placeholder="+15125550123" aria-describedby="owner_phone-hint" />
+                            <input id="owner_phone" name="owner_phone" type="tel" inputMode="tel" autoComplete="tel" defaultValue={s.owner_phone ?? ''} placeholder="+15125550123" aria-describedby="owner_phone-hint" />
                         </Field>
                         <Field id="default_deposit_pct" label="Deposit % asked for on new quotes">
                             <input id="default_deposit_pct" name="default_deposit_pct" type="number" inputMode="numeric" min={0} max={100} defaultValue={s.default_deposit_pct ?? ''} />

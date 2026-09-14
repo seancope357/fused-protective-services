@@ -79,8 +79,9 @@ export default async function Dashboard() {
        lead, and "New leads" is the number the owner acts on. */
     const [leads, { data: shifts }, { data: unpaid }, { data: paidThisMonth }, facts] = await Promise.all([
         listLeads({ stage: 'new', limit: 10 }),
-        /* From shifts, not jobs.starts_at: a standing detail's starts_at is its first shift. */
-        supabase.from('shifts').select('starts_at, jobs(id, title, job_number, status)').neq('status', 'cancelled').gte('starts_at', now.toISOString()).lte('starts_at', in7).order('starts_at').limit(200),
+        /* From shifts, not jobs.starts_at: a standing detail's starts_at is its
+           first shift. ends_at, not starts_at, so a shift under way now counts. */
+        supabase.from('shifts').select('starts_at, jobs(id, title, job_number, status)').neq('status', 'cancelled').gte('ends_at', now.toISOString()).lte('starts_at', in7).order('starts_at').limit(200),
         supabase.from('invoices').select('*').in('status', ['sent', 'partially_paid', 'overdue']).order('due_date'),
         supabase.from('payments').select('amount_cents').eq('status', 'succeeded').gte('received_at', monthStart),
         gettingStartedFacts()

@@ -59,6 +59,8 @@ export function TabBar({ items, root, area, account }: { items: NavItem[]; root:
     const current = activeHref(pathname, items, root);
     const tabs = items.filter((item) => item.tab);
     const rest = items.filter((item) => !item.tab);
+    /* When the current page lives in the sheet, the More tab stands in for it. */
+    const moreCurrent = rest.find((item) => item.href === current);
     const sheet = useRef<HTMLDialogElement>(null);
     const [open, setOpen] = useState(false);
 
@@ -91,11 +93,12 @@ export function TabBar({ items, root, area, account }: { items: NavItem[]; root:
                         aria-haspopup="dialog"
                         aria-expanded={open}
                         aria-controls="more-sheet"
-                        data-active={rest.some((item) => item.href === current) || undefined}
+                        data-active={moreCurrent ? true : undefined}
+                        aria-current={moreCurrent ? 'true' : undefined}
                         onClick={openSheet}
                     >
                         <Icon name="more" />
-                        <span>More</span>
+                        <span>More{moreCurrent ? <span className="visually-hidden">, current page: {moreCurrent.label}</span> : null}</span>
                         <Count n={hiddenCount(items)} />
                     </button>
                 ) : null}

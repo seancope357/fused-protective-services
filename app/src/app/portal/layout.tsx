@@ -12,9 +12,10 @@ export default async function PortalLayout({ children }: { children: React.React
     /* An account made from Settings starts on a temporary password. After its
        first two-factor sign-in it sets its own before anything else (SPEC-012).
        The proxy has already enforced MFA by the time this runs. */
-    /* MFA-exempt pages (Security, where a new account enrols) must not bounce to
-       /portal/welcome, or the proxy sends the account straight back: enrol
-       first, then set the password. */
+    /* The proxy enforces this on every request from the session token; this
+       server-side read (getUser, always fresh) is defence in depth. MFA-exempt
+       pages (Security, where a new account enrols) are left alone: enrol first,
+       then set the password. */
     const path = (await headers()).get('x-pathname') ?? '';
     if (session.mustChangePassword && path !== '/portal/welcome' && !isMfaExempt(path)) redirect('/portal/welcome');
     const supabase = await createSupabaseServerClient();

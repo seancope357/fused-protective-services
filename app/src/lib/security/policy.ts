@@ -69,3 +69,17 @@ export function newPasswordProblem(password: string, confirm: string): string | 
     if (password !== confirm) return 'The two passwords do not match.';
     return null;
 }
+
+/* ---------- First sign-in ---------- */
+
+/** True when an account still on a temporary password must be sent to
+    /portal/welcome (SPEC-012). Enforced in the proxy, which runs on every
+    request including client-side navigations — a shared layout does not
+    re-render on those, so a layout-only check could be skipped by tapping a
+    nav link. MFA-exempt paths are left alone so two-factor enrolment and
+    sign-out always work. */
+export function needsInitialPassword(appMetadata: Record<string, unknown> | null | undefined, path: string): boolean {
+    if (appMetadata?.must_change_password !== true) return false;
+    if (path !== '/portal' && !path.startsWith('/portal/')) return false;
+    return path !== '/portal/welcome' && !isMfaExempt(path);
+}

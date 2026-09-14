@@ -75,17 +75,21 @@ export function occurrences(startsAt: string, endsAt: string, rule: string | nul
     const firstDay = Date.UTC(w.y, w.mo - 1, w.d);
     const lastDay = Date.UTC(Number(untilMatch[1]), Number(untilMatch[2]) - 1, Number(untilMatch[3]));
     const byDay = parsed.byDay.length ? parsed.byDay : [new Date(firstDay).getUTCDay()];
+    // Days from the Monday of the first shift's week (RFC 5545's default WKST).
+    const weekOffset = (new Date(firstDay).getUTCDay() + 6) % 7;
     const out: Occurrence[] = [];
 
     for (let day = firstDay, i = 0; day <= lastDay && out.length < cap; day += DAY_MS, i++) {
         const date = new Date(day);
         // DAILY: every `interval` days. WEEKLY: matching weekdays in every
-        // `interval`-th 7-day block counted from the first shift.
+        // `interval`-th calendar week, counted from the first shift's week.
         const due = parsed.freq === 'DAILY'
             ? i % parsed.interval === 0
-            : Math.floor(i / 7) % parsed.interval === 0 && byDay.includes(date.getUTCDay());
+            : Math.floor((i + weekOffset) / 7) % parsed.interval === 0 && byDay.includes(date.getUTCDay());
         if (!due) continue;
-        const at = fromWallClock(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate(), w.h, w.mi, w.s, start.getUTCMilliseconds());
+        // Day 0 is the job's own instant: in the repeated autumn hour the wall
+        // clock alone names two instants, and the first precedes the real start.
+        const at = i === 0 ? start.getTime() : fromWallClock(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate(), w.h, w.mi, w.s, start.getUTCMilliseconds());
         if (at < start.getTime()) continue;
         out.push({ starts_at: new Date(at).toISOString(), ends_at: new Date(at + duration).toISOString() });
     }

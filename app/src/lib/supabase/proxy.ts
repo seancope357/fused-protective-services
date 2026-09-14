@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import { evaluateSession, evaluateMfa, isMfaExempt, SESSION } from '@/lib/security/policy';
+import { evaluateSession, evaluateMfa, isMfaExempt, needsInitialPassword, SESSION } from '@/lib/security/policy';
 
 const PROTECTED = ['/portal', '/client', '/officer'];
 const MARK_START = 'fps_session_start';
@@ -89,6 +89,12 @@ export async function updateSession(request: NextRequest) {
             response.cookies.set(MFA_OK, aal, { ...cookieOpts, maxAge: MFA_OK_TTL_S });
         }
     }
+
+    /* ---- First sign-in on a temporary password (SPEC-012) ----
+       Here and not only in the portal layout: layouts do not re-render on
+       client-side navigation. Runs after MFA, so enrolment comes first. */
+    const appMetadata = (claims as { app_metadata?: Record<string, unknown> }).app_metadata;
+    if (needsInitialPassword(appMetadata, path)) return redirect(request, '/portal/welcome');
 
     return finish(response, csp);
 }
