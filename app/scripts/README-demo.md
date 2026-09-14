@@ -79,3 +79,13 @@ pnpm dev --port 3200
 RESPONSIVE_PORTAL_URL=http://localhost:3200 SCREENS_LABEL=before \
   DEMO_DIR=/path/to/this/worktree/app/.demo pnpm exec vitest run tests/responsive.test.ts
 ```
+
+## Troubleshooting
+
+- **"Too many sign-in attempts. Wait 15 minutes and try again."** The capture signs in through the
+  real login gate (5 attempts per email, 10 per address, per 15 minutes). Repeated runs use it up.
+  `pnpm demo:seed` clears the local gate window along with the data, so re-seed instead of waiting.
+- **The run says it passed but produced no screenshots.** Check the exit code of `pnpm screens`
+  itself: piping it (`pnpm screens | tail`) reports the pipe's status, not the suite's. A failed
+  sign-in skips every capture and still writes an empty `report.json`.
+- **`supabase start` fails mounting the Docker socket** under Colima: start with `-x vector`.
