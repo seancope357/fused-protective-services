@@ -16,7 +16,8 @@ export const invoiceHead = () => html`
     <title>Invoicing — ${site.name}</title>
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#050504">
-    <link rel="icon" type="image/png" href="${site.logo}">
+    <link rel="icon" type="image/png" sizes="32x32" href="${site.icons.favicon}">
+    <link rel="apple-touch-icon" sizes="180x180" href="${site.icons.appleTouch}">
 
     <!-- Google Fonts — same faces as the site so the document matches the brand -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

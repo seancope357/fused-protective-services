@@ -83,6 +83,81 @@ On 2026-08-26, a prototype featuring live Three.js gyroscopic 3D sigils in the b
 
 ---
 
+## 🖼️ Brand Asset Set (`assets/`)
+
+Every file below is a **derivative of one master**, `assets/logo.png` (1000×1000, the
+photographed 3D brushed-gold shield plate). The master is the only file a designer ever
+replaces. Derivatives are generated **once**, by hand, and committed.
+
+| File | Size | Bytes | Job |
+| :--- | :--- | ---: | :--- |
+| `logo.webp` | 1000×1000 | 133,962 | Brand plate (nav, hero, footer, invoice) **and** the voxel forge texture — one fetch serves both |
+| `logo-512.png` | 512×512 | 160,453 | The portal's copy, mirrored to `app/public/logo.png` by `app/scripts/sync-shared.mjs` |
+| `icon-32.png` | 32×32 | 575 | Favicon |
+| `icon-180.png` | 180×180 | 7,676 | `apple-touch-icon` |
+| `icon-512.png` | 512×512 | 48,895 | Large icon; the `schema.org` square `logo` |
+| `og-card.png` | 1200×630 | 175,491 | OpenGraph + Twitter `summary_large_image` |
+| `logo.png` | 1000×1000 | 1,095,464 | **Master. Not served** — no page links it. |
+
+Paths are declared once in `src/data/site.mjs` (`logo`, `logoFallback`, `icons`, `ogCard`)
+and `build.mjs` refuses to build if any of them is missing from the checkout.
+
+### Regenerating
+
+```sh
+./scripts/build-assets.sh          # then: node build.mjs && node --test 'tests/*.test.mjs'
+```
+
+`build.mjs` is zero-dependency and **must never import an image library**. The script is
+therefore not a build step: it uses pinned `npx sharp-cli@5.1.0` and `npx playwright@1.56.1`,
+installs nothing into the repository, and exists so the work is reproducible — not so CI
+can run it.
+
+### Why the plate is full-resolution WebP
+
+`js/logo-forge.js` shatters the plate into ~65k cubes. Two separate things were measured on
+a real headless Chromium at 1× and 2× DPR, because they are commonly confused:
+
+* **Cube count** comes from `GRID_ROWS = 256`, not from the source. The sampler box-filters
+  the plate down to 256×256 whatever it is handed, and the master has no alpha channel, so
+  all 65,536 cells become cubes — at every source resolution tested.
+* **Sharpness** comes from the source, which is uploaded to the GPU whole and tiled across
+  the cubes. Acutance of the settled emblem, against the 1000×1000 master at 2× DPR:
+
+  | Source | Retained | Bytes |
+  | :--- | ---: | ---: |
+  | 1000² PNG (master) | 100% | 1,095,464 |
+  | **1000² WebP q95** | **94.6%** | **133,962** |
+  | 1000² WebP q90 | 84.3% | 66,520 |
+  | 512² PNG | 78.4% | 157,501 |
+  | 256² PNG | ~68% | 39,963 |
+
+  Run-to-run variation is 0.6% (cube depths are randomised), so the losses are real signal.
+
+So the plate shrank **by re-encoding, not by resizing**: q95 at full size is both smaller
+than a 512 downscale and 16 points sharper. Do not "optimise" it by resizing.
+
+### Why there is no `<picture>` fallback
+
+`css/site.css` is built around `@layer`, which shipped in 2022 — a year and a half after
+WebP became universal. A browser that cannot decode `logo.webp` cannot lay out the page it
+sits on, so a PNG fallback would be dead weight.
+
+### The social card is composed, not cropped
+
+`scripts/og-card.mjs` typesets it — emblem, Cinzel wordmark on the
+`--gradient-gold-metallic` ramp, `PROTECTIVE SERVICES` at `0.345em` tracking, a positioning
+line, and the city strip — on `--color-void` with a single warm source behind the emblem.
+Every word is read from `src/data/site.mjs`, so the card cannot drift from the page, and
+the generator **fails rather than falling back to system fonts** if Cinzel and Outfit do not
+load. The DPS licence number is deliberately absent: it is still a placeholder, and an
+image cannot carry the red flag the page uses to stay honest about it.
+
+The icons are cropped to the **shield alone** — at 32px the `FUSED` wordmark beneath it is
+noise. Crop box, measured from the master: `extract 96 249 500 500`.
+
+---
+
 ## ⏱️ Motion Physics & Kinetic Systems
 
 Animations follow real-world physical inertia curves defined in `tokens.css`:

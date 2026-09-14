@@ -14,7 +14,7 @@ const structuredData = () => ({
             '@id': `${site.url}/#organization`,
             name: site.name,
             url: site.url,
-            logo: `${site.url}/${site.logo}`,
+            logo: `${site.url}/${site.icons.large}`,
             telephone: site.phone.e164,
             email: site.email,
             identifier: {
@@ -35,7 +35,7 @@ const structuredData = () => ({
                 '@type': 'Organization',
                 name: site.name,
                 sameAs: site.url,
-                logo: `${site.url}/${site.logo}`
+                logo: `${site.url}/${site.icons.large}`
             },
             jobLocation: {
                 '@type': 'Place',
@@ -70,13 +70,18 @@ export const careersHead = () => html`
     <meta name="author" content="${site.name}">
     <meta name="theme-color" content="#050504">
     <link rel="canonical" href="${site.url}/careers">
-    <link rel="icon" type="image/png" href="${site.logo}">
+    <link rel="icon" type="image/png" sizes="32x32" href="${site.icons.favicon}">
+    <link rel="apple-touch-icon" sizes="180x180" href="${site.icons.appleTouch}">
 
     <!-- OpenGraph Metadata -->
     <meta property="og:site_name" content="${site.name}">
     <meta property="og:title" content="${careersSeo.title}">
     <meta property="og:description" content="${careersSeo.description}">
-    <meta property="og:image" content="${site.url}/${site.logo}">
+    <meta property="og:image" content="${site.url}/${site.ogCard.path}">
+    <meta property="og:image:width" content="${site.ogCard.width}">
+    <meta property="og:image:height" content="${site.ogCard.height}">
+    <meta property="og:image:alt" content="${site.ogCard.alt}">
+    <meta property="og:image:type" content="image/png">
     <meta property="og:type" content="website">
     <meta property="og:url" content="${site.url}/careers">
 

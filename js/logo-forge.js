@@ -26,7 +26,13 @@
 
 /* ── configuration ─────────────────────────────────────────────── */
 
-const IMAGE_SRC    = 'assets/logo.png';   // same plate the nav and hero already load
+/* Still the same plate the nav and hero load, so a first view fetches it once.
+   It is WebP now, and still 1000x1000: GRID_ROWS below decides how many cubes
+   there are, but the texture below decides how sharp they look, and a browser
+   render at 1x and 2x DPR put a 512 source 22% down on the settled emblem's
+   acutance. Re-encoding cost 5% and 88% of the bytes. scripts/build-assets.sh
+   has the numbers. */
+const IMAGE_SRC    = 'assets/logo.webp';
 const GRID_ROWS    = 256;      // vertical resolution; columns follow the image ratio
 const CUBE_SIZE    = 1.00;
 const ASSEMBLE_Z   = 180;      // camera z at full scroll

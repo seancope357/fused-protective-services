@@ -21,7 +21,7 @@
    generated file from silently surviving.
    ========================================================================== */
 
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -102,6 +102,38 @@ const artefacts = () => [
     { path: join(ROOT, 'careers.html'), contents: String(careersPage()) },
     ...legalPages.map((page) => ({ path: join(ROOT, page.file), contents: String(legalPage(page)) }))
 ];
+
+/* Every file in assets/ that the generated pages point at. The derivatives are
+   made by scripts/build-assets.sh — outside the build, on purpose, because
+   build.mjs must never depend on an image library — and committed. That is
+   exactly why this list needs checking: nothing regenerates these, so a rename,
+   a bad merge or a deploy that drops one is a broken image on a live page and
+   nothing anywhere fails first.
+
+   Reading the filesystem stays deterministic: same checkout, same answer, no
+   clock, no environment, no network (invariant 8). */
+const referencedAssets = () => [
+    site.logo,
+    site.logoFallback,
+    site.icons.favicon,
+    site.icons.appleTouch,
+    site.icons.large,
+    site.ogCard.path
+];
+
+function assertAssets() {
+    const missing = referencedAssets().filter((rel) => !existsSync(join(ROOT, rel)));
+
+    if (missing.length) {
+        console.error('\nReferenced assets are missing from the checkout:');
+        for (const rel of missing) console.error(`  MISSING  ${rel}`);
+        console.error(
+            `\n${missing.length} asset${missing.length === 1 ? ' is' : 's are'} referenced by src/ but not on disk. ` +
+            'Regenerate with ./scripts/build-assets.sh and commit the result.'
+        );
+        process.exit(1);
+    }
+}
 
 function write() {
     mkdirSync(join(ROOT, 'css'), { recursive: true });
@@ -184,6 +216,11 @@ function verifyRelease() {
 }
 
 warnPlaceholders();
+
+/* Before anything else: a page that renders perfectly while pointing at an
+   icon that is not there is the failure this catches, and it is worth catching
+   in every mode — writing, checking and releasing alike. */
+assertAssets();
 
 if (process.argv.includes('--verify-release')) {
     console.log('Verifying release readiness...');
