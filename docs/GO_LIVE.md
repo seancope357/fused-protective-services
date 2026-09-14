@@ -126,11 +126,20 @@ done until that step passes.
       at a hostname that does not resolve. **Owner: Cameron** (registrar) **/ Sean** (Vercel).
 - [ ] **C2 · `APP_URL` set to the app subdomain and redeployed.** Every emailed link is
       built from it. **Owner: Sean.**
-- [ ] **C3 · Stop preview deploys writing to the production database.** → [**SPEC-002**](../specs/SPEC-002-environment-separation.md) The Supabase
-      variables are injected into *all* Vercel environments, so every pull-request preview
-      of either project reads and writes live client data — and a preview submission lands
-      in Cameron's real leads inbox. Point preview at a Supabase branch (or a second
-      project) and keep `sk_test_` keys scoped to preview. **Owner: engineering.**
+- [ ] **C3 · Stop preview deploys writing to the production database.** → [**SPEC-002**](../specs/SPEC-002-environment-separation.md) (code shipped)
+      **The code half is done.** Every row from a non-production deployment is
+      labelled `source_env`; outside production the owner email, emergency SMS,
+      visitor confirmation and webhook are all skipped and honestly reported as
+      `non_production_env`; the scheduler refuses to run; the portal shows a red
+      banner naming the environment and Supabase project ref; and the leads inbox,
+      dashboard and nav badge read production rows only. The production scheduler
+      also filters to production rows, so a preview lead can no longer page a phone
+      even while previews still share the database.
+      **What is left is Sean's, in a dashboard:** create the Supabase `preview`
+      branch and scope the variables to it ([RUNBOOK §1a](RUNBOOK.md)). Until then
+      previews still *read and write* production data — labelled and silent, but
+      present. **Owner: Sean.**
+
 - [x] **C4 · `productionHosts` no longer carries a deploy alias.** Done in
       [**SPEC-001**](../specs/SPEC-001-placeholder-guardrail.md): `src/data/site.mjs` lists
       only the apex and `www`. Note the list has a second consumer —
@@ -157,9 +166,17 @@ you can run a business on.
       whether the assessment quiz, the estimator or the WebGL intro help or hurt, or what a
       lead costs. Privacy-first and cookieless keeps the privacy policy accurate as written.
       **Owner: Sean.**
-- [ ] **D4 · Database backups — and one restore drill.** → [**SPEC-011**](../specs/SPEC-011-incident-and-restore.md) Confirm the Supabase plan's backup
-      cadence and point-in-time recovery window, then actually restore into a scratch
-      project once. An untested backup is a hypothesis. **Owner: engineering.**
+- [ ] **D4 · Database backups — and one restore drill.** → [**SPEC-011**](../specs/SPEC-011-incident-and-restore.md)
+      The procedure is written and ready to run: [`RESTORE-DRILL.md`](RESTORE-DRILL.md).
+      **It has not been run.** Nobody has confirmed the plan's backup cadence or
+      point-in-time recovery window, and no restore of this database has ever been
+      attempted — an untested backup is a hypothesis. It needs Supabase dashboard
+      access and a scratch project, so no agent could do it. **Owner: Sean.**
+      **Verify:** every result field in RESTORE-DRILL.md §6 filled in and signed,
+      with `verify-restore.mjs` and `pnpm test:db` green against the restored
+      database. If the plan has no PITR, that is a cost decision to make before
+      launch, not after.
+
 - [ ] **D5 · Secrets inventory and rotation.** ~18 variables across two projects
       ([RUNBOOK §9](RUNBOOK.md)). Record who holds each account, confirm
       `SUPABASE_SERVICE_ROLE_KEY` is server-only in both, and confirm the two
@@ -171,10 +188,14 @@ you can run a business on.
       password-only session once a factor exists — so enrolment is also what proves the
       control works. Create Cameron's account at Portal → Settings → *Add command staff*.
       **Owner: Sean + Cameron.**
-- [ ] **D8 · Rollback and incident procedure, written down.** → [**SPEC-011**](../specs/SPEC-011-incident-and-restore.md) Which Vercel deployment to
-      promote back to, how to disable the cron, who to call when payments misbehave, and
-      the fact that migrations are additive and applied by hand through the dashboard.
-      One page in `docs/`. **Owner: engineering.**
+- [x] **D8 · Rollback and incident procedure, written down.** → [**SPEC-011**](../specs/SPEC-011-incident-and-restore.md)
+      [`INCIDENT.md`](INCIDENT.md): first-minute triage across both Vercel projects,
+      four reversible stop-the-bleeding actions each naming what breaks and what
+      degrades honestly, five scenarios with their first three steps, and who tells
+      whom. Writing it corrected four things this runbook had wrong — see the note in
+      [RUNBOOK §8](RUNBOOK.md). Re-read it once SPEC-003 and SPEC-004 land, so the
+      alert an engineer receives names the section that handles it.
+      **Owner: engineering.**
 
 ---
 

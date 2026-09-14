@@ -62,6 +62,70 @@ TEST_DATABASE_URL=postgres://localhost/fused_test pnpm exec vitest run tests/db
 `supabase/tests/auth_shim.sql` reproduces the `auth` schema and roles the policies
 depend on. The RLS suite proves a client cannot read another client's invoice.
 
+### 1a. Preview must not touch production
+
+The Marketplace integration injects the Supabase variables into **every**
+environment, and both Vercel projects build a preview for every pull request.
+Until this is done, a form submission on any preview URL writes a real row to
+`client_quotes`. The code already labels those rows (`source_env`) and refuses to
+email, text or forward anything outside production — this step is what stops a
+preview *reading and writing production data at all*.
+
+1. Supabase dashboard → the project → **Branches** → create a persistent branch
+   named `preview`. It applies `supabase/migrations/` on creation, so it starts
+   schema-identical to production with no data.
+2. Copy the branch's **Project URL**, **anon key** and **service_role key** from
+   that branch's API settings. They differ from production by project ref — that
+   ref is what the portal's preview banner displays, so you can confirm at a
+   glance which database a preview is talking to.
+3. On **both** Vercel projects, scope those values to preview only. Vercel will
+   not accept a second value for a key that already has one in that environment,
+   so remove the integration's preview-scoped copy first:
+
+   ```bash
+   # root project (fused-protective-services)
+   vercel env rm  SUPABASE_URL preview
+   vercel env rm  SUPABASE_SERVICE_ROLE_KEY preview
+   vercel env add SUPABASE_URL preview
+   vercel env add SUPABASE_SERVICE_ROLE_KEY preview
+
+   # portal (cd app)
+   vercel env rm  SUPABASE_URL preview
+   vercel env rm  SUPABASE_SERVICE_ROLE_KEY preview
+   vercel env rm  NEXT_PUBLIC_SUPABASE_URL preview
+   vercel env rm  NEXT_PUBLIC_SUPABASE_ANON_KEY preview
+   vercel env add SUPABASE_URL preview
+   vercel env add SUPABASE_SERVICE_ROLE_KEY preview
+   vercel env add NEXT_PUBLIC_SUPABASE_URL preview --no-sensitive
+   vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY preview --no-sensitive
+   ```
+
+   The two `NEXT_PUBLIC_` values must stay **non-sensitive**: they are inlined at
+   build time, and a sensitive value bakes the literal `[SENSITIVE]` into the bundle.
+4. Keep Stripe test keys preview-scoped the same way — `STRIPE_SECRET_KEY` on
+   preview must be an `sk_test_` key, with its own `STRIPE_WEBHOOK_SECRET` from a
+   test-mode endpoint. A preview holding a live key can charge a real card.
+5. Leave production untouched. Nothing in this step changes a production value.
+
+**A second Supabase project works identically** if you prefer one over a branch:
+same variable names, same scoping, no code changes. The branch is recommended only
+because it tracks this repository's migrations and costs nothing extra. Whichever
+you choose, **apply new migrations to it as well** — a preview against a stale
+schema fails on insert, which looks like a code bug.
+
+**Verify the separation.** Open any preview URL and submit the quote form.
+
+- The response reports `"environment": "preview"`, `delivery.persisted: true`, and
+  every other stage `false` with `delivery.skipped.<stage>: "non_production_env"`.
+- Nothing arrives in the Leads inbox, on the dispatch phone, or at the webhook.
+- The row appears in `client_quotes` **on the branch**, with `source_env = 'preview'`.
+- The row does **not** appear in production:
+  `SELECT count(*) FROM client_quotes WHERE source_env <> 'production';` returns `0`.
+- The portal preview shows a red banner naming the environment and the branch's
+  project ref. If it names the production ref, step 3 did not take.
+- `GET /api/cron/tick` on a preview (with the bearer token) answers
+  `{ "ok": true, "skipped": "non_production_env" }` and sends nothing.
+
 **Verify.** Submit the quote form on the live site. The response JSON carries
 `delivery.persisted: true`; the row appears in `client_quotes` and in the portal's
 Leads inbox.
@@ -227,6 +291,23 @@ The CI workflow (`.github/workflows/ci.yml`) runs the drift check, the intake te
 the portal typecheck, the unit suite, the RLS and numbering suite against a Postgres
 service container, and `next build` on every push and pull request.
 
+**When something is wrong**, stop reading this file and open
+[`INCIDENT.md`](INCIDENT.md): which surface is affected, how to roll back either
+Vercel project, how to stop the scheduler, payments or outbound messaging safely,
+and the first three steps for the scenarios that have been thought through.
+Restoring the database is [`RESTORE-DRILL.md`](RESTORE-DRILL.md) — a procedure,
+**not yet a proven one**: nobody has run the drill.
+
+> Four things `INCIDENT.md` corrects about this runbook's assumptions, each
+> verified against the source: an environment-variable change does **not** reach a
+> running deployment (it needs a redeploy — rolling the Stripe key *in Stripe* is
+> the instant move, and leaves the webhook verifying); removing
+> `DISPATCH_ALERT_FROM` stops client email but **not** owner alerts, which fall
+> back to `onboarding@resend.dev`; a lead counts as delivered if it reached
+> storage **or** the owner, so a Supabase outage does not simply lose leads; and
+> stopping the scheduler loses the one-tick-wide sends (24 h reminders, the daily
+> digest, day 1/7/14 overdue) permanently rather than delaying them.
+
 ---
 
 ## 9. Environment variable index
@@ -246,6 +327,7 @@ service container, and `next build` on every push and pull request.
 | `DISPATCH_ALERT_SMS_TO` | both | owner alert mobile (fallback for Settings) |
 | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` | both | SMS; inbound signature check |
 | `TWILIO_MESSAGING_SERVICE_SID` or `TWILIO_FROM` | both | SMS sender |
+| `VERCEL_ENV` | both | set automatically by Vercel; the only input to `deployEnv()`. Absent means development, so a non-Vercel runtime never sends. **Never set this by hand.** |
 | `DISPATCH_ALERT_WEBHOOK` | root | optional JSON forward |
 | `STRIPE_SECRET_KEY` | portal | payments |
 | `STRIPE_WEBHOOK_SECRET` | portal | payment confirmation |
