@@ -187,6 +187,34 @@ Animations follow real-world physical inertia curves defined in `tokens.css`:
 
 ---
 
+## 📱 Portal responsive rules (`app/`, SPEC-012)
+
+The portal's owner runs it from a phone. These rules are what keep every screen usable at 320px
+without anyone having to remember them page by page.
+
+* **Mobile-first, two breakpoints.** A rule with no media query is a phone rule. `min-width: 600px`
+  brings back tables and multi-column forms; `min-width: 1024px` swaps the tab bar for the sidebar.
+  Never write a `max-width` query. The calendar is the one exception: its month grid needs 768px.
+* **Nothing scrolls sideways.** Only an inner `overflow-x: auto` container may (a filter strip, a
+  paper's line items). Grid and flex children carry `min-width: 0`; user text that can be long wraps.
+* **Touch targets are 44px.** Buttons, chips, tabs, sheet links, summaries and inputs are at least
+  44px tall on phones and tablets. `.btn--sm` and `.chip` drop to 34px only on a desktop with a fine
+  pointer. WCAG 2.2 SC 2.5.8 sets 24px as the floor; 44px (Apple HIG) is this product's standard.
+* **Inputs are 16px.** iOS Safari zooms the page on focusing any field under 16px. Give every field
+  the right `type`, `inputMode`, `autoComplete` and `enterKeyHint`.
+* **One primary action per screen**, in `PageHead primary`. Below 1024px it is pinned above the tab
+  bar; destructive actions are never primary.
+* **Lists are `DataTable`.** One `primary` column holds the row's link (the phone card's title and tap
+  target); `hide: 'phone' | 'tablet'` removes what a small screen does not need.
+* **Status colour comes from tokens** (`--status-good`, `--status-bad`, `--status-warn` and the
+  `.status-*` utilities), never inline hex.
+* **Operator language.** Visible text never names environment variables, repository paths or
+  implementation details; put those in a collapsed "Technical detail" `Disclosure`.
+* **Verify with the capture suite, not by eye alone:** `app/tests/responsive.test.ts` signs in to a
+  seeded local stack and checks every screen at 320, 375, 768 and 1280px (`app/scripts/README-demo.md`).
+
+---
+
 ## ♿ Accessibility Baseline (WCAG 2.1 AA)
 
 All user interface elements strictly adhere to the accessibility baseline established during the 2026 rebuild.

@@ -516,10 +516,14 @@ desktop width.
 four tested pages are clean at 200% zoom (640 × 400 and 640 × 512 CSS px).
 
 <a id="a11y-07"></a>
-### A11Y-07 · Portal `/login` has no heading and no `<main>` landmark — **Moderate**
+### A11Y-07 · Portal `/login` has no heading and no `<main>` landmark — **Moderate** · ✅ fixed in code (SPEC-012)
 
 **WCAG:** 2.4.6 Headings and Labels (AA); 1.3.1 Info and Relationships (A)
-**File:** `app/src/app/login/page.tsx` — ⚠️ **owned by SPEC-002/ISOLATION this wave; not touched here**
+**File:** `app/src/app/login/page.tsx`
+
+> **Fixed 2026-09-14 by SPEC-012:** `/login` and `/login/mfa` now render `<main id="main">`, and `/login`
+> has a visible `<h1>Sign in</h1>` (`/login/mfa` already had one). Re-scan with the seeded capture
+> suite before closing this finding. The original observation is kept below.
 
 axe reports **zero violations** on this page at the WCAG AA tag set, and that is a true result — the
 relevant axe rules (`page-has-heading-one`, `landmark-one-main`, `region`) sit under axe's
