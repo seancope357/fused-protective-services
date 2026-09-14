@@ -137,11 +137,12 @@ old browser-stored invoices for import into the portal.
 
 ## ☎️ The licence number and the dispatch line
 
-`B00000` stands in for the DPS licence number. Set `licenseNumber` in
-[`src/data/site.mjs`](src/data/site.mjs), flip its `placeholder` to `false`, and run
-`node build.mjs`; the footer, schema.org record, proposals and invoices all follow. Until
-then the build warns, a red PLACEHOLDER flag renders beside it on **every** host, and
-`node build.mjs --verify-release` exits 1.
+The DPS licence number is `01766480` (supplied 2026-09-14), set in `licenseNumber` in
+[`src/data/site.mjs`](src/data/site.mjs); the footer, schema.org record, proposals and
+invoices all read it. Any fact marked `placeholder: true` makes the build warn, renders a
+red PLACEHOLDER flag beside it on **every** host, and makes
+`node build.mjs --verify-release` exit 1. The DPS-record street address the same rule
+requires is still owed ([`docs/OPEN_QUESTIONS.md`](docs/OPEN_QUESTIONS.md) §2).
 
 The dispatch phone `(512) 555-0199` is marked confirmed, but it sits in the 555-01xx
 block reserved for fiction — dial it before launch ([`docs/GO_LIVE.md`](docs/GO_LIVE.md) A2).

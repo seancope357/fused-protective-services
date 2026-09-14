@@ -84,8 +84,8 @@ interface SiteConfig {
     };
     licenseNumber: {
         label: string;               // "Texas DPS Private Security Licence"
-        value: string;               // "B00000"
-        placeholder: boolean;        // true — red flag on every host; --verify-release fails
+        value: string;               // "01766480"
+        placeholder: boolean;        // false — when true: red flag on every host; --verify-release fails
     };
     email: string;                   // "dispatch@fusedprotectiveservices.com"
     productionHosts: string[];       // Apex and www only; feeds the CORS allowlist in api/_lib/http.mjs

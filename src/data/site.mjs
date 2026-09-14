@@ -20,16 +20,15 @@ const phone = {
     placeholder: false
 };
 
-/* TODO(cameron): 37 Tex. Admin. Code §35.9 requires a licensed security company
-   to show its DPS license number — and its address as it appears in DPS records,
-   unless that is a residential address — in any advertisement, which includes
-   this website. Replace `value` with the company licence number (format B12345 or
-   C12345) and set `placeholder` to false. Until then the footer and the
-   schema.org record carry a labelled placeholder. */
+/* 37 Tex. Admin. Code §35.9 requires a licensed security company to show its DPS
+   license number — and its address as it appears in DPS records, unless that is a
+   residential address — in any advertisement, which includes this website.
+   Number supplied by Sean 2026-09-14.
+   TODO(cameron): the DPS-record address; `address` below has no street field yet. */
 const licenseNumber = {
     label: 'Texas DPS Private Security Licence',
-    value: 'B00000',
-    placeholder: true
+    value: '01766480',
+    placeholder: false
 };
 
 export const site = {

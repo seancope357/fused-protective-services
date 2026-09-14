@@ -46,7 +46,8 @@ deduplication.
 advertising in Texas is regulated; every item below is either a legal requirement or a
 statement the site makes that must be true.
 
-- [ ] **A1 · Texas DPS licence number.** `src/data/site.mjs` → `licenseNumber.value`, then
+- [ ] **A1 · Texas DPS licence number.** *Number done 2026-09-14 (`01766480`); the DPS-record
+      address below is still open.* `src/data/site.mjs` → `licenseNumber.value`, then
       `placeholder: false`, then `node build.mjs`. 37 Tex. Admin. Code §35.9 requires it in
       advertising, and this website is advertising. The same rule requires the company
       address as it appears in DPS records (unless residential); the site shows only

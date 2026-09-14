@@ -13,13 +13,13 @@ Placeholders are flagged in red on every host, production included, so none can 
 `src/data/site.mjs`. Note: 555-01xx is the block reserved for fiction in the North
 American numbering plan; if the line does not ring, edit `display` and `e164` there.
 
-## 2. Texas DPS Private Security licence number
+## 2. Texas DPS Private Security licence number — number supplied 2026-09-14; address open
 
-- **TODO(cameron):** the company licence number (format `B12345` or `C12345`).
-- **File:** `src/data/site.mjs` → `licenseNumber.value`, set `placeholder: false`.
-- **Renders in:** footer, schema.org `identifier`, proposal and invoice headers.
-- **If left:** `B00000` is shown. 37 Tex. Admin. Code §35.9 requires the number in every
-  advertisement, websites included.
+- **Number:** `01766480`, supplied by Sean; `placeholder: false` in `src/data/site.mjs`.
+  Renders in the footer, schema.org `identifier`, proposal and invoice headers.
+- **TODO(cameron):** confirm `01766480` is the **company** licence and not an individual
+  registration or commission number. The docs expected the older `B12345`/`C12345` shape;
+  an 8-digit number may simply be the current TOPS format.
 - **TODO(cameron):** the company address exactly as it appears in DPS records. The same rule
   (§35.9(a)(1)) and Tex. Occ. Code §1702.131 require it in advertising unless it is a
   residential address. The site shows only "Austin, TX" today; `src/data/site.mjs` →

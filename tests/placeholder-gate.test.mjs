@@ -58,15 +58,17 @@ const run = (dir, ...args) => {
     return { code: r.status, out: `${r.stdout}${r.stderr}` };
 };
 
-/* Flips ONLY the licenceNumber block. The assertion matters: if site.mjs is
+/* The real licence number is supplied, so the checkout has no placeholder by
+   default. This puts one back — it flips ONLY the licenceNumber block — so the
+   pending-state behaviour stays proven. The assertion matters: if site.mjs is
    restructured so this no longer matches, the test must fail loudly rather
    than quietly prove nothing. */
-function supplyLicence(dir) {
+function withholdLicence(dir) {
     const path = join(dir, 'src', 'data', 'site.mjs');
     const before = readFileSync(path, 'utf8');
     const after = before.replace(
-        /(const licenseNumber = \{[\s\S]*?placeholder: )true/,
-        '$1false'
+        /(const licenseNumber = \{[\s\S]*?placeholder: )false/,
+        '$1true'
     );
     assert.notEqual(after, before, 'fixture edit did not apply — has site.mjs been restructured?');
     writeFileSync(path, after);
@@ -83,6 +85,7 @@ function withCheckout(fn) {
 
 test('placeholder pending → --verify-release exits 1 and names the field', () => {
     withCheckout((dir) => {
+        withholdLicence(dir);
         assert.equal(run(dir).code, 0, 'the plain build must succeed');
 
         const { code, out } = run(dir, '--verify-release');
@@ -94,7 +97,6 @@ test('placeholder pending → --verify-release exits 1 and names the field', () 
 
 test('every placeholder supplied → --verify-release exits 0', () => {
     withCheckout((dir) => {
-        supplyLicence(dir);
         assert.equal(run(dir).code, 0);
 
         const { code, out } = run(dir, '--verify-release');
@@ -105,13 +107,13 @@ test('every placeholder supplied → --verify-release exits 0', () => {
 
 test('--check keeps its behaviour and exit code either way', () => {
     withCheckout((dir) => {
+        withholdLicence(dir);
         run(dir);
         assert.equal(run(dir, '--check').code, 0, '--check must pass on freshly built output');
         assert.match(run(dir, '--check').out, /placeholder still in place/, '--check still warns');
     });
 
     withCheckout((dir) => {
-        supplyLicence(dir);
         run(dir);
         assert.equal(run(dir, '--check').code, 0);
     });
@@ -127,6 +129,7 @@ test('--check still exits 1 when the generated output drifted', () => {
 
 test('the flag is in the markup and is not gated on a host or on JavaScript', () => {
     withCheckout((dir) => {
+        withholdLicence(dir);
         run(dir);
         const html = readFileSync(join(dir, 'index.html'), 'utf8');
         const css = readFileSync(join(dir, 'css', 'site.css'), 'utf8');
@@ -153,10 +156,10 @@ test('the flag is in the markup and is not gated on a host or on JavaScript', ()
 
 test('supplying the fact removes the flag markup entirely — no reserved space', () => {
     withCheckout((dir) => {
-        supplyLicence(dir);
         run(dir);
         const html = readFileSync(join(dir, 'index.html'), 'utf8');
 
+        assert.match(html, /01766480/, 'the supplied number must render');
         assert.doesNotMatch(html, /placeholder-flag/, 'no flag element may be generated');
         assert.doesNotMatch(html, /Placeholder licence number/);
         assert.doesNotMatch(html, /data-placeholder/, 'no outlined element may remain');

@@ -151,8 +151,9 @@ sits on, so a PNG fallback would be dead weight.
 line, and the city strip — on `--color-void` with a single warm source behind the emblem.
 Every word is read from `src/data/site.mjs`, so the card cannot drift from the page, and
 the generator **fails rather than falling back to system fonts** if Cinzel and Outfit do not
-load. The DPS licence number is deliberately absent: it is still a placeholder, and an
-image cannot carry the red flag the page uses to stay honest about it.
+load. The DPS licence number is absent: it was a placeholder when the card was composed, and an
+image cannot carry the red flag the page uses to stay honest about it. It is real now
+(2026-09-14); adding it to the card is a separate change.
 
 The icons are cropped to the **shield alone** — at 32px the `FUSED` wordmark beneath it is
 noise. Crop box, measured from the master: `extract 96 249 500 500`.

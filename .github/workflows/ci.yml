@@ -241,9 +241,10 @@ jobs:
     name: Release gate — no placeholder business facts
     runs-on: ubuntu-latest
     # Tags and manual runs ONLY. Never on a branch push, never on a pull
-    # request. `node build.mjs --verify-release` exits 1 while the DPS licence
-    # number is still B00000, and only Cameron can supply it — so running this
-    # on push would fail main today and block every other spec in flight.
+    # request. `node build.mjs --verify-release` exits 1 while any business fact
+    # in src/data/site.mjs is still marked placeholder — facts only Cameron can
+    # supply — so running this on push could fail main and block every other
+    # spec in flight.
     #
     # The `on:` block above fires this workflow on pushes to main as well, so
     # this condition is the thing keeping the job off them. Read it as: manual
