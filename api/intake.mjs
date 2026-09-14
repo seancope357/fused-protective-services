@@ -30,6 +30,7 @@ import { logSends } from './_lib/notify-log.mjs';
 import { sendEmail, internalSender, publicSender } from './_lib/email.mjs';
 import { sendSms, ownerSmsRecipients } from './_lib/sms.mjs';
 import { gate, isHoneypotTripped } from './_lib/gate.mjs';
+import { report } from './_lib/report.mjs';
 import { ownerAlert, ownerSms, clientConfirmation, responseWindow } from './_lib/intake-messages.mjs';
 
 /* Reference codes: 6 chars from an alphabet without 0/O/1/I. The DB enforces
@@ -96,15 +97,36 @@ function normalise(body) {
     };
 }
 
-/* ---------- Stage 1: Supabase ---------- */
+/* ---------- Stage 1: Supabase ----------
+   A failed insert is a lead that may exist nowhere. The visitor is told
+   honestly either way, but until SPEC-003 nobody was told, so a dropped lead
+   was discovered — if at all — by the client following up. Both failure paths
+   below alert ops; neither is allowed to change what the visitor is told, so
+   the report is fired and not awaited inside the stage.
+
+   The record itself never reaches the report. Only the reference code, the
+   table and the transport's own status do: an ops alert is not a place to
+   put a name, a phone number or a client's notes. */
 async function persist(table, record) {
     if (!supabaseConfigured()) return { configured: false, ok: false, row: null };
     try {
         const result = await insertRow(table, record);
-        if (!result.ok) console.error('[API Intake] Supabase insert failed:', result.status, result.data);
+        if (!result.ok) {
+            console.error('[API Intake] Supabase insert failed:', result.status, result.data);
+            await report(new Error(`Supabase insert into ${table} failed with ${result.status}`), {
+                severity: 'error',
+                source: 'api/intake',
+                context: { stage: 'persist', table, refCode: record.ref_code, status: result.status }
+            });
+        }
         return { configured: true, ok: result.ok, row: result.row };
     } catch (err) {
         console.error('[API Intake] Supabase unreachable:', err);
+        await report(err, {
+            severity: 'error',
+            source: 'api/intake',
+            context: { stage: 'persist', table, refCode: record.ref_code, reason: 'unreachable' }
+        });
         return { configured: true, ok: false, row: null };
     }
 }
@@ -254,6 +276,18 @@ export default async function handler(req, res) {
         console.error('[API Intake] No delivery stage is configured. Submission dropped:', record.ref_code);
     }
     if (!anyDelivered) {
+        /* The worst outcome this function has: a real request, taken, and
+           gone. It is reported at `fatal` so it sorts above a single failed
+           stage in the log, and so it is unmistakable in an inbox. */
+        await report(new Error('Intake delivered nothing: the submission was lost.'), {
+            severity: 'fatal',
+            source: 'api/intake',
+            context: {
+                refCode: record.ref_code,
+                type: isCandidate ? 'candidate' : 'quote',
+                configured: { persisted: stored.configured, email: owner.email.configured, sms: owner.sms.configured, webhook: forwarded.configured }
+            }
+        });
         return res.status(503).json({
             ok: false,
             refCode: record.ref_code,
