@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getQuote, getProposalByQuote, getClient, listClients, listSites } from '@/lib/domain/queries';
+import { getQuote, getProposalByQuote, getClient, listClients, listAllSites } from '@/lib/domain/queries';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { PageHead, Badge, Money, Field, Disclosure } from '@/components/ui';
 import { StatusFromSearch, type SearchStatus } from '@/components/status-from-search';
@@ -18,7 +18,7 @@ export default async function QuotePage({ params, searchParams }: { params: Prom
     const { id } = await params;
     const quote = await getQuote(id);
     if (!quote) notFound();
-    const [proposal, client, clients, sites] = await Promise.all([getProposalByQuote(id), getClient(quote.client_id), listClients(), listSites(quote.client_id)]);
+    const [proposal, client, clients, sites] = await Promise.all([getProposalByQuote(id), getClient(quote.client_id), listClients(), listAllSites()]);
     const supabase = await createSupabaseServerClient();
     const { data: job } = await supabase.from('jobs').select('id, job_number').eq('quote_id', id).maybeSingle();
     const editable = quote.status === 'draft';

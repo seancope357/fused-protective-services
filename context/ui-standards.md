@@ -239,11 +239,11 @@ translucent (`--color-surface-card` is `rgba(18,19,18,0.86)` over `--color-void`
 computed against the nominal hex is wrong. Large text (≥24px, or ≥18.66px bold) is held to 3:1 and
 everything else to 4.5:1; `.standard-index` passes only because it is 34px at weight 900.
 
-**Open token decisions, both blocking the CI gate** (`docs/A11Y-AUDIT.md` Part E, items 1 and 8):
-1. `--text-tertiary` `#78716c` → `#8f8a86`. Clears 42 of 48 violations. Measured 5.97:1 on the void,
-   5.84:1 on the sunken surfaces, 5.74:1 on framed; the current value is 4.08–4.25:1 and fails
-   everywhere it is used.
-2. The gold ramp fails as an interactive face: the 75% stop is 3.99:1 and the 100% stop 2.93:1
+**Token decisions** (`docs/A11Y-AUDIT.md` Part E, items 1 and 8):
+1. **Decided 2026-09-14 (Sean): `--text-tertiary` is `#8f8a86`** (was `#78716c`). Measured 5.97:1 on
+   the void, 5.84:1 on the sunken surfaces, 5.74:1 on framed; the old value was 4.08–4.25:1 and failed
+   everywhere it was used. Applies to the site and the portal (the portal imports `tokens.css`).
+2. **Still open:** the gold ramp fails as an interactive face: the 75% stop is 3.99:1 and the 100% stop 2.93:1
    against `--color-void`. Recommendation is an additive `--gradient-gold-brushed-ui` clamped at
    `--logo-gold-core` (`#a1814c`), leaving the decorative gradient untouched.
 

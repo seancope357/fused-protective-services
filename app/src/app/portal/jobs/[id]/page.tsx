@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getJob, getClient, getSite, listShifts, listInvoicesForJob, listClients, listSites, getReviewByJob } from '@/lib/domain/queries';
+import { getJob, getClient, getSite, listShifts, listInvoicesForJob, listClients, listAllSites, getReviewByJob } from '@/lib/domain/queries';
 import { PageHead, Badge, Money, Field, Empty, Disclosure } from '@/components/ui';
 import { DataTable, type Column } from '@/components/data-table';
 import { StatusFromSearch, type SearchStatus } from '@/components/status-from-search';
@@ -26,7 +26,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
     const job = await getJob(id);
     if (!job) notFound();
     const [client, site, shifts, invoices, clients, sites, review] = await Promise.all([
-        getClient(job.client_id), getSite(job.site_id), listShifts(id), listInvoicesForJob(id), listClients(), listSites(job.client_id), getReviewByJob(id)
+        getClient(job.client_id), getSite(job.site_id), listShifts(id), listInvoicesForJob(id), listClients(), listAllSites(), getReviewByJob(id)
     ]);
     const billable = shifts.filter((s) => s.status !== 'cancelled');
     /* A standing detail can carry dozens of shifts; on a phone that is a scroll of

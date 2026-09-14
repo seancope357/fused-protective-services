@@ -9,6 +9,8 @@ import { appUrl, armedLevels, divisionByQuoteValue } from '@/lib/shared';
 import { occurrences } from '@/lib/domain/schedule';
 import { parseFloatSafe, parseIntSafe } from '@/lib/money';
 import { done, str, optStr, localToIso } from './util';
+import { getSite } from '@/lib/domain/queries';
+import { siteClientProblem } from '@/lib/domain/sites';
 import type { Client, Job, Site } from '@/lib/db/types';
 
 function readJob(fd: FormData) {
@@ -48,6 +50,8 @@ export async function createJob(formData: FormData): Promise<void> {
     const row = readJob(formData);
     if (!row.client_id || !row.title || !row.starts_at || !row.ends_at) done('/portal/jobs/new', 'Client, title, start and end are required.', 'bad');
     if (new Date(row.ends_at) <= new Date(row.starts_at)) done('/portal/jobs/new', 'The end must be after the start.', 'bad');
+    const siteProblem = siteClientProblem(row.site_id, row.client_id, row.site_id ? await getSite(row.site_id) : undefined);
+    if (siteProblem) done('/portal/jobs/new', siteProblem, 'bad');
     const supabase = await createSupabaseServerClient();
     const { data: job, error } = await supabase.from('jobs').insert({ ...row, created_by: session.userId }).select('id').single();
     if (error || !job) done('/portal/jobs/new', `Could not create job: ${error?.message}`, 'bad');
@@ -63,6 +67,8 @@ export async function updateJob(formData: FormData): Promise<void> {
     const id = str(formData, 'id');
     const row = readJob(formData);
     if (!row.title || !row.starts_at || !row.ends_at) done(`/portal/jobs/${id}`, 'Title, start and end are required.', 'bad');
+    const siteProblem = siteClientProblem(row.site_id, row.client_id, row.site_id ? await getSite(row.site_id) : undefined);
+    if (siteProblem) done(`/portal/jobs/${id}`, siteProblem, 'bad');
     const supabase = await createSupabaseServerClient();
     const { error } = await supabase.from('jobs').update(row).eq('id', id);
     if (error) done(`/portal/jobs/${id}`, `Could not save: ${error.message}`, 'bad');
