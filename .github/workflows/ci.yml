@@ -150,13 +150,18 @@ jobs:
             --chrome-options="no-sandbox,disable-dev-shm-usage,disable-gpu" \
             --tags "$AXE_TAGS" \
             --load-delay 2500 \
-            --exit | tee "$RUNNER_TEMP/axe-default.log"
-          # ^ TO ARM THE GATE: delete `| tee ...` here and in the reduced-motion
-          # step, delete both summary blocks, and delete `continue-on-error` at
-          # the job level. axe's own --exit then fails the check on any
-          # violation. Until then the pipe makes the step's status tee's, so the
-          # scan reports without turning the check red — a check that is red by
-          # design teaches people to ignore red.
+            | tee "$RUNNER_TEMP/axe-default.log"
+          # ^ NOTE the absent `--exit`. TO ARM THE GATE: add `--exit` back here
+          # and in the reduced-motion step, delete both summary blocks, and
+          # delete `continue-on-error` at the job level.
+          #
+          # Do NOT stage the gate by keeping --exit and swallowing the status
+          # with a pipe: GitHub runs every `run:` under
+          # `bash --noprofile --norc -eo pipefail`, so a failing command in a
+          # pipeline still fails the step. Without --exit, axe prints every
+          # violation and exits 0 — the scan reports in full, it just does not
+          # paint the check red. A check that is red by design teaches people to
+          # ignore red, and then the red that matters is ignored too.
           {
             echo "### axe · default presentation"
             echo '```'
@@ -179,7 +184,7 @@ jobs:
             --chrome-options="no-sandbox,disable-dev-shm-usage,disable-gpu,force-prefers-reduced-motion" \
             --tags "$AXE_TAGS" \
             --load-delay 2500 \
-            --exit | tee "$RUNNER_TEMP/axe-reduced-motion.log"
+            | tee "$RUNNER_TEMP/axe-reduced-motion.log"
           {
             echo "### axe · reduced motion (whole document visible)"
             echo '```'
