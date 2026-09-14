@@ -110,7 +110,7 @@ export async function confirmJob(formData: FormData): Promise<void> {
     if (!ctx) done('/portal/jobs', 'Job not found.', 'bad');
     await supabaseAdmin().from('jobs').update({ confirmed_at: ctx.job.confirmed_at ?? new Date().toISOString() }).eq('id', id);
     const summary = await dispatch('job_confirmed', { ...ctx, link: `${appUrl()}/client/jobs/${id}` }, { entityType: 'job', entityId: id });
-    done(`/portal/jobs/${id}`, summary.sent ? `Brief sent to ${ctx.client?.billing_email}.` : 'Job confirmed, but the brief email did not send (no client email or sender not configured).', summary.sent ? 'good' : 'warn');
+    done(`/portal/jobs/${id}`, summary.sent ? `Brief sent to ${ctx.client?.billing_email}.` : "Job confirmed, but the brief wasn't emailed. Either the client has no email on file or email isn't set up yet — the message log shows which.", summary.sent ? 'good' : 'warn');
 }
 
 export async function setJobStatus(formData: FormData): Promise<void> {

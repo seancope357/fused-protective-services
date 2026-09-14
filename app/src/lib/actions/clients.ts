@@ -87,7 +87,9 @@ export async function saveSite(formData: FormData): Promise<void> {
         client_id: clientId,
         name,
         address_line1: optStr(formData, 'address_line1', 200),
-        address_line2: optStr(formData, 'address_line2', 200),
+        // Written only when the form carries the field, so a form without it
+        // leaves a stored second line alone instead of blanking it.
+        ...(formData.has('address_line2') ? { address_line2: optStr(formData, 'address_line2', 200) } : {}),
         city: optStr(formData, 'city', 100),
         state: optStr(formData, 'state', 2)?.toUpperCase() ?? 'TX',
         postal_code: optStr(formData, 'postal_code', 12),
@@ -118,7 +120,7 @@ export async function invitePortalUser(formData: FormData): Promise<void> {
     const email = (client.billing_email || '').toLowerCase();
     if (!email) done(`/portal/clients/${clientId}`, 'Add a billing email before inviting.', 'bad');
     const from = publicSender();
-    if (!from) done(`/portal/clients/${clientId}`, 'DISPATCH_ALERT_FROM is not a verified sender; the invitation cannot be emailed yet.', 'bad');
+    if (!from) done(`/portal/clients/${clientId}`, "Email isn't set up yet, so the invitation wasn't sent. Sean is connecting it.", 'bad');
 
     const admin = supabaseAdmin();
     const { data: existing } = await admin.from('profiles').select('id, role, client_id').eq('email', email).maybeSingle();

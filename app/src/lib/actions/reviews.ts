@@ -38,5 +38,5 @@ export async function publishReview(formData: FormData): Promise<void> {
     if (!review) done('/portal/reviews', 'Review not found.', 'bad');
     if (publish && !review.permission_to_publish) done('/portal/reviews', 'The client did not give permission to publish.', 'bad');
     await supabaseAdmin().from('reviews').update({ published_at: publish ? new Date().toISOString() : null }).eq('id', id);
-    done('/portal/reviews', publish ? 'Marked published. Export reviews to src/data/reviews.mjs to surface it on the site.' : 'Unpublished.');
+    done('/portal/reviews', publish ? 'Marked published. It appears on the website with the next site update.' : 'Unpublished.');
 }

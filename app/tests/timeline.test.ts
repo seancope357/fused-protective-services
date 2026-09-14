@@ -44,17 +44,77 @@ describe('entityHref covers the audit vocabulary', () => {
         expect(types.length).toBeGreaterThanOrEqual(12);
     });
 
+    // Every row carries its parent id when the trigger records one, so both are given here.
     it.each(types)('%s links somewhere', (entityType) => {
-        const href = entityHref(entityType, 'ID');
+        const href = entityHref(entityType, 'ID', 'ID');
         expect(href, `${entityType} renders as unlinked text in /portal/activity`).not.toBeNull();
     });
 
     it.each(types)('%s links to a route that exists', (entityType) => {
-        const href = entityHref(entityType, 'ID')!;
+        const href = entityHref(entityType, 'ID', 'ID')!;
         expect(pageFileFor(href), `${href} has no page under src/app`).not.toBeNull();
     });
 
     it('returns null for a type it does not know, rather than a broken link', () => {
         expect(entityHref('sasquatch', 'ID')).toBeNull();
+        expect(entityHref('sasquatch', 'ID', 'PARENT')).toBeNull();
+    });
+});
+
+/* ==========================================================================
+   Child records have no page of their own. A payment lives on its invoice, a
+   shift and a review on their job, a site on its client, a proposal on its
+   quote — so their feed rows link to the parent the trigger recorded, by the
+   parent's id. Linking the parent route with the child's own id is a 404.
+   ========================================================================== */
+
+/** (child entity, parent entity) pairs as the newest audit_row_change() records them. */
+function auditParents(): { child: string; parent: string }[] {
+    const declaring = readdirSync(MIGRATIONS)
+        .filter((f) => f.endsWith('.sql'))
+        .sort()
+        .filter((f) => readFileSync(path.join(MIGRATIONS, f), 'utf8').includes('v_entity := CASE TG_TABLE_NAME'));
+    const sql = readFileSync(path.join(MIGRATIONS, declaring[declaring.length - 1]), 'utf8');
+    const entityBlock = sql.slice(sql.indexOf('v_entity := CASE TG_TABLE_NAME'));
+    const entityOf = new Map([...entityBlock.slice(0, entityBlock.indexOf('END;')).matchAll(/WHEN '([a-z_]+)' THEN '([a-z_]+)'/g)].map((m) => [m[1], m[2]]));
+    const parentBlock = sql.slice(sql.indexOf('-- Parent for grouping.'));
+    return [...parentBlock.slice(0, parentBlock.indexOf('END CASE;')).matchAll(/WHEN '([a-z_]+)' THEN v_parent_type := '([a-z_]+)'/g)].map((m) => ({ child: entityOf.get(m[1]) ?? m[1], parent: m[2] }));
+}
+
+/** Children that do have a detail page of their own and link by their own id. */
+const OWN_PAGE = new Set(['invoice']);
+
+describe('entityHref links child records through their parent', () => {
+    it.each([
+        ['payment', '/portal/invoices/PARENT'],
+        ['shift', '/portal/jobs/PARENT'],
+        ['review', '/portal/jobs/PARENT'],
+        ['site', '/portal/clients/PARENT'],
+        ['proposal', '/portal/quotes/PARENT']
+    ])('%s links to its parent page by the parent id', (entityType, expected) => {
+        expect(entityHref(entityType, 'RECORD', 'PARENT')).toBe(expected);
+    });
+
+    it.each(['payment', 'shift', 'review', 'site', 'proposal'])('%s with no parent id renders without a link', (entityType) => {
+        expect(entityHref(entityType, 'RECORD')).toBeNull();
+        expect(entityHref(entityType, 'RECORD', null)).toBeNull();
+    });
+
+    it('records with their own page ignore the parent id', () => {
+        expect(entityHref('invoice', 'RECORD', 'PARENT')).toBe('/portal/invoices/RECORD');
+        expect(entityHref('job', 'RECORD', null)).toBe('/portal/jobs/RECORD');
+    });
+
+    it('reads the parent relationships out of the migration', () => {
+        expect(auditParents()).toEqual(expect.arrayContaining([{ child: 'payment', parent: 'invoice' }, { child: 'shift', parent: 'job' }, { child: 'site', parent: 'client' }]));
+    });
+
+    it.each(auditParents())('$child rows never put their own id on a parent route', ({ child, parent }) => {
+        const href = entityHref(child, 'RECORD', 'PARENT');
+        if (OWN_PAGE.has(child)) {
+            expect(href).toContain('RECORD');
+        } else {
+            expect(href).toBe(entityHref(parent, 'PARENT'));
+        }
     });
 });

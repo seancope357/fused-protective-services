@@ -25,6 +25,7 @@ function SiteForm({ clientId, site }: { clientId: string; site?: Site }) {
             {s ? <input type="hidden" name="id" value={s.id} /> : null}
             <Field id={`${p}-name`} label="Site name"><input id={`${p}-name`} name="name" defaultValue={s?.name ?? ''} required placeholder="The Rooftop — 6th Street" enterKeyHint="next" /></Field>
             <Field id={`${p}-a1`} label="Address"><input id={`${p}-a1`} name="address_line1" defaultValue={s?.address_line1 ?? ''} autoComplete="address-line1" enterKeyHint="next" /></Field>
+            <Field id={`${p}-a2`} label="Address line 2 (optional)"><input id={`${p}-a2`} name="address_line2" defaultValue={s?.address_line2 ?? ''} autoComplete="address-line2" enterKeyHint="next" /></Field>
             <Field id={`${p}-city`} label="City"><input id={`${p}-city`} name="city" defaultValue={s?.city ?? ''} autoComplete="address-level2" enterKeyHint="next" /></Field>
             <Field id={`${p}-zip`} label="ZIP"><input id={`${p}-zip`} name="postal_code" defaultValue={s?.postal_code ?? ''} autoComplete="postal-code" inputMode="numeric" enterKeyHint="next" /></Field>
             <Field id={`${p}-cn`} label="On-site contact"><input id={`${p}-cn`} name="onsite_contact_name" defaultValue={s?.onsite_contact_name ?? ''} autoComplete="name" enterKeyHint="next" /></Field>

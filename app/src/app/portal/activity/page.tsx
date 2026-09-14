@@ -19,7 +19,7 @@ const columns: Column<Activity>[] = [
         header: 'What',
         primary: true,
         cell: (e) => {
-            const href = entityHref(e.entityType, e.recordId);
+            const href = entityHref(e.entityType, e.recordId, e.parentId);
             return <span className="wrap-anywhere">{href ? <Link href={href}>{e.summary}</Link> : e.summary}</span>;
         }
     },
