@@ -159,7 +159,7 @@ Latest focused implementation status: [Client-facing website refinements](contex
   `productionHosts` list already contained the live `.vercel.app` alias — so `B00000` was rendering
   *unflagged* on the public site. `env.mjs` is deleted; the flag now renders on **every** host with no
   JavaScript involved (`components/placeholder.css`).
-- [x] `licenseNumber` rendered in the footer and as the schema.org `identifier` (Tex. Occ. Code §1702.284).
+- [x] `licenseNumber` rendered in the footer and as the schema.org `identifier` (37 Tex. Admin. Code §35.9; originally miscited as Tex. Occ. Code §1702.284, corrected 2026-09-14).
 - [x] False `aggregateRating` removed. `src/data/reviews.mjs` derives the rating from real reviews only; an empty list emits no markup.
 - [x] `/api/intake` rewritten around `api/_lib/`: same-origin CORS, honeypot, per-IP rate limit and duplicate window backed by `public.intake_gate` (migration `20260909000000`), owner email, emergency Twilio SMS, branded visitor confirmation with reference code and dispatch line, honest per-stage `delivery` report.
 - [x] `/api/stripe-checkout` reads the amount from `public.invoices` by id; returns 503 without a key; no mock URL. The browser invoice tool no longer calls Stripe or `api.qrserver.com`.

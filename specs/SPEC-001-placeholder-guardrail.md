@@ -17,8 +17,9 @@ if (!hosts.includes(host)) document.documentElement.dataset.env = 'preview';
 
 So on the live site today, `B00000` renders in the footer and as the schema.org
 `identifier` with **no flag at all** (`index.html:54`, `index.html:1105`). The guardrail is
-loudest exactly where it matters least and silent where it matters most. Tex. Occ. Code
-§1702.284 requires the real number in advertising.
+loudest exactly where it matters least and silent where it matters most. 37 Tex. Admin.
+Code §35.9 requires the real number in advertising. *(Corrected 2026-09-14: this spec
+originally cited Tex. Occ. Code §1702.284, which concerns alarm-system records.)*
 
 Two further weaknesses: the flag depends on JavaScript running at all, and `build.mjs`
 only `console.warn`s, which nothing enforces.

@@ -47,8 +47,10 @@ advertising in Texas is regulated; every item below is either a legal requiremen
 statement the site makes that must be true.
 
 - [ ] **A1 · Texas DPS licence number.** `src/data/site.mjs` → `licenseNumber.value`, then
-      `placeholder: false`, then `node build.mjs`. Tex. Occ. Code §1702.284 requires it in
-      advertising, and this website is advertising. **Owner: Cameron.**
+      `placeholder: false`, then `node build.mjs`. 37 Tex. Admin. Code §35.9 requires it in
+      advertising, and this website is advertising. The same rule requires the company
+      address as it appears in DPS records (unless residential); the site shows only
+      "Austin, TX" ([OPEN_QUESTIONS §2](OPEN_QUESTIONS.md)). **Owner: Cameron.**
       **Verify:** `node build.mjs --verify-release` — exits 1 and names every field still
       marked `placeholder: true`, exits 0 when none remain. Run it immediately before the
       DNS cutover (C1); CI runs the same command in the `release-gate` job, which fires on

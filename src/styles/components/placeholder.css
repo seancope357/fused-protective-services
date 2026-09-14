@@ -11,7 +11,7 @@
    It used to be gated on `html[data-env="preview"]`, set at runtime by
    js/modules/env.mjs from the hostname. That made the guardrail loudest where
    it mattered least and silent on the live site — the one place
-   Tex. Occ. Code §1702.284 actually cares about. The gate is gone, and so is
+   37 Tex. Admin. Code §35.9 actually cares about. The gate is gone, and so is
    env.mjs (SPEC-001).
    ========================================================================== */
 

@@ -333,8 +333,8 @@ function warnPlaceholders() {
 }
 
 /* The release gate, and the one place a placeholder is fatal rather than
-   noisy. Tex. Occ. Code §1702.284 requires the real DPS licence number in
-   advertising, and this website is advertising, so shipping B00000 to the
+   noisy. 37 Tex. Admin. Code §35.9 requires the real DPS licence number in
+   every advertisement, and this website is advertising, so shipping B00000 to the
    public domain is a regulatory problem and not a cosmetic one. */
 function verifyRelease() {
     const pending = pendingPlaceholders();

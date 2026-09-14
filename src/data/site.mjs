@@ -20,9 +20,10 @@ const phone = {
     placeholder: false
 };
 
-/* TODO(cameron): Texas Occupations Code §1702.284 requires a licensed security
-   contractor to show its DPS license number in advertising, which includes this
-   website. Replace `value` with the company licence number (format B12345 or
+/* TODO(cameron): 37 Tex. Admin. Code §35.9 requires a licensed security company
+   to show its DPS license number — and its address as it appears in DPS records,
+   unless that is a residential address — in any advertisement, which includes
+   this website. Replace `value` with the company licence number (format B12345 or
    C12345) and set `placeholder` to false. Until then the footer and the
    schema.org record carry a labelled placeholder. */
 const licenseNumber = {
