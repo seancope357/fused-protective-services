@@ -1437,20 +1437,6 @@ html[data-forge-fallback] .forge-cue {
     to { opacity: 1; transform: translateY(0); }
 }
 
-.stage-badge-large {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--logo-gold-specular);
-    background: rgba(186, 152, 87, 0.2);
-    padding: 4px 14px;
-    border-radius: var(--radius-full);
-    display: inline-block;
-    margin-bottom: var(--space-3);
-    letter-spacing: 1.5px;
-    border: 1px solid rgba(186, 152, 87, 0.4);
-}
-
 .stage-hero-heading {
     font-family: 'Cinzel', serif;
     font-size: clamp(24px, 3vw, 34px);
@@ -1467,68 +1453,36 @@ html[data-forge-fallback] .forge-cue {
     margin-bottom: var(--space-6);
 }
 
-.stage-meta-strip {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-3);
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: var(--space-4);
-    margin-bottom: var(--space-6);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-}
-
-.stage-meta-strip strong { color: var(--logo-gold-specular); }
-
-.tactical-terminal-card {
-    background: #040608;
-    border: 1px solid rgba(186, 152, 87, 0.4);
+.stage-expectations {
+    background: var(--color-surface-base);
+    border: 1px solid var(--border-gold-subtle);
     border-radius: var(--radius-xl);
-    padding: clamp(20px, 3vw, 32px);
-    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9), 0 10px 30px rgba(0, 0, 0, 0.8);
-    font-family: 'JetBrains Mono', monospace;
-    position: relative;
+    padding: var(--space-8);
 }
 
-.terminal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    padding-bottom: var(--space-3);
-    margin-bottom: var(--space-4);
-    font-size: 11px;
+.stage-expectations h4 {
+    color: var(--logo-gold-specular);
+    font-size: 18px;
+    margin-bottom: var(--space-5);
+}
+
+.stage-expectations ul {
+    display: grid;
+    gap: var(--space-4);
+    padding-left: var(--space-5);
+    color: var(--text-primary);
+    line-height: 1.65;
+}
+
+.stage-expectations li::marker {
     color: var(--logo-gold-bevel);
 }
-
-.terminal-dot-cluster { display: flex; gap: 6px; }
-.t-dot { width: 8px; height: 8px; border-radius: 50%; }
-.t-red { background: var(--color-crimson); }
-.t-yellow { background: var(--logo-gold-bevel); }
-.t-green { background: var(--color-emerald); }
-
-.terminal-data-line {
-    font-size: 12px;
-    color: #cbd5e1;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    line-height: 1.5;
-}
-
-.terminal-data-line::before { content: '>'; color: var(--color-emerald); font-weight: 800; }
 
 @media (max-width: 992px) {
     .protocol-stepper-nav { grid-template-columns: 1fr 1fr; }
     .protocol-stage-content { grid-template-columns: 1fr; }
 }
 
-.terminal-data-line--ok {
-    color: var(--color-emerald);
-}
 }
 
 /* ── components/assessment.css ───────────────────────────────── */

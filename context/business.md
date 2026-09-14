@@ -149,18 +149,16 @@ Officer compensation (`src/data/careers.mjs` → `payScales`) is pegged to what 
 
 ---
 
-## ⚡ Deployment Protocol (The 4 Phases)
+## How It Works — The Client Experience
 
-The company’s standard operating procedure follows four sequential phases documented in `src/data/protocol.mjs`:
+The marketing section at `#lifecycle` explains the existing four-step service process in client language, driven by `src/data/protocol.mjs`:
 
-1. **Phase 1: Advance Recon & Audit (< 24h Advance)**
-   * Physical audit of ingress/egress chokepoints, trauma routes to local medical facilities (e.g. St. David’s / Dell Seton), and PDF risk matrix generation.
-2. **Phase 2: Post Orders & Rules of Engagement (ROE)**
-   * Custom access verification rules, badge credentialing levels, de-escalation matrices (Verbal First > Defense Last) under Texas Occupations Code §1702.
-3. **Phase 3: Commissioned Dispatch**
-   * Officers arrive 30 minutes prior to shift for loadout inspections, AES-256 encrypted tactical radio sync, and body armor verification.
-4. **Phase 4: Live Telemetry & Audit Logs**
-   * Timestamped GPS patrol logs, digital NFC/QR scans, and digital evidence packages delivered within 1 hour of shift conclusion.
+1. **Your priorities:** Understand the client's concerns, location, schedule, and people or property needing protection.
+2. **Your plan:** Agree on responsibilities, coverage hours, officer presence, access arrangements, and how concerns will be handled.
+3. **Your protection:** Provide appropriately licensed officers briefed on the client's priorities and agreed plan.
+4. **Your updates:** Explain the work completed, report concerns, and support decisions about future coverage.
+
+The copy addresses safety, discretion, confidence, and the ability to focus on everyday responsibilities. It avoids acronyms, simulated operational records, precise response-time promises, and guaranteed outcomes. This is a client-facing explanation, not a change to internal operating procedures. Sean requested this rewrite and removal of the “TACTICAL INTELLIGENCE BRIEF” element on 2026-09-14.
 
 ---
 

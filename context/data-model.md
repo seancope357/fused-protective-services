@@ -154,23 +154,17 @@ interface AssessmentStep {
 }
 ```
 
-### 5. `src/data/protocol.mjs` — Operational Phases
-Drives the ARIA tablist component and interactive terminal diagnostic monitors.
+### 5. `src/data/protocol.mjs` — Client Service Steps
+Drives the accessible four-tab “How It Works” section. Each panel contains a client-focused explanation, expectations list, and link to `#quote`. Internal IDs remain stable; numbering is derived from array position. Tactical badges, technical metadata strips, and simulated terminal records are no longer part of the data model.
 
 ```typescript
 interface ProtocolStage {
     id: string;                      // "recon" | "post-orders" | "dispatch" | "telemetry"
-    name: string;                    // Tab label (e.g. "Advance Recon & Audit")
-    badge: string;                   // Tactical header pill
-    heading: string;                 // Phase headline
-    body: string;                    // Operational overview
-    meta: Array<{ label: string; value: string }>;
-    cta: string;                     // Button text
-    terminal: {
-        file: string;                // Simulated file (e.g. "RECON_DIAGNOSTIC_V4.LOG")
-        lines: Array<string | { text: string; strong: string }>;
-        status: string;              // Terminal status readout
-    };
+    name: string;                    // Client-facing tab label
+    heading: string;                 // Client-focused headline
+    body: string;                    // Plain-language explanation
+    expectations: string[];          // What the client can expect
+    cta: string;                     // Link text for the quote form
 }
 ```
 

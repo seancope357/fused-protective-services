@@ -99,7 +99,7 @@ export const site = {
    `drawerLabel` exists because the drawer has room for the long form. */
 export const navItems = [
     { href: '#capabilities', label: 'Divisions', drawerLabel: 'Divisions' },
-    { href: '#lifecycle', label: 'Protocol', drawerLabel: 'Deployment Protocol' },
+    { href: '#lifecycle', label: 'How It Works', drawerLabel: 'How It Works' },
     { href: '#assessment', label: 'Assessment', drawerLabel: 'Threat Assessment' },
     { href: '#calculator', label: 'Estimator', drawerLabel: 'Coverage Estimator' },
     { href: '#standards', label: 'Standards', drawerLabel: 'The Fused Standard' },

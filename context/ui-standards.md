@@ -116,7 +116,9 @@ All user interface elements strictly adhere to the accessibility baseline establ
 * **Native Accordions:** The FAQ section uses native `<details>` and `<summary>` elements, inheriting full keyboard and screen-reader accessibility from the browser engine.
 
 ### 2. ARIA Tablist Pattern (Protocol Section)
-The 4-stage deployment protocol implements the complete WAI-ARIA tablist pattern:
+The four-step “How It Works” section preserves the WAI-ARIA tablist pattern. Use client-facing step labels, a short explanation, a quote CTA, and a simple “What you can expect” list styled with existing dark/gold tokens. Do not render tactical badges, technical metadata strips, or simulated terminal logs.
+
+The interaction follows:
 * Tab container: `role="tablist"`
 * Individual tab buttons: `role="tab"`, `aria-selected="true|false"`, `aria-controls="panel-id"`
 * Tab panels: `role="tabpanel"`, `tabindex="0"`, `aria-labelledby="tab-id"`
