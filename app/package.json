@@ -12,7 +12,9 @@
     "typecheck": "node scripts/sync-shared.mjs && tsc --noEmit",
     "test": "node scripts/sync-shared.mjs && vitest run",
     "test:db": "node scripts/reset-test-db.mjs && node scripts/sync-shared.mjs && vitest run tests/db",
-    "test:all": "pnpm typecheck && pnpm test"
+    "test:all": "pnpm typecheck && pnpm test",
+    "demo:seed": "node scripts/sync-shared.mjs && node scripts/seed-demo.mjs",
+    "screens": "RESPONSIVE_PORTAL_URL=${RESPONSIVE_PORTAL_URL:-http://localhost:3100} vitest run tests/responsive.test.ts"
   },
   "dependencies": {
     "@sentry/nextjs": "10.74.0",
