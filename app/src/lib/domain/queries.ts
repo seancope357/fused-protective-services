@@ -109,6 +109,12 @@ export async function listSites(clientId: string): Promise<Site[]> {
     return (data as Site[]) ?? [];
 }
 
+/** Every site, for the client/site pickers; the form narrows them to the chosen client. */
+export async function listAllSites(): Promise<Site[]> {
+    const { data } = await (await db()).from('sites').select('*').order('name');
+    return (data as Site[]) ?? [];
+}
+
 export async function getSite(id: string | null): Promise<Site | null> {
     if (!id) return null;
     const { data } = await (await db()).from('sites').select('*').eq('id', id).maybeSingle();

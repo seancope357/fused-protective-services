@@ -1,4 +1,5 @@
 import { Field } from '@/components/ui';
+import { ClientSitePicker } from '@/components/client-site-picker';
 import { armedLevels, divisions, taxDefaults } from '@/lib/shared';
 import { isoToLocal } from '@/lib/actions/util';
 import type { Client, Quote, Site } from '@/lib/db/types';
@@ -12,18 +13,7 @@ export function QuoteFields({ quote, clients, sites, clientId, defaultTaxRate }:
     const rateDollars = q ? (q.bill_rate_cents / 100).toFixed(2) : (armedLevels[1].rateCents! / 100).toFixed(2);
     return (
         <div className="form-grid">
-            <Field id="client_id" label="Client">
-                <select id="client_id" name="client_id" defaultValue={q?.client_id ?? clientId ?? ''} required>
-                    <option value="">Choose a client…</option>
-                    {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-            </Field>
-            <Field id="site_id" label="Site (optional)" hint="Sites belong to the chosen client; add one on the client page.">
-                <select id="site_id" name="site_id" defaultValue={q?.site_id ?? ''}>
-                    <option value="">No site yet</option>
-                    {sites.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
-            </Field>
+            <ClientSitePicker sites={sites.map(({ id, name, client_id }) => ({ id, name, client_id }))} clients={clients.map(({ id, name }) => ({ id, name }))} defaultClientId={q?.client_id ?? clientId} defaultSiteId={q?.site_id} siteLabel="Site (optional)" siteHint="Only the chosen client's sites are listed. Add one on the client page." noSiteLabel="No site yet" />
             <Field id="division_quote_value" label="Division">
                 <select id="division_quote_value" name="division_quote_value" defaultValue={q?.division_quote_value ?? divisions[2].quoteValue}>
                     {divisions.map((d) => <option key={d.id} value={d.quoteValue}>{d.heading}</option>)}

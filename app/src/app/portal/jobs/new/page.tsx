@@ -1,4 +1,4 @@
-import { listClients, listSites } from '@/lib/domain/queries';
+import { listClients, listAllSites } from '@/lib/domain/queries';
 import { PageHead } from '@/components/ui';
 import { StatusFromSearch, type SearchStatus } from '@/components/status-from-search';
 import { JobFields } from '@/components/job-form';
@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export default async function NewJobPage({ searchParams }: { searchParams: Promise<SearchStatus & { client?: string }> }) {
     const params = await searchParams;
     const clients = await listClients();
-    const sites = params.client ? await listSites(params.client) : [];
+    const sites = await listAllSites();
     return (
         <>
             {/* The form is long, so its submit is the page's primary action: pinned

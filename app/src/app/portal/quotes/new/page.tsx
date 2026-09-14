@@ -1,4 +1,4 @@
-import { listClients, listSites } from '@/lib/domain/queries';
+import { listClients, listAllSites } from '@/lib/domain/queries';
 import { PageHead } from '@/components/ui';
 import { StatusFromSearch, type SearchStatus } from '@/components/status-from-search';
 import { QuoteFields } from '@/components/quote-form';
@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export default async function NewQuotePage({ searchParams }: { searchParams: Promise<SearchStatus & { client?: string }> }) {
     const params = await searchParams;
     const clients = await listClients();
-    const sites = params.client ? await listSites(params.client) : [];
+    const sites = await listAllSites();
     const client = clients.find((c) => c.id === params.client);
     return (
         <>

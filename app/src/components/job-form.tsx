@@ -1,4 +1,5 @@
 import { Field } from '@/components/ui';
+import { ClientSitePicker } from '@/components/client-site-picker';
 import { armedLevels, divisions } from '@/lib/shared';
 import { isoToLocal } from '@/lib/actions/util';
 import { parseRule } from '@/lib/domain/schedule';
@@ -33,18 +34,7 @@ export function JobFields({ job, clients, sites, clientId }: { job?: Job | null;
     return (
         <div className="form-grid">
             <Field id="title" label="Title" className="span-2"><input id="title" name="title" defaultValue={j?.title ?? ''} required placeholder="Friday door detail — The Rooftop" enterKeyHint="next" /></Field>
-            <Field id="client_id" label="Client">
-                <select id="client_id" name="client_id" defaultValue={j?.client_id ?? clientId ?? ''} required>
-                    <option value="">Choose a client…</option>
-                    {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-            </Field>
-            <Field id="site_id" label="Site">
-                <select id="site_id" name="site_id" defaultValue={j?.site_id ?? ''}>
-                    <option value="">No site</option>
-                    {sites.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
-            </Field>
+            <ClientSitePicker sites={sites.map(({ id, name, client_id }) => ({ id, name, client_id }))} clients={clients.map(({ id, name }) => ({ id, name }))} defaultClientId={j?.client_id ?? clientId} defaultSiteId={j?.site_id} />
             <Field id="division_quote_value" label="Division">
                 <select id="division_quote_value" name="division_quote_value" defaultValue={j?.division_quote_value ?? divisions[6].quoteValue}>
                     {divisions.map((d) => <option key={d.id} value={d.quoteValue}>{d.heading}</option>)}

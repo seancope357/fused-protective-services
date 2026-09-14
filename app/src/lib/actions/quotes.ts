@@ -11,6 +11,8 @@ import { requestIp, requestUserAgent } from '@/lib/http';
 import { occurrences } from '@/lib/domain/schedule';
 import { done, str, optStr, localToIso } from './util';
 import { fmtDateTime } from '@/lib/format';
+import { getSite } from '@/lib/domain/queries';
+import { siteClientProblem } from '@/lib/domain/sites';
 import type { Client, Proposal, Quote } from '@/lib/db/types';
 
 function readQuote(fd: FormData) {
@@ -46,6 +48,8 @@ export async function createQuote(formData: FormData): Promise<void> {
     const session = await requireStaff();
     const row = readQuote(formData);
     if (!row.client_id) done('/portal/quotes/new', 'Choose a client first.', 'bad');
+    const siteProblem = siteClientProblem(row.site_id, row.client_id, row.site_id ? await getSite(row.site_id) : undefined);
+    if (siteProblem) done('/portal/quotes/new', siteProblem, 'bad');
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase.from('quotes').insert({ ...row, created_by: session.userId }).select('id').single();
     if (error || !data) done('/portal/quotes/new', `Could not create quote: ${error?.message}`, 'bad');
@@ -59,6 +63,8 @@ export async function updateQuote(formData: FormData): Promise<void> {
     const supabase = await createSupabaseServerClient();
     const { data: current } = await supabase.from('quotes').select('status').eq('id', id).maybeSingle();
     if (!current || current.status !== 'draft') done(`/portal/quotes/${id}`, 'Only draft quotes can be edited. To revise it, mark it declined and start a new quote.', 'warn');
+    const siteProblem = siteClientProblem(row.site_id, row.client_id, row.site_id ? await getSite(row.site_id) : undefined);
+    if (siteProblem) done(`/portal/quotes/${id}`, siteProblem, 'bad');
     const { error } = await supabase.from('quotes').update(row).eq('id', id);
     if (error) done(`/portal/quotes/${id}`, `Could not save: ${error.message}`, 'bad');
     done(`/portal/quotes/${id}`, `Quote saved — total ${formatMoney(row.total_cents)}.`);
