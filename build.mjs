@@ -10,6 +10,11 @@
                               invoice.html (legacy export) and css/*.css
      node build.mjs --check   verify the committed output matches src/,
                               exit 1 if it drifted (for CI or a pre-push hook)
+     node build.mjs --verify-release
+                              --check, then exit 1 naming every business fact
+                              still marked `placeholder: true`. The release
+                              gate: run it immediately before a DNS cutover,
+                              and in CI on tags and workflow_dispatch only.
 
    Both artefacts are generated AND committed. Committing them keeps the
    drag-and-drop deploy honest; --check is what stops a hand-edit of a
@@ -135,22 +140,56 @@ function check() {
     console.log('\nGenerated output is up to date.');
 }
 
-/* Facts Cameron has not supplied yet. Printed on every build and every check
-   so a placeholder can never ship quietly; the page itself flags them on any
-   non-production host (see src/styles/components/placeholder.css). */
-function warnPlaceholders() {
-    const pending = [
+/* Facts Cameron has not supplied yet. Read straight from src/data/site.mjs,
+   so this is deterministic — no clock, no environment, no network. The page
+   itself flags every one of these on every host, production included (see
+   src/styles/components/placeholder.css). */
+function pendingPlaceholders() {
+    return [
         site.phone.placeholder && 'phone number (src/data/site.mjs → phone)',
         site.licenseNumber.placeholder && 'DPS licence number (src/data/site.mjs → licenseNumber)'
     ].filter(Boolean);
-    for (const item of pending) {
+}
+
+/* Printed on every build and every check so a placeholder can never ship
+   quietly. A warning only: it must not block the day-to-day work that is
+   still going on around the facts Cameron owes us. */
+function warnPlaceholders() {
+    for (const item of pendingPlaceholders()) {
         console.warn(`  WARNING  placeholder still in place: ${item}`);
     }
 }
 
+/* The release gate, and the one place a placeholder is fatal rather than
+   noisy. Tex. Occ. Code §1702.284 requires the real DPS licence number in
+   advertising, and this website is advertising, so shipping B00000 to the
+   public domain is a regulatory problem and not a cosmetic one. */
+function verifyRelease() {
+    const pending = pendingPlaceholders();
+
+    if (pending.length) {
+        console.error('\nNOT READY TO RELEASE — placeholder business facts remain:');
+        for (const item of pending) {
+            console.error(`  PENDING  ${item}`);
+        }
+        console.error(
+            `\n${pending.length} placeholder${pending.length === 1 ? '' : 's'} pending. ` +
+            'Supply the real value in src/data/site.mjs, set `placeholder: false`,\n' +
+            'run `node build.mjs`, and commit the regenerated output.'
+        );
+        process.exit(1);
+    }
+
+    console.log('\nNo placeholders pending. Release gate passed.');
+}
+
 warnPlaceholders();
 
-if (process.argv.includes('--check')) {
+if (process.argv.includes('--verify-release')) {
+    console.log('Verifying release readiness...');
+    check();
+    verifyRelease();
+} else if (process.argv.includes('--check')) {
     console.log('Checking generated output...');
     check();
 } else {

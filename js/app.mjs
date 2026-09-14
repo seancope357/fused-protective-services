@@ -10,7 +10,6 @@
    carries no inline event handlers at all.
    ========================================================================== */
 
-import { initEnvFlag } from './modules/env.mjs';
 import { initDrawer } from './modules/drawer.mjs';
 import { initBookshelf } from './modules/bookshelf.mjs';
 import { initProtocol } from './modules/protocol.mjs';
@@ -22,7 +21,6 @@ import { initParticles, initTilt, initSpotlight } from './modules/ambient.mjs';
 import { initReveal } from './modules/reveal.mjs';
 
 for (const init of [
-    initEnvFlag,
     initDrawer,
     initBookshelf,
     initProtocol,
