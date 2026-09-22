@@ -20,7 +20,7 @@ ${invoiceHead()}
 
     <a href="#invoice-export" class="skip-link">Skip to export</a>
 
-    <main class="inv-moved" id="invoice-export">
+    <main class="inv-moved" id="invoice-export" tabindex="-1">
         <img src="${site.logo}" alt="" width="64" height="64">
         <h1>Invoicing has moved to the operations portal</h1>
         <p>

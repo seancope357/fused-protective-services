@@ -1854,7 +1854,10 @@ html[data-forge-fallback] .forge-cue {
 
 .estimator-disclaimer {
     font-size: 11px;
-    color: #64748b;
+    /* Was #64748b — Tailwind slate-500, a blue-grey belonging to no token in
+       tokens.css. At 11px on the void it measured 4.26:1, under the 4.5 floor.
+       A11Y-AUDIT.md A-04. */
+    color: var(--text-tertiary);
     margin-top: 12px;
 }
 }
@@ -1905,7 +1908,12 @@ html[data-forge-fallback] .forge-cue {
     font-family: 'Cinzel', serif;
     font-size: 34px;
     font-weight: 900;
-    color: rgba(186, 152, 87, 0.35);
+    /* 0.35 composited to 1.87:1 over the card. 34px at weight 900 is large
+       text, so the floor is 3:1 rather than 4.5:1; 0.62 measures 3.37:1.
+       That margin is thin — if this numeral ever drops below 24px, or below
+       18.66px bold, it needs 4.5:1 and this value is no longer enough.
+       A11Y-AUDIT.md A-02. */
+    color: rgba(186, 152, 87, 0.62);
     margin-bottom: 12px;
 }
 
@@ -2843,6 +2851,14 @@ html[data-forge-fallback] .forge-cue {
     padding: clamp(24px, 6vw, 64px) clamp(16px, 4vw, 32px);
     display: grid;
     gap: var(--space-5);
+}
+
+/* No rule matched these, so they fell back to the browser default #0000ee on
+   the near-black page: 2.16:1. overflow-wrap because a legacy record id can be
+   longer than the column. A11Y-AUDIT.md A-03 / A11Y-06. */
+.inv-moved a {
+    color: var(--logo-gold-highlight);
+    overflow-wrap: anywhere;
 }
 
 .inv-moved pre {

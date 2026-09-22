@@ -73,30 +73,26 @@ jobs:
         run: pnpm build
 
   a11y:
-    name: Accessibility — WCAG 2.1 AA scan (staged, not yet blocking)
+    name: Accessibility — WCAG 2.1 AA scan
     runs-on: ubuntu-latest
     # ┌───────────────────────────────────────────────────────────────────┐
-    # │  THIS JOB REPORTS BUT DOES NOT BLOCK — AND THAT IS TEMPORARY.     │
+    # │  THIS JOB BLOCKS. `--exit` on both scans makes axe exit non-zero  │
+    # │  on any violation, and there is no continue-on-error.             │
     # │                                                                   │
-    # │  continue-on-error is set ONLY because the scan currently finds   │
-    # │  48 pre-existing colour-contrast violations that live in          │
-    # │  src/styles/** — files this change does not own and that SPEC-006 │
-    # │  rewrites next. Failing `main` on defects nobody is allowed to    │
-    # │  fix yet would teach everyone to ignore a red check, which is     │
-    # │  worse than having no check.                                      │
+    # │  It was staged from 2026-09-14 to 2026-09-22 while 48 contrast    │
+    # │  violations were cleared: 42 fell to one token (--text-tertiary   │
+    # │  #78716c → #8f8a86) and the last 6 to three CSS declarations.     │
+    # │  The audit that catalogued them is docs/A11Y-AUDIT.md.            │
     # │                                                                   │
-    # │  IT FLIPS TO BLOCKING IN THE FOLLOW-UP THAT LANDS THE FIXES.      │
-    # │  That follow-up deletes the `continue-on-error` line below and    │
-    # │  adds `a11y` to the required-checks list. Every violation it must │
-    # │  clear is written up with file, selector, rule id and the exact   │
-    # │  fix in docs/A11Y-AUDIT.md — no investigation needs repeating.    │
+    # │  Both passes now report zero on all six pages, so a red scan here │
+    # │  is a REGRESSION YOU JUST INTRODUCED, not a known backlog. Fix    │
+    # │  the markup or the token.                                         │
     # │                                                                   │
-    # │  NO AXE RULE IS DISABLED, HERE OR ANYWHERE. Staging the gate is   │
-    # │  not suppressing findings: the scan reports every violation it    │
-    # │  sees, in full, on every run. Do not "fix" a red scan by adding   │
-    # │  --disable; record it in the audit instead.                       │
+    # │  NO AXE RULE IS DISABLED, HERE OR ANYWHERE. Never "fix" a red     │
+    # │  scan with --disable, and never re-stage the gate to get a merge  │
+    # │  through — a check that is red by design teaches people to ignore │
+    # │  red, and then the red that matters is ignored too.               │
     # └───────────────────────────────────────────────────────────────────┘
-    continue-on-error: true
     env:
       # Chrome and ChromeDriver are pinned to the SAME Chrome-for-Testing
       # build. @axe-core/cli drives Chrome through selenium, and a
@@ -159,24 +155,12 @@ jobs:
             --chrome-options="no-sandbox,disable-dev-shm-usage,disable-gpu" \
             --tags "$AXE_TAGS" \
             --load-delay 2500 \
-            | tee "$RUNNER_TEMP/axe-default.log"
-          # ^ NOTE the absent `--exit`. TO ARM THE GATE: add `--exit` back here
-          # and in the reduced-motion step, delete both summary blocks, and
-          # delete `continue-on-error` at the job level.
-          #
-          # Do NOT stage the gate by keeping --exit and swallowing the status
-          # with a pipe: GitHub runs every `run:` under
-          # `bash --noprofile --norc -eo pipefail`, so a failing command in a
-          # pipeline still fails the step. Without --exit, axe prints every
-          # violation and exits 0 — the scan reports in full, it just does not
-          # paint the check red. A check that is red by design teaches people to
-          # ignore red, and then the red that matters is ignored too.
-          {
-            echo "### axe · default presentation"
-            echo '```'
-            grep -iE "violation|issues? (detected|found)" "$RUNNER_TEMP/axe-default.log" | tail -25 || echo "no violation lines in output"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+            --exit
+          # Never pipe these scans into tee to soften them: GitHub runs every
+          # `run:` under `bash --noprofile --norc -eo pipefail`, so a failing
+          # command in a pipeline still fails the step, and you would be left
+          # with a check that looks staged but is not. If this needs to stop
+          # blocking, say so in the open, at the job level.
 
       - name: axe — public pages, reduced motion (whole document visible)
         if: ${{ !cancelled() }}
@@ -193,14 +177,7 @@ jobs:
             --chrome-options="no-sandbox,disable-dev-shm-usage,disable-gpu,force-prefers-reduced-motion" \
             --tags "$AXE_TAGS" \
             --load-delay 2500 \
-            | tee "$RUNNER_TEMP/axe-reduced-motion.log"
-          {
-            echo "### axe · reduced motion (whole document visible)"
-            echo '```'
-            grep -iE "violation|issues? (detected|found)" "$RUNNER_TEMP/axe-reduced-motion.log" | tail -25 || echo "no violation lines in output"
-            echo '```'
-            echo "_Gate is **staged**: violations are reported, not blocking. See docs/A11Y-AUDIT.md._"
-          } >> "$GITHUB_STEP_SUMMARY"
+            --exit
 
       # ── portal ─────────────────────────────────────────────────────────
       # app/ is a separate workspace and may carry dependencies, so the
