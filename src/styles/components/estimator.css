@@ -155,7 +155,10 @@
 
 .estimator-disclaimer {
     font-size: 11px;
-    color: #64748b;
+    /* Was #64748b — Tailwind slate-500, a blue-grey belonging to no token in
+       tokens.css. At 11px on the void it measured 4.26:1, under the 4.5 floor.
+       A11Y-AUDIT.md A-04. */
+    color: var(--text-tertiary);
     margin-top: 12px;
 }
 }

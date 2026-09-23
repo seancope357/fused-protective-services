@@ -86,6 +86,14 @@
     gap: var(--space-5);
 }
 
+/* No rule matched these, so they fell back to the browser default #0000ee on
+   the near-black page: 2.16:1. overflow-wrap because a legacy record id can be
+   longer than the column. A11Y-AUDIT.md A-03 / A11Y-06. */
+.inv-moved a {
+    color: var(--logo-gold-highlight);
+    overflow-wrap: anywhere;
+}
+
 .inv-moved pre {
     background: #060706;
     border: 1px solid var(--border-subtle);

@@ -13,12 +13,12 @@
    src/templates/ is not the order the browser sees once the page shell has
    composed the partials.
 
-   What is deliberately NOT asserted here: that the link targets `#main`.
-   Today `/` targets `#capabilities` and `/careers` targets `#open-postings`,
-   both of which skip past their page's hero. That is recorded as A11Y-01 in
-   docs/A11Y-AUDIT.md and is fixed in the follow-up that lands the template
-   changes; asserting it now would fail a check that has nothing to do with
-   the property this file exists to protect.
+   The target is asserted to be `#main` exactly, not merely an id somewhere
+   inside <main>. The looser check was what let A11Y-01 pass unnoticed: `/`
+   targeted `#capabilities` and `/careers` targeted `#open-postings`, both
+   genuinely inside <main> and both past the hero and every primary CTA. A
+   skip link that lands three sections in is a conversion defect as much as
+   an accessibility one, and "inside <main>" is too weak to catch it.
    ========================================================================== */
 
 import { test } from 'node:test';
@@ -86,7 +86,7 @@ for (const page of PAGES) {
         );
     });
 
-    test(`${page}: exactly one skip link, and it points at a real id inside <main>`, () => {
+    test(`${page}: exactly one skip link, and it points at #main itself`, () => {
         const html = read(page);
 
         const all = [...html.matchAll(/class="[^"]*\bskip-link\b[^"]*"/gi)];
@@ -99,16 +99,26 @@ for (const page of PAGES) {
         const hasId = new RegExp(`\\bid="${target}"`).test(html);
         assert.ok(hasId, `${page}: the skip link points at #${target}, which is not an id on this page`);
 
-        /* The destination must be the main landmark or live inside it —
-           a link that lands in the header or the footer is not a skip link. */
-        const main = html.match(/<main\b[^>]*>[\s\S]*?<\/main>/i);
+        /* The destination must be the <main> element ITSELF, not merely an id
+           somewhere inside it. The id need not be the literal string "main" —
+           /invoice uses id="invoice-export" and a matching "Skip to export"
+           label, which is the same property expressed for that page. */
+        const main = html.match(/<main\b[^>]*>/i);
         assert.ok(main, `${page}: no <main> landmark`);
-        const targetInMain =
-            new RegExp(`<main\\b[^>]*\\bid="${target}"`).test(html) ||
-            new RegExp(`\\bid="${target}"`).test(main[0]);
-        assert.ok(
-            targetInMain,
-            `${page}: the skip link target #${target} is outside <main>`
+        assert.match(
+            main[0],
+            new RegExp(`\\bid="${target}"`),
+            `${page}: the skip link targets #${target}, which is not the <main> element itself — ` +
+            `it lands inside <main> and skips whatever precedes it, which is how A11Y-01 ` +
+            `hid on / and /careers (both past the hero and every primary CTA)`
+        );
+        /* Without tabindex="-1" the browser moves the scroll but leaves
+           document.activeElement on BODY; only Chrome's sequential-focus
+           starting point papers over it. VoiceOver and NVDA do not. */
+        assert.match(
+            main[0],
+            /\btabindex="-1"/,
+            `${page}: <main> must carry tabindex="-1" or focus never lands there (A11Y-02)`
         );
     });
 }

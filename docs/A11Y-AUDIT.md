@@ -9,21 +9,39 @@ and `@axe-core/cli` 4.10.2 (axe-core 4.10.3) on Chrome for Testing 153.0.8010.36
 
 ---
 
-## ⚠️ The CI gate is STAGED, not armed — and that is temporary
+## ✅ The CI gate is ARMED — it blocks
+
+*Armed 2026-09-22. The audit below is the record of what it took; the numbers in it are the
+**2026-09-14 pre-fix** measurement, kept so the findings stay traceable.*
 
 The `a11y` job in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on every push and
-pull request, scans every public page and the portal sign-in screen, and **prints every violation it
-finds**. It carries `continue-on-error: true`, so today it reports without blocking.
+pull request, scans all six public pages in two presentations plus the portal sign-in screen, and
+carries `--exit` on both scans with no `continue-on-error`. **A violation fails the build.**
 
-**It flips to blocking in the follow-up that lands the fixes below.** That change deletes one line
-(`continue-on-error: true`) and adds `a11y` to the required-checks list. Nothing else about the job
-changes.
+Both passes now report **zero violations on all six pages**, so a red scan here is a regression
+introduced by the change under review — not a known backlog. Fix the markup or the token; do not
+re-stage the gate to get a merge through.
 
-The reason for staging is narrow and worth stating plainly: every automated violation in this report
-lives in `src/styles/**` and `src/templates/**`, which this change does not own — SPEC-007 holds the
-lock on them this wave and SPEC-006 rewrites the styles next. A gate that fails `main` on defects
-nobody is currently permitted to fix trains the team to ignore a red check, and a check everyone
-ignores is worse than no check at all. A job that runs and reports honestly is worth having today.
+**How the 48 were cleared**
+
+| | |
+| :--- | ---: |
+| `--text-tertiary` `#78716c` → `#8f8a86` (approved 2026-09-14) | −42 |
+| `.estimator-disclaimer` `#64748b` → `var(--text-tertiary)` | −1 |
+| `.standard-index` alpha `0.35` → `0.62` | −4 |
+| `.inv-moved a` given a colour (was browser-default `#0000ee`) | −1 |
+| **Remaining** | **0** |
+
+Two things the arming pass also turned up, neither in the original audit:
+
+- **`/invoice`'s `<main>` never received `tabindex="-1"`.** The A11Y-02 fix covered four templates;
+  the invoice page uses a fifth and was missed. Without it, activating the skip link moves the
+  scroll but leaves `document.activeElement` on `BODY`.
+- **`tests/skip-link.test.mjs` was too weak to catch A11Y-01.** It asserted the target was *an id
+  inside* `<main>`; `#capabilities` and `#open-postings` both satisfied that while skipping the hero
+  and every primary CTA. It now asserts the target is the `<main>` element itself — verified by
+  reintroducing the original defect and watching it go red. The id need not be the literal string
+  `main`: `/invoice` legitimately uses `id="invoice-export"` with a matching "Skip to export" label.
 
 **No axe rule is disabled anywhere** — not in the workflow, not in `app/tests/a11y.test.ts`, not in
 any config. Staging the gate is not the same as suppressing findings, and the distinction is the
@@ -92,8 +110,9 @@ Every one is rule `color-contrast` (WCAG 1.4.3 Contrast (Minimum)). By page:
 | `/invoice` | 1 |
 | portal `/login` | **0** |
 
-42 of the 48 come from a **single token**, `--text-tertiary`. Fixing that one value clears 87% of the
-automated backlog.
+42 of the 48 come from a **single token**, `--text-tertiary`. Fixing that one value cleared 87% of the
+automated backlog; the remaining 6 fell to three CSS declarations. **All 48 are now fixed and the
+table above is the historical pre-fix measurement.**
 
 ### Manual (what axe cannot check)
 

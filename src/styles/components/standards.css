@@ -43,7 +43,12 @@
     font-family: 'Cinzel', serif;
     font-size: 34px;
     font-weight: 900;
-    color: rgba(186, 152, 87, 0.35);
+    /* 0.35 composited to 1.87:1 over the card. 34px at weight 900 is large
+       text, so the floor is 3:1 rather than 4.5:1; 0.62 measures 3.37:1.
+       That margin is thin — if this numeral ever drops below 24px, or below
+       18.66px bold, it needs 4.5:1 and this value is no longer enough.
+       A11Y-AUDIT.md A-02. */
+    color: rgba(186, 152, 87, 0.62);
     margin-bottom: 12px;
 }
 
