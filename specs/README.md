@@ -17,7 +17,7 @@ has nothing unbuilt in its `Depends on` line.
 | [001](SPEC-001-placeholder-guardrail.md) | Fail-closed placeholder guardrail | A1 | S | — | ✅ **Done** |
 | [002](SPEC-002-environment-separation.md) | Preview must not touch production | C3, C4 | M | — | ✅ **Done** (code; branch is Sean's) |
 | [003](SPEC-003-error-reporting.md) | Error reporting and alerting | D1 | M | 002 | ✅ **Done** (2 criteria untested — GO_LIVE D1b) |
-| [004](SPEC-004-health-and-heartbeat.md) | Health checks + cron dead-man's switch | D2 | M | 003 | **Ready** |
+| [004](SPEC-004-health-and-heartbeat.md) | Health checks + cron dead-man's switch | D2 | M | 003 | ✅ **Done** (monitor account is Sean's — D2a) |
 | [005](SPEC-005-conversion-analytics.md) | Cookieless conversion analytics | D3 | M | 002 | ⏸ **Recommended cut from launch** |
 | [006](SPEC-006-marketing-site-csp.md) | CSP + HSTS for the marketing site | E1 | M | — | ✅ **Done** (Chromium swept; FF/Safari at first deploy) |
 | [007](SPEC-007-brand-assets.md) | Favicon, OG card, page weight | E2 | S | — | ✅ **Done** (−960 KB) |
