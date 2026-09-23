@@ -177,20 +177,52 @@ you can run a business on.
       `onboarding@resend.dev`, which only delivers to the Resend account owner. If Sean wants
       alerts before B1 and is the account owner, it is a one-line change in each reporter.
       **Owner: engineering, decide with B1.**
-- [ ] **D1b · Two acceptance criteria are implemented but untested.** Stated rather than
-      quietly counted as done: (7) the Stripe webhook reports before every non-2xx with the
-      event id in context, and (8) a failing cron rule does not abort the remaining rules.
-      Both were verified by reading the code, not by a test. Acceptance 8 is the one that
-      matters — a rule that aborts the tick means no reminders and no overdue chasers, with no
-      symptom. Needs a chainable Supabase double that throws for one table.
-      **Owner: engineering.**
+- [x] **D1b · Both untested acceptance criteria are now proven.** ✅ Closed 2026-09-23.
+      Acceptance **8** — a failing cron rule must not abort the remaining rules — needed a
+      chainable Supabase double that fails one table; SPEC-004 needed the same harness, so
+      one piece of scaffolding closed both. Verified by *removing* the per-rule isolation
+      and watching all four tick tests go red.
+      Acceptance **7** — the Stripe webhook reports before every non-2xx with the event id
+      in context — is covered two ways, because one of its failure modes is invisible to a
+      reading. A **structural** guard asserts no non-2xx response is built outside the
+      reporting helper, which is the only thing that catches a future branch added without
+      an alert. A **behavioural** one holds the report open and asserts the response has not
+      been written yet: in a serverless runtime the function can be frozen the moment the
+      response is sent, so a fire-and-forget `report(...)` is an alert that exists
+      sometimes. Both were verified against the real defects — one by dropping the `await`,
+      one by adding a bare `409`.
+      This mattered because Stripe's retry is the only other safety net: when it gives up, a
+      client has paid, the invoice still says unpaid, and nobody finds out until they ask.
+      **Owner: engineering — done.**
 - [ ] **D1c · Set `OPS_ALERT_TO`.** Without it, alerts fall back to `DISPATCH_ALERT_TO` and a
       stack trace reaches whoever is on the dispatch line rather than an engineer. With
       neither set, `report()` records the skip as `no_recipient`. **Owner: Sean.**
-- [ ] **D2 · Uptime checks** → [**SPEC-004**](../specs/SPEC-004-health-and-heartbeat.md) on `/`, `/careers`, `POST /api/intake` (synthetic, honeypot-
-      tripped so it delivers nothing), the portal login page, and the hourly
-      `/api/cron/tick`. A silently dead cron means no reminders, no overdue chasers and no
-      7am digest — with no symptom until revenue is missing. **Owner: engineering.**
+- [x] **D2 · Health checks and a cron dead-man's switch.** ✅ Built — [**SPEC-004**](../specs/SPEC-004-health-and-heartbeat.md).
+      `GET /api/health` on both surfaces: 200 healthy, 503 when a hard dependency is
+      unreachable, `Cache-Control: no-store`, and a `configured` map of **booleans only**.
+      Both bodies are written to be safe to publish — no key, prefix, masked value, URL,
+      Supabase project ref, dependency error string or business count — and
+      `tests/health.test.mjs` seeds every secret with a sentinel and asserts no fragment of
+      any of them reaches the response, so an edit that helpfully adds `supabase_url` for
+      debugging fails CI instead of shipping. The Supabase probe is bounded, because a hung
+      database should produce a 503 rather than a monitor timeout; those look identical on a
+      status page and are different incidents.
+      **The dead-man's switch has two layers and neither subsumes the other.** The tick
+      writes a heartbeat to `public.settings` (no migration — the table is already
+      key/JSONB, checked before choosing). At the start of each run it compares against the
+      last mark and reports at `error` past 2h: that catches a scheduler that *stalled and
+      recovered*, a gap an external monitor polling for a 200 never sees. The portal health
+      endpoint goes 503 past 3h: that catches a scheduler that is simply *dead*, which the
+      self-check cannot, because a process cannot alert about its own death.
+      **Verify:** `curl -s <portal>/api/health | jq` — and prove it rather than trusting it
+      by ageing the heartbeat by hand ([RUNBOOK §8c](RUNBOOK.md)) and watching it go red.
+      **Owner: engineering — done.**
+- [ ] **D2a · Create the external monitor account and configure four checks.** The code is
+      built; the account is not, and until it exists the outer layer does not run. The four
+      checks, their thresholds and the exact synthetic-probe body are in
+      [RUNBOOK §8c](RUNBOOK.md). Note check 4 posts to `/api/intake` with the honeypot field
+      filled — that exercises DNS, TLS, routing, cold start, CORS and the abuse gate end to
+      end while writing no row and sending nothing. **Owner: Sean.**
 - [ ] **D3 · Analytics and conversion measurement.** → [**SPEC-005**](../specs/SPEC-005-conversion-analytics.md) Also absent. Without it nobody can say
       whether the assessment quiz, the estimator or the WebGL intro help or hurt, or what a
       lead costs. Privacy-first and cookieless keeps the privacy policy accurate as written.
