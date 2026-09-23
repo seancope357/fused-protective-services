@@ -177,17 +177,23 @@ you can run a business on.
       `onboarding@resend.dev`, which only delivers to the Resend account owner. If Sean wants
       alerts before B1 and is the account owner, it is a one-line change in each reporter.
       **Owner: engineering, decide with B1.**
-- [ ] **D1b · One acceptance criterion is implemented but untested.** *Half closed
-      2026-09-23.* Acceptance **8** — a failing cron rule must not abort the remaining rules
-      — is now proven: SPEC-004 needed a chainable Supabase double that fails one table, and
-      that same harness (`app/tests/helpers/supabase-double.ts`) closes this. The test was
-      verified by removing the per-rule isolation and watching it go red, not merely by
-      watching it pass. This mattered most of the three because its failure mode is silent:
-      a rule that throws early takes the reminders, the chasers and the digest with it, and
-      the only symptom is a quiet week.
-      **Still open: acceptance 7** — the Stripe webhook reports before every non-2xx with the
-      event id in context, asserted by reading the code rather than by a test.
-      **Owner: engineering.**
+- [x] **D1b · Both untested acceptance criteria are now proven.** ✅ Closed 2026-09-23.
+      Acceptance **8** — a failing cron rule must not abort the remaining rules — needed a
+      chainable Supabase double that fails one table; SPEC-004 needed the same harness, so
+      one piece of scaffolding closed both. Verified by *removing* the per-rule isolation
+      and watching all four tick tests go red.
+      Acceptance **7** — the Stripe webhook reports before every non-2xx with the event id
+      in context — is covered two ways, because one of its failure modes is invisible to a
+      reading. A **structural** guard asserts no non-2xx response is built outside the
+      reporting helper, which is the only thing that catches a future branch added without
+      an alert. A **behavioural** one holds the report open and asserts the response has not
+      been written yet: in a serverless runtime the function can be frozen the moment the
+      response is sent, so a fire-and-forget `report(...)` is an alert that exists
+      sometimes. Both were verified against the real defects — one by dropping the `await`,
+      one by adding a bare `409`.
+      This mattered because Stripe's retry is the only other safety net: when it gives up, a
+      client has paid, the invoice still says unpaid, and nobody finds out until they ask.
+      **Owner: engineering — done.**
 - [ ] **D1c · Set `OPS_ALERT_TO`.** Without it, alerts fall back to `DISPATCH_ALERT_TO` and a
       stack trace reaches whoever is on the dispatch line rather than an engineer. With
       neither set, `report()` records the skip as `no_recipient`. **Owner: Sean.**
