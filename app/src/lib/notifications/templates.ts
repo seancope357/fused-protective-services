@@ -15,7 +15,7 @@ import { site, divisionByQuoteValue, positionTitle, vettingStageById, vettingSta
 import type { Candidate, Client, Invoice, Job, Lead, Proposal, Quote, Review, Site, Payment } from '@/lib/db/types';
 
 export type Audience = 'owner' | 'client';
-export type Channel = 'email' | 'sms';
+export type Channel = 'email' | 'sms' | 'push';
 
 export type EmailMessage = { subject: string; text: string; html: string };
 
@@ -44,6 +44,9 @@ export type Rule = {
     when?: (ctx: Ctx) => boolean;
     email?: (ctx: Ctx) => EmailMessage;
     sms?: (ctx: Ctx) => string;
+    /** Owner push (Telegram). Falls back to `sms` — the copy is already a
+        short page, so an owner rule needs no second template. */
+    push?: (ctx: Ctx) => string;
 };
 
 const esc = (v: unknown) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
