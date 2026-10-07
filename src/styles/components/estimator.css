@@ -25,7 +25,8 @@
 .control-header {
     display: flex;
     justify-content: space-between;
-    font-size: clamp(11px, 1vw, 13px);
+    gap: var(--space-3);
+    font-size: clamp(12px, 1vw, 13px);
     font-weight: 700;
     color: var(--logo-gold-specular);
     text-transform: uppercase;
@@ -44,13 +45,21 @@
     background: var(--color-surface-glass);
     border: 1px solid var(--border-subtle);
     color: var(--text-secondary);
-    padding: clamp(10px, 1.5vw, 14px) 6px;
+    padding: clamp(10px, 1.5vw, 14px) 8px;
+    min-height: 44px;
     border-radius: var(--radius-md);
-    font-size: clamp(10.5px, 1vw, 12px);
+    font-size: clamp(12px, 1vw, 12.5px);
     font-weight: 700;
     cursor: pointer;
     text-align: center;
     transition: all var(--duration-normal) var(--ease-spring);
+    /* The three tiers wrap to different line counts — "Unarmed Guard" takes
+       two where "Armed Officer" takes one — and the grid stretches them to a
+       shared height regardless, so without this the shorter labels hang off
+       the top of their box. */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .tier-button.active {
@@ -65,10 +74,24 @@
     width: 100%;
     -webkit-appearance: none;
     appearance: none;
+    /* The rail reads as 10px, and the element used to be 10px with it — so
+       the whole control was a 10px-tall target you had to hit with a
+       fingertip. The height belongs to the input now and the rail is painted
+       on the track pseudo-element instead, which leaves the look untouched
+       over a 44px hit area. The thumb rules below pull themselves back onto
+       the rail with a negative margin, because once a track exists WebKit
+       aligns the thumb to its top edge rather than the element's centre. */
+    height: 44px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+}
+
+.range-slider::-webkit-slider-runnable-track {
     height: 10px;
     border-radius: var(--radius-sm);
     background: #1e293b;
-    outline: none;
 }
 
 /* outline:none above sits in the components layer, so it beats the base
@@ -81,6 +104,7 @@
 
 .range-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
+    margin-top: -8px;
     width: 26px;
     height: 26px;
     border-radius: var(--radius-full);
@@ -141,8 +165,11 @@
 }
 
 .tier-sublabel {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 400;
+    display: block;
+    margin-top: 2px;
+    line-height: 1.3;
 }
 
 .control-value {
@@ -154,7 +181,7 @@
 }
 
 .estimator-disclaimer {
-    font-size: 11px;
+    font-size: 12px;
     /* Was #64748b — Tailwind slate-500, a blue-grey belonging to no token in
        tokens.css. At 11px on the void it measured 4.26:1, under the 4.5 floor.
        A11Y-AUDIT.md A-04. */

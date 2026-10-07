@@ -26,6 +26,9 @@
     justify-content: space-between;
     align-items: center;
     gap: 12px;
+    /* The box's padding is on the <details>, so the <summary> inside it was
+       only as tall as its own single line of text — 22px. */
+    min-height: 44px;
 }
 
 .faq-answer {

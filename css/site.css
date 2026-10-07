@@ -71,6 +71,14 @@
     --space-20: clamp(64px, 10vw, 80px);
     --space-24: clamp(76px, 12vw, 96px);
 
+    /* The floating dispatch pill is position:fixed, so it sits over whatever
+       happens to be at the bottom of the page — which is always the footer's
+       licence and copyright lines. Pages reserve this much room beneath their
+       last band so nothing ends up underneath it. Derived from the pill: a
+       44px call button, 6px of padding either side, its 1px border, plus the
+       clamp(12px, 2vw, 24px) it floats above the viewport edge. */
+    --dispatch-clearance: 92px;
+
     /* Section Surfaces — the recessed bands between full-bleed sections */
     --surface-section-sunken: rgba(9, 10, 9, 0.75);
     --surface-section-deep: rgba(9, 10, 9, 0.80);
@@ -231,6 +239,12 @@
 
 html {
     scroll-behavior: smooth;
+    /* The nav island is sticky at top:14px and stands about 62px tall, so an
+       in-page jump used to land its target underneath the island — on a phone
+       that hid the whole first line of every section the footer menu links
+       to. Reserving the island's own height means #quote, #assessment and the
+       rest arrive just below it. */
+    scroll-padding-top: 88px;
 }
 
 body {
@@ -274,7 +288,9 @@ body {
     width: 100%;
     max-width: 1280px;
     margin: 0 auto;
-    padding: 0 clamp(16px, 4vw, 32px);
+    /* 20px, not 16, at the narrow end: 4vw only reaches 16px around a 400px
+       viewport, which left every card on a phone almost touching the bezel. */
+    padding: 0 clamp(20px, 4vw, 32px);
     position: relative;
     z-index: 1;
 }
@@ -467,6 +483,118 @@ body {
     box-shadow: 0 15px 45px rgba(186, 152, 87, 0.6);
 }
 
+/* ==========================================================================
+   .btn-gold--beacon — an idle specular sweep for ONE call to action.
+
+   OPT-IN ON PURPOSE. `.btn-gold` is worn by eleven buttons: the nav call
+   link, the quote submit, the estimator and assessment applies, four careers
+   buttons and the invoice export. If this lived on the base class the whole
+   site would pulse at once, which is not eye-catching — it is a fairground,
+   and a page where everything demands attention directs none. Apply it to the
+   single most important action on a page and nowhere else.
+
+   It rides ::after because ::before already owns the hover sweep. Animating
+   one pseudo-element from two places would mean the idle loop and the hover
+   transition fighting over `left` mid-gesture.
+
+   Transform rather than `left`: this runs forever on the hero, so it stays on
+   the compositor instead of laying out the button sixty times a second.
+
+   It is a sweep, not an outline pulse, and that is a deliberate rejection of
+   the other half of the brief. base.css gives every interactive surface on
+   this site exactly one focus treatment — a 2px gold outline. A decorative
+   outline that pulses on the page's primary action would be read as a focus
+   ring by anyone navigating with a keyboard, and teaching people to distrust
+   the real focus indicator costs more than this animation could ever win.
+
+   Contrast is safe in the right direction: the band lightens a gold face
+   under near-black text, so it raises the ratio as it passes rather than
+   washing it out. Worth saying because axe measures static computed style and
+   would not catch it either way — the reasoning has to be done here.
+   ========================================================================== */
+
+/* The sheen must paint ABOVE the gold face but BELOW the label. Without this
+   the band crosses the text at 0.58 alpha and lifts near-black glyphs toward
+   white — the label visibly washes out mid-sweep, which is a contrast failure
+   on the page's primary action and the exact opposite of drawing attention
+   to it. `isolation: isolate` gives the button its own stacking context so
+   the negative z-index below lands between its background and its content;
+   without the isolation the pseudo-element would slip behind the gold
+   entirely and vanish. */
+.btn-gold--beacon {
+    isolation: isolate;
+}
+
+.btn-gold--beacon::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    /* Overshoots the top and bottom edges so the skewed band has no visible
+       corner; `overflow: hidden` on .btn-gold clips it to the face. */
+    top: -25%;
+    bottom: -25%;
+    left: 0;
+    width: 42%;
+    pointer-events: none;
+    background: linear-gradient(
+        100deg,
+        transparent 0%,
+        rgba(255, 252, 242, 0.07) 34%,
+        rgba(255, 253, 246, 0.58) 50%,
+        rgba(255, 252, 242, 0.07) 66%,
+        transparent 100%
+    );
+    /* The resting state, stated explicitly rather than left to fill-mode:
+       parked off-stage and fully transparent. Two things depend on it — the
+       loop's wrap from 100% back to 0% is invisible because both ends are
+       transparent, and the reduced-motion clamp in base.css
+       (`animation-duration: 0.01ms; animation-iteration-count: 1`) lands here
+       instead of freezing a bright band across the middle of the button. */
+    opacity: 0;
+    transform: translateX(-170%) skewX(-12deg);
+    /* linear, NOT one of the --ease-* tokens. Those are all heavily
+       front-loaded (--ease-out-quint is cubic-bezier(0.22, 1, 0.36, 1)),
+       which is right for a surface arriving somewhere and wrong for a
+       reflection travelling across one. Eased, the band crossed the face in
+       the first fraction of the sweep and then sat parked past the right
+       edge — clipped by `overflow: hidden`, opacity still 1, nothing visible.
+       It measured as a 0.9s highlight and looked like nothing at all. A
+       glint moves at the speed of the light source; keep it constant. */
+    animation: ctaBeaconSheen 4.6s linear 1.4s infinite;
+}
+
+/* The gap is the point. The sweep takes under a fifth of the cycle and the
+   rest is stillness — a breath between passes rather than a strobe. Both ends
+   are transparent, so the wrap is seamless and the 100% frame doubles as the
+   resting state. */
+@keyframes ctaBeaconSheen {
+    0% { opacity: 0; transform: translateX(-170%) skewX(-12deg); }
+    5% { opacity: 1; }
+    15% { opacity: 1; }
+    20% { opacity: 0; transform: translateX(330%) skewX(-12deg); }
+    100% { opacity: 0; transform: translateX(330%) skewX(-12deg); }
+}
+
+/* Once someone is actually on the button, stop selling it: the hover sweep on
+   ::before takes over and two sweeps crossing at once reads as a glitch. */
+.btn-gold--beacon:hover::after,
+.btn-gold--beacon:focus-visible::after,
+.btn-gold--beacon:active::after {
+    animation: none;
+    opacity: 0;
+}
+
+/* base.css already clamps every animation under reduced motion. Repeated here
+   because a looping attention-grabber is the exact thing that rule exists to
+   stop, and the next person to read this file should not have to go and check
+   that it is handled somewhere else. */
+@media (prefers-reduced-motion: reduce) {
+    .btn-gold--beacon::after {
+        animation: none;
+        opacity: 0;
+    }
+}
+
 .btn-secondary-glass {
     background: var(--color-surface-glass);
     border: 1px solid var(--border-subtle);
@@ -498,6 +626,8 @@ body {
     background: var(--gradient-gold-brushed);
     color: #050504;
     padding: 8px 18px;
+    min-height: 44px;
+    justify-content: center;
     border-radius: var(--radius-full);
     font-size: 12.5px;
     font-weight: 800;
@@ -571,6 +701,10 @@ body {
 .btn-sm {
     font-size: 13px;
     padding: 11px 22px;
+    /* 11px of padding around a 13px line box lands at 37px — the small
+       modifier is what "Apply For This Post" uses, which is the only control
+       on a job card that matters. */
+    min-height: 44px;
 }
 
 .btn-block {
@@ -634,6 +768,10 @@ body {
     gap: 10px;
     text-decoration: none;
     padding-right: 6px;
+    /* The island's own padding left this 40px tall — the one target on the
+       page that returns a visitor home. */
+    min-height: 44px;
+    min-width: 0;
 }
 
 .brand-img {
@@ -659,11 +797,16 @@ body {
 }
 
 .brand-subtitle {
-    font-size: 8px;
+    /* 8px with 2.5px of tracking was decoration, not a word anyone could
+       read on a phone. The extra 2.5px of size is paid for out of the
+       tracking, so the line stays the same width and the island does not
+       grow. */
+    font-size: 10.5px;
     font-weight: 800;
     color: var(--logo-gold-bevel);
-    letter-spacing: 2.5px;
+    letter-spacing: 1.6px;
     text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .segmented-nav-track {
@@ -721,6 +864,16 @@ body {
     .segmented-nav-track { display: none; }
     .mobile-toggle-btn { display: block; }
 }
+
+/* Small phones. Brand lockup plus a 44px hamburger has about 270px of
+   min-content width, and a 320px viewport offers 272px inside the island —
+   a margin too thin to trust once a platform renders the wordmark a hair
+   wider. Stepping the title down buys back 14px. */
+@media (max-width: 400px) {
+    .brand-title { font-size: 15.5px; letter-spacing: 1.4px; }
+    .brand-subtitle { font-size: 10px; letter-spacing: 1.2px; }
+    .hud-nav-island { padding: 6px 10px 6px 8px; gap: 8px; }
+}
 }
 
 /* ── components/drawer.css ───────────────────────────────────── */
@@ -773,7 +926,8 @@ body {
     text-decoration: none;
     font-size: 16px;
     font-weight: 700;
-    padding: 10px 0;
+    padding: 12px 0;
+    min-height: 48px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     display: flex;
     justify-content: space-between;
@@ -789,9 +943,12 @@ body {
 
 .drawer-title {
     font-family: 'Cinzel', serif;
-    font-size: 18px;
+    /* 18px wrapped "Command Menu" onto two lines inside a 255px drawer on a
+       320px phone, pushing the close button off the heading's centre line. */
+    font-size: clamp(16px, 4.6vw, 18px);
     font-weight: 800;
     color: var(--text-pure);
+    white-space: nowrap;
 }
 
 .drawer-close {
@@ -938,7 +1095,7 @@ html[data-forge-fallback] .forge-track {
 
 .forge-motto {
     font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(11px, 1.3vw, 14px);
+    font-size: clamp(12px, 1.3vw, 14px);
     font-weight: 700;
     color: var(--logo-gold-bevel);
     letter-spacing: 4px;
@@ -1125,8 +1282,11 @@ html[data-forge-fallback] .forge-cue {
 @layer components {
 .metrics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: var(--space-4);
+    /* A 220px floor collapses to one column below ~500px, which turned four
+       proof figures into 720px of scrolling on a phone. min(150px, 100%)
+       pairs them two-up instead and still never overflows the card. */
+    grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+    gap: var(--space-5) var(--space-4);
     background: var(--color-surface-card);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-xl);
@@ -1139,6 +1299,14 @@ html[data-forge-fallback] .forge-cue {
 .metric-item {
     text-align: center;
     padding: var(--space-2);
+    /* Grid stretches every item to its row's height, and two-up the figures
+       and labels wrap to different line counts — "24 / 7 / 365" takes two
+       lines where "100%" takes one. Centring the pair inside the stretched
+       cell keeps the two halves of a row balanced however they wrap. */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 74px;
 }
 
 .metric-val {
@@ -1150,11 +1318,28 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .metric-label {
-    font-size: clamp(11px, 1.1vw, 13px);
+    font-size: clamp(12px, 1.1vw, 13px);
     color: var(--text-secondary);
     text-transform: uppercase;
     font-weight: 700;
     letter-spacing: 0.5px;
+    line-height: 1.45;
+}
+
+/* Phones. The card's interior is about 300px wide, which is 16px short of
+   what auto-fit needs for two 150px tracks — so four figures stacked into
+   half a screen of scrolling before the capability index. Asking for the two
+   columns outright reads as a stat block instead of a list. */
+@media (max-width: 560px) {
+    .metrics-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-5) var(--space-3);
+        padding: var(--space-6) var(--space-5);
+    }
+    .metric-item {
+        padding: var(--space-2) 0;
+        min-height: 96px;
+    }
 }
 
 }
@@ -1213,6 +1398,10 @@ html[data-forge-fallback] .forge-cue {
 
 .spine-code {
     font-family: 'JetBrains Mono', monospace;
+    /* Stays 11px while it is stood upright: the rail only has about 130px of
+       height left over for it under the longest title, and 12px pushed
+       "DIV-07 // VENUE" onto a second vertical line. The stacked layout
+       below, where it reads as an ordinary line of text, takes 12px. */
     font-size: 11px;
     font-weight: 800;
     color: var(--logo-gold-bevel);
@@ -1312,7 +1501,7 @@ html[data-forge-fallback] .forge-cue {
 
 .payload-badge {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     color: var(--logo-gold-specular);
     background: rgba(186, 152, 87, 0.2);
@@ -1378,6 +1567,8 @@ html[data-forge-fallback] .forge-cue {
     border: none;
     cursor: pointer;
     width: fit-content;
+    min-height: 44px;
+    justify-content: center;
 }
 
 .tactical-svg {
@@ -1424,9 +1615,11 @@ html[data-forge-fallback] .forge-cue {
     }
     .spine-rail {
         width: 100%;
-        height: 80px;
+        height: auto;
+        min-height: 84px;
         flex-direction: row;
-        padding: 0 20px;
+        gap: 16px;
+        padding: 14px 20px;
         border-right: none;
         border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
@@ -1434,9 +1627,25 @@ html[data-forge-fallback] .forge-cue {
         writing-mode: horizontal-tb;
         transform: none;
     }
+    /* The base rule's `white-space: nowrap` is what broke this layout. Stood
+       upright the title is a column and nowrap is what keeps it one; laid
+       flat, "RESTAURANT, BAR & NIGHTLIFE" is ~300px of unbreakable text that
+       ran straight out past the card's rounded edge, squeezing the division
+       code beside it into a 40px ribbon that wrapped and clipped. Letting it
+       wrap, and letting it shrink below its min-content width, puts both back
+       inside the rail. */
     .spine-vertical-title {
-        margin: 0 auto 0 16px;
+        margin: 0;
+        flex: 1 1 auto;
+        min-width: 0;
+        white-space: normal;
         font-size: 16px;
+        line-height: 1.3;
+    }
+    .spine-code {
+        flex-shrink: 0;
+        white-space: nowrap;
+        font-size: 12px;
     }
     /* On the stacked layout the payload opens by height, not display — a
        display:none toggle snaps and also suppresses the cascade above,
@@ -1457,6 +1666,30 @@ html[data-forge-fallback] .forge-cue {
     .bookshelf-spine.active .spine-expanded-payload {
         max-height: 560px;
         padding: 24px 20px;
+    }
+}
+
+/* Phones. Side by side, the code and a two-line title leave each other
+   about 100px; stacked against the icon they both read at full size, and the
+   rail grows to fit instead of clipping at a fixed 80px. */
+@media (max-width: 700px) {
+    .spine-rail {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-areas:
+            'icon code'
+            'icon title';
+        align-items: center;
+        column-gap: 16px;
+        row-gap: 3px;
+        padding: 16px 18px;
+    }
+    .spine-icon-housing { grid-area: icon; }
+    .spine-code { grid-area: code; align-self: end; }
+    .spine-vertical-title {
+        grid-area: title;
+        align-self: start;
+        letter-spacing: 1.2px;
     }
 }
 
@@ -1724,7 +1957,8 @@ html[data-forge-fallback] .forge-cue {
 .control-header {
     display: flex;
     justify-content: space-between;
-    font-size: clamp(11px, 1vw, 13px);
+    gap: var(--space-3);
+    font-size: clamp(12px, 1vw, 13px);
     font-weight: 700;
     color: var(--logo-gold-specular);
     text-transform: uppercase;
@@ -1743,13 +1977,21 @@ html[data-forge-fallback] .forge-cue {
     background: var(--color-surface-glass);
     border: 1px solid var(--border-subtle);
     color: var(--text-secondary);
-    padding: clamp(10px, 1.5vw, 14px) 6px;
+    padding: clamp(10px, 1.5vw, 14px) 8px;
+    min-height: 44px;
     border-radius: var(--radius-md);
-    font-size: clamp(10.5px, 1vw, 12px);
+    font-size: clamp(12px, 1vw, 12.5px);
     font-weight: 700;
     cursor: pointer;
     text-align: center;
     transition: all var(--duration-normal) var(--ease-spring);
+    /* The three tiers wrap to different line counts — "Unarmed Guard" takes
+       two where "Armed Officer" takes one — and the grid stretches them to a
+       shared height regardless, so without this the shorter labels hang off
+       the top of their box. */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .tier-button.active {
@@ -1764,10 +2006,24 @@ html[data-forge-fallback] .forge-cue {
     width: 100%;
     -webkit-appearance: none;
     appearance: none;
+    /* The rail reads as 10px, and the element used to be 10px with it — so
+       the whole control was a 10px-tall target you had to hit with a
+       fingertip. The height belongs to the input now and the rail is painted
+       on the track pseudo-element instead, which leaves the look untouched
+       over a 44px hit area. The thumb rules below pull themselves back onto
+       the rail with a negative margin, because once a track exists WebKit
+       aligns the thumb to its top edge rather than the element's centre. */
+    height: 44px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+}
+
+.range-slider::-webkit-slider-runnable-track {
     height: 10px;
     border-radius: var(--radius-sm);
     background: #1e293b;
-    outline: none;
 }
 
 /* outline:none above sits in the components layer, so it beats the base
@@ -1780,6 +2036,7 @@ html[data-forge-fallback] .forge-cue {
 
 .range-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
+    margin-top: -8px;
     width: 26px;
     height: 26px;
     border-radius: var(--radius-full);
@@ -1840,8 +2097,11 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .tier-sublabel {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 400;
+    display: block;
+    margin-top: 2px;
+    line-height: 1.3;
 }
 
 .control-value {
@@ -1853,7 +2113,7 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .estimator-disclaimer {
-    font-size: 11px;
+    font-size: 12px;
     /* Was #64748b — Tailwind slate-500, a blue-grey belonging to no token in
        tokens.css. At 11px on the void it measured 4.26:1, under the 4.5 floor.
        A11Y-AUDIT.md A-04. */
@@ -1957,7 +2217,7 @@ html[data-forge-fallback] .forge-cue {
 .form-field.full-span { grid-column: 1 / -1; }
 
 .form-field label {
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--logo-gold-specular);
     text-transform: uppercase;
@@ -1971,6 +2231,9 @@ html[data-forge-fallback] .forge-cue {
     padding: clamp(12px, 1.8vw, 16px) clamp(14px, 2vw, 18px);
     border-radius: var(--radius-md);
     font-size: clamp(14px, 1.1vw, 15px);
+    /* 42px without this — two short of a comfortable target, on the fields
+       that collect a protective detail's schedule and location. */
+    min-height: 44px;
     outline: none;
     transition: all var(--duration-normal) ease;
 }
@@ -2052,6 +2315,9 @@ html[data-forge-fallback] .forge-cue {
     justify-content: space-between;
     align-items: center;
     gap: 12px;
+    /* The box's padding is on the <details>, so the <summary> inside it was
+       only as tall as its own single line of text — 22px. */
+    min-height: 44px;
 }
 
 .faq-answer {
@@ -2263,14 +2529,24 @@ html[data-forge-fallback] .forge-cue {
 .prequal-choice {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     cursor: pointer;
     font-size: 13px;
     font-weight: 700;
-    padding: 6px 14px;
+    padding: 6px 16px;
+    min-height: 44px;
     background: var(--color-surface-elevated);
     border: 1px solid var(--border-muted);
     border-radius: var(--radius-sm);
+}
+
+/* The label is the target — it wraps the control — but the control is still
+   what a visitor aims at, and the user-agent default renders it at 13px. */
+.prequal-choice input {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    accent-color: var(--logo-gold-glint);
 }
 
 .prequal-choice input:checked + span {
@@ -2390,6 +2666,7 @@ html[data-forge-fallback] .forge-cue {
     font-size: 14px;
     font-weight: 700;
     padding: 10px 18px;
+    min-height: 44px;
     background: var(--color-surface-elevated);
     border: 1px solid var(--border-muted);
     border-radius: var(--radius-full);
@@ -2503,9 +2780,9 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .position-badge {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
-    padding: 2px 8px;
+    padding: 3px 9px;
     background: rgba(186, 152, 87, 0.15);
     border: 1px solid var(--border-gold-subtle);
     border-radius: var(--radius-sm);
@@ -2620,6 +2897,9 @@ html[data-forge-fallback] .forge-cue {
     display: flex;
     align-items: center;
     gap: 6px;
+    /* Bare text on a card: 16px tall, and the only way to read what a post
+       actually requires before applying for it. */
+    min-height: 44px;
 }
 
 /* ── Vetting Protocol ──────────────────────────────────────────────── */
@@ -2661,7 +2941,7 @@ html[data-forge-fallback] .forge-cue {
 
 .stage-badge {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     color: var(--logo-gold-core);
     letter-spacing: 0.1em;
@@ -2826,18 +3106,20 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .form-consent input {
-    width: 18px;
-    height: 18px;
-    margin-top: 2px;
+    width: 24px;
+    height: 24px;
+    margin-top: 1px;
     accent-color: var(--logo-gold-glint);
+    flex-shrink: 0;
 }
 
 .form-consent label {
     text-transform: none;
     letter-spacing: 0;
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 500;
     color: var(--text-secondary);
+    line-height: 1.6;
 }
 
 .form-consent a {
@@ -3039,7 +3321,10 @@ html[data-forge-fallback] .forge-cue {
 .footer-block {
     background: #020302;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding: var(--space-16) 0 var(--space-8);
+    /* The last band on every page, so it is the one that reserves room for
+       the fixed dispatch pill — without this the copyright line sat
+       underneath it at every viewport width. */
+    padding: var(--space-16) 0 calc(var(--space-8) + var(--dispatch-clearance));
     text-align: center;
 }
 
@@ -3054,7 +3339,9 @@ html[data-forge-fallback] .forge-cue {
 .footer-menu {
     display: flex;
     justify-content: center;
-    gap: clamp(16px, 3vw, 32px);
+    /* Row gap stays small because the links now carry their own 44px of
+       height; column gap is what separates them along a line. */
+    gap: 4px clamp(16px, 3vw, 28px);
     margin: var(--space-5) 0;
     flex-wrap: wrap;
 }
@@ -3062,19 +3349,34 @@ html[data-forge-fallback] .forge-cue {
 .footer-menu a {
     color: var(--text-secondary);
     text-decoration: none;
-    font-size: clamp(12px, 1.1vw, 14px);
+    font-size: clamp(12.5px, 1.1vw, 14px);
     font-weight: 600;
     transition: color var(--duration-fast) ease;
+    /* Thirteen links wrapping over four lines, each 19px tall: on a phone
+       this was the densest, least hittable thing on the site. */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 2px;
+}
+
+/* A short label like "FAQ" is a 28px-wide target, which is fine for a mouse
+   and not for a thumb — but padding it out to 44px on a desktop row is what
+   pushed the twelfth link onto a line of its own. Widen it only where a
+   finger is doing the pointing. */
+@media (pointer: coarse) {
+    .footer-menu a { min-width: 44px; }
 }
 
 .footer-menu a:hover { color: var(--logo-gold-specular); }
 
 .footer-menu--legal {
-    margin-top: calc(-1 * var(--space-3));
+    margin-top: 0;
 }
 
 .footer-menu--legal a {
-    font-size: 11.5px;
+    font-size: 12.5px;
     font-weight: 500;
     color: var(--text-tertiary);
 }
@@ -3082,7 +3384,7 @@ html[data-forge-fallback] .forge-cue {
 /* Derived from site.areaServed, so the visible list and the schema.org
    areaServed record can never disagree about where Fused operates. */
 .footer-areas {
-    font-size: clamp(11px, 1.05vw, 13px);
+    font-size: clamp(12.5px, 1.05vw, 13px);
     color: var(--text-secondary);
     letter-spacing: 0.04em;
     margin: 0 auto var(--space-5);
@@ -3092,9 +3394,9 @@ html[data-forge-fallback] .forge-cue {
 
 .footer-areas-label {
     display: block;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--logo-gold-bevel);
     margin-bottom: 4px;
@@ -3104,7 +3406,7 @@ html[data-forge-fallback] .forge-cue {
    Rendered from site.licenseNumber alongside the schema.org identifier. */
 .footer-license {
     font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(11px, 1.05vw, 13px);
+    font-size: clamp(12.5px, 1.05vw, 13px);
     color: var(--text-secondary);
     letter-spacing: 0.06em;
     margin: 0 auto var(--space-4);
@@ -3113,9 +3415,9 @@ html[data-forge-fallback] .forge-cue {
 .footer-license-label {
     display: block;
     font-family: 'Outfit', sans-serif;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--logo-gold-bevel);
     margin-bottom: 4px;
@@ -3127,7 +3429,7 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .footer-disclaimer {
-    font-size: clamp(10.5px, 1vw, 12px);
+    font-size: clamp(12px, 1vw, 13px);
     color: var(--text-tertiary);
     max-width: 800px;
     margin: 0 auto var(--space-4);
@@ -3145,15 +3447,16 @@ html[data-forge-fallback] .forge-cue {
 
 .footer-motto {
     color: var(--logo-gold-bevel);
-    font-size: clamp(11px, 1.2vw, 13px);
+    font-size: clamp(12px, 1.2vw, 13px);
     font-weight: 700;
-    letter-spacing: 3px;
+    letter-spacing: 2.4px;
     margin-bottom: 28px;
 }
 
 .footer-credit {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-tertiary);
+    line-height: 1.7;
 }
 }
 

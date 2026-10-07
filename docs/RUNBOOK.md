@@ -377,6 +377,118 @@ committed font is not declared.
 
 ---
 
+## 8c. Uptime monitoring and the cron dead-man's switch
+
+**Owner: Sean.** The code is built (SPEC-004); the external monitor account is not, and
+until it exists the outer layer of this does not run.
+
+### Why this exists at all
+
+`/api/cron/tick` drives the 2-hour unanswered-lead alert, day-before reminders, the
+unstaffed-job warning, review requests, overdue chasers at day 1/7/14, and the 7am Central
+digest. **If it stops, nothing reports it.** Every symptom is an absence — a lead nobody
+chased, an invoice nobody pursued, a morning with no digest — and an absence pages nobody.
+The first person to notice is Cameron, weeks later, wondering why business got quiet.
+
+### The four checks to configure
+
+Any uptime service will do (Better Stack, Checkly, UptimeRobot, Pingdom). Set all four:
+
+| # | Check | Target | Alert when |
+| :-- | :--- | :--- | :--- |
+| 1 | Marketing site health | `GET https://<site>/api/health` | non-200 **twice in a row** |
+| 2 | Marketing page | `GET https://<site>/` | non-200, or the string `Fused` is missing |
+| 3 | Portal health | `GET https://<portal>/api/health` | non-200 **twice in a row** |
+| 4 | Intake liveness | `POST https://<site>/api/intake` with the honeypot field filled | non-200 |
+
+"Twice in a row" on the health checks, because one cold start or one transient Supabase
+blip is not an outage and a monitor that cries wolf gets muted. Check 2 asserts on body
+text as well as status: a deploy that serves a 200 empty shell is a real outage that a
+status-only check calls healthy.
+
+### Check 4 is the clever one — do not "fix" it
+
+Send a POST whose body fills the honeypot field:
+
+```json
+{ "website": "https://uptime-probe.invalid", "name": "uptime", "email": "probe@example.com" }
+```
+
+`api/_lib/gate.mjs` answers a tripped honeypot with a plausible `200` and does nothing
+else. So this one request exercises DNS, TLS, Vercel routing, the function cold start,
+CORS and the abuse gate — the whole path a real lead takes — **without writing a row,
+emailing anyone, texting the owner or polluting the leads inbox**. There is no other way
+to prove that chain end to end from outside without manufacturing fake business.
+
+That behaviour is therefore load-bearing infrastructure, not just anti-spam politeness.
+`tests/intake.test.mjs` pins it and says so. If someone later makes a tripped honeypot
+return 400, or persist the row "for analysis", this monitor starts paging at 3am about a
+perfectly healthy site — or the leads inbox fills with synthetic traffic.
+
+### What the health endpoints do and do not say
+
+Both return `200` when healthy and `503` when a hard dependency is unreachable, with
+`Cache-Control: no-store`. The portal's also reports scheduler staleness.
+
+**A missing integration key is not a 503.** An unconfigured Twilio is a known state of the
+deployment today, not an outage; paging hourly about it would train everyone to ignore the
+page. `configured` reports it as a boolean and the check stays green.
+
+**Both bodies are written to be safe to publish**, because an external monitor polling from
+outside our network effectively publishes them. No key, no prefix, no masked value, no URL,
+no Supabase project ref, no dependency error string, no count of anything the business
+does. `tests/health.test.mjs` seeds every secret with a sentinel and asserts no fragment of
+any of them reaches the response — so an edit that helpfully adds `supabase_url` for
+debugging fails CI rather than shipping.
+
+### Scheduler staleness thresholds
+
+The tick writes a heartbeat to `public.settings` under `scheduler_heartbeat` after every
+run — including runs where some rules failed, because the tick *did* happen and conflating
+"ran badly" with "did not run" sends the wrong engineer after the wrong thing.
+
+| Age of last tick | What happens |
+| :--- | :--- |
+| under 2 h | healthy and silent |
+| over **2 h** | the next tick reports at `error` through SPEC-003 → ops email |
+| over **3 h** | portal `/api/health` returns 503 → the monitor pages |
+
+Two layers, because neither catches what the other does. The self-check catches a scheduler
+that **stalled and recovered** — an external monitor polling for a 200 never sees that gap,
+because by the time it looks everything is fine again, but the reminders that should have
+gone out never did. The health endpoint catches a scheduler that is simply **dead**, which
+the self-check cannot: a process cannot alert about its own death.
+
+A deployment that has never ticked reads `never_run`, not `stale`, and does not page — a
+fresh preview has simply not run yet.
+
+### Verifying it once it is set up
+
+```bash
+curl -s https://<site>/api/health | jq          # ok:true, checks.supabase:"ok"
+curl -s https://<portal>/api/health | jq        # adds checks.scheduler and heartbeat.age_minutes
+```
+
+`python3 serve.py` does **not** serve `/api/health`, and that is deliberate — it cannot run
+`.mjs`, so a local route would mean a second implementation in Python that drifts from the
+real handler. `tests/health.test.mjs` exercises the actual function instead, which is
+stronger verification than a lookalike. A local 404 on that path is expected, not a fault.
+
+To prove the dead-man's switch rather than trusting it, age the heartbeat by hand in the
+Supabase SQL editor and re-poll the portal health endpoint — it should go 503 with
+`checks.scheduler: "stale"`:
+
+```sql
+UPDATE public.settings
+   SET value = jsonb_set(value, '{last_tick_at}', to_jsonb((NOW() - INTERVAL '4 hours')::text))
+ WHERE key = 'scheduler_heartbeat';
+```
+
+The next real tick overwrites it, so this repairs itself within the hour. Do it once, on
+purpose, before trusting the alert — an untested alarm is an assumption.
+
+---
+
 ## 9. Environment variable index
 
 | Variable | Project | Required for |

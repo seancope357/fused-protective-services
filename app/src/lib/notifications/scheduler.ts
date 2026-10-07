@@ -7,6 +7,8 @@ import {
     invoicesToMarkOverdue, isDigestHour, localYmd, jobsToday
 } from './conditions';
 import { report as reportError } from '@/lib/observability';
+import { readHeartbeat, writeHeartbeat, staleness } from '@/lib/heartbeat';
+import { deployEnv } from '@/lib/env';
 import type { Client, Invoice, Job, Lead, Site } from '@/lib/db/types';
 
 export type TickReport = Record<string, number | string>;
@@ -17,6 +19,31 @@ export async function runTick(now = new Date()): Promise<TickReport> {
     const base = appUrl();
     const report: TickReport = { at: now.toISOString() };
     const today = localYmd(now);
+    const startedAt = Date.now();
+
+    /* ---- Dead-man's switch, layer 1: did the PREVIOUS tick happen? ----
+       This catches a scheduler that stalled and recovered. An external monitor
+       polling for a 200 cannot see that gap — by the time it looks, the tick is
+       running again and everything reads healthy — but the reminders that
+       should have gone out during the gap never did, and nothing else would
+       ever say so.
+
+       Reported and then ignored: the alert is the entire point, and refusing to
+       work because we were late would turn one missed hour into two. */
+    const previous = await readHeartbeat();
+    const gap = staleness(previous, now);
+    if (gap.alert && previous) {
+        await reportError(new Error('the scheduler missed its window'), {
+            severity: 'error',
+            source: 'app/cron/tick',
+            context: {
+                previous_tick_at: previous.last_tick_at,
+                this_tick_at: now.toISOString(),
+                gap_hours: Math.round((gap.ageMs ?? 0) / 36e5 * 10) / 10,
+                consequence: 'reminders, chasers and the digest did not run during the gap'
+            }
+        });
+    }
 
     /* ---- Every rule runs, whatever the one before it did (SPEC-003 §4) ----
        The tick used to be one long function: the first rule to throw took the
@@ -141,6 +168,21 @@ export async function runTick(now = new Date()): Promise<TickReport> {
         report.failed_rules = failed.join(',');
         report.failed = failed.length;
     }
+
+    /* ---- Dead-man's switch, layer 2: leave the mark the health check reads ----
+       Written last and unconditionally, including when rules failed: the tick
+       DID run, and that is exactly what this records. Conflating "ran badly"
+       with "did not run" would send the wrong engineer after the wrong thing.
+       Which rules failed is carried in the same row, so the health endpoint can
+       tell a quiet hour from half a scheduler. */
+    await writeHeartbeat({
+        last_tick_at: now.toISOString(),
+        duration_ms: Date.now() - startedAt,
+        failed_rules: failed,
+        rules: { ...report },
+        env: deployEnv()
+    });
+
     return report;
 }
 

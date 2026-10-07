@@ -135,14 +135,48 @@ test('a preview deployment still accepts its own origin', async () => {
     } finally { f.restore(); e.restore(); }
 });
 
-test('honeypot filled → plausible 200 and nothing sent anywhere', async () => {
-    const e = withEnv({ RESEND_API_KEY: 'k', DISPATCH_ALERT_TO: 'owner@example.com' });
+/* This behaviour now has TWO consumers, and the second one is not obvious.
+
+   The first is abuse control: a form-filling bot gets a plausible 200 and is
+   told nothing, so it has no signal to adapt to.
+
+   The second is SPEC-004. The uptime monitor POSTs here with the honeypot
+   field filled, as a synthetic liveness probe. That one request exercises DNS,
+   TLS, Vercel routing, the function cold start, CORS and the abuse gate — the
+   entire path a real lead takes — WITHOUT writing a row, emailing anyone,
+   texting the owner or polluting the leads inbox. There is no other way to
+   prove that chain end to end from outside without creating fake business.
+
+   So the 200-with-no-side-effects is load-bearing infrastructure, not just
+   anti-spam politeness. If a future change makes a tripped honeypot answer 400,
+   or persist a row "for analysis", the monitor starts paging at 3am about a
+   healthy site, or the leads inbox fills with synthetic traffic. Change this
+   and you must change docs/RUNBOOK.md §8c with it. */
+test('honeypot filled → plausible 200 and nothing sent anywhere (also the SPEC-004 liveness probe)', async () => {
+    const e = withEnv({
+        SUPABASE_URL: 'https://db.example',
+        SUPABASE_SERVICE_ROLE_KEY: 'service',
+        RESEND_API_KEY: 'k',
+        DISPATCH_ALERT_TO: 'owner@example.com',
+        DISPATCH_ALERT_FROM: 'Fused Dispatch <dispatch@fusedprotectiveservices.com>',
+        TWILIO_ACCOUNT_SID: 'AC123',
+        TWILIO_AUTH_TOKEN: 'tok',
+        TWILIO_FROM: '+15120000000',
+        DISPATCH_ALERT_SMS_TO: '+15121111111'
+    });
     const f = stubFetch(() => ({ status: 200, json: { id: 'x' } }));
     const res = makeRes();
     await handler(makeReq({ body: quote({ website: 'http://spam.example' }) }), res);
     f.restore(); e.restore();
+
+    /* 200 so the monitor reads healthy, and so a bot learns nothing. */
     assert.equal(res.statusCode, 200);
-    assert.equal(f.calls.length, 0);
+    /* Fully configured above ON PURPOSE: the earlier version of this test left
+       Supabase and Twilio unset, so "nothing was sent" was partly because
+       nothing COULD be sent. With every integration configured, zero outbound
+       calls is a real assertion about the gate rather than about the fixture. */
+    assert.equal(f.calls.length, 0,
+        `a tripped honeypot made outbound calls: ${f.calls.map((c) => c.url).join(', ')}`);
 });
 
 test('full chain: persist, owner email, emergency SMS, client confirmation', async () => {
