@@ -467,6 +467,118 @@ body {
     box-shadow: 0 15px 45px rgba(186, 152, 87, 0.6);
 }
 
+/* ==========================================================================
+   .btn-gold--beacon — an idle specular sweep for ONE call to action.
+
+   OPT-IN ON PURPOSE. `.btn-gold` is worn by eleven buttons: the nav call
+   link, the quote submit, the estimator and assessment applies, four careers
+   buttons and the invoice export. If this lived on the base class the whole
+   site would pulse at once, which is not eye-catching — it is a fairground,
+   and a page where everything demands attention directs none. Apply it to the
+   single most important action on a page and nowhere else.
+
+   It rides ::after because ::before already owns the hover sweep. Animating
+   one pseudo-element from two places would mean the idle loop and the hover
+   transition fighting over `left` mid-gesture.
+
+   Transform rather than `left`: this runs forever on the hero, so it stays on
+   the compositor instead of laying out the button sixty times a second.
+
+   It is a sweep, not an outline pulse, and that is a deliberate rejection of
+   the other half of the brief. base.css gives every interactive surface on
+   this site exactly one focus treatment — a 2px gold outline. A decorative
+   outline that pulses on the page's primary action would be read as a focus
+   ring by anyone navigating with a keyboard, and teaching people to distrust
+   the real focus indicator costs more than this animation could ever win.
+
+   Contrast is safe in the right direction: the band lightens a gold face
+   under near-black text, so it raises the ratio as it passes rather than
+   washing it out. Worth saying because axe measures static computed style and
+   would not catch it either way — the reasoning has to be done here.
+   ========================================================================== */
+
+/* The sheen must paint ABOVE the gold face but BELOW the label. Without this
+   the band crosses the text at 0.58 alpha and lifts near-black glyphs toward
+   white — the label visibly washes out mid-sweep, which is a contrast failure
+   on the page's primary action and the exact opposite of drawing attention
+   to it. `isolation: isolate` gives the button its own stacking context so
+   the negative z-index below lands between its background and its content;
+   without the isolation the pseudo-element would slip behind the gold
+   entirely and vanish. */
+.btn-gold--beacon {
+    isolation: isolate;
+}
+
+.btn-gold--beacon::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    /* Overshoots the top and bottom edges so the skewed band has no visible
+       corner; `overflow: hidden` on .btn-gold clips it to the face. */
+    top: -25%;
+    bottom: -25%;
+    left: 0;
+    width: 42%;
+    pointer-events: none;
+    background: linear-gradient(
+        100deg,
+        transparent 0%,
+        rgba(255, 252, 242, 0.07) 34%,
+        rgba(255, 253, 246, 0.58) 50%,
+        rgba(255, 252, 242, 0.07) 66%,
+        transparent 100%
+    );
+    /* The resting state, stated explicitly rather than left to fill-mode:
+       parked off-stage and fully transparent. Two things depend on it — the
+       loop's wrap from 100% back to 0% is invisible because both ends are
+       transparent, and the reduced-motion clamp in base.css
+       (`animation-duration: 0.01ms; animation-iteration-count: 1`) lands here
+       instead of freezing a bright band across the middle of the button. */
+    opacity: 0;
+    transform: translateX(-170%) skewX(-12deg);
+    /* linear, NOT one of the --ease-* tokens. Those are all heavily
+       front-loaded (--ease-out-quint is cubic-bezier(0.22, 1, 0.36, 1)),
+       which is right for a surface arriving somewhere and wrong for a
+       reflection travelling across one. Eased, the band crossed the face in
+       the first fraction of the sweep and then sat parked past the right
+       edge — clipped by `overflow: hidden`, opacity still 1, nothing visible.
+       It measured as a 0.9s highlight and looked like nothing at all. A
+       glint moves at the speed of the light source; keep it constant. */
+    animation: ctaBeaconSheen 4.6s linear 1.4s infinite;
+}
+
+/* The gap is the point. The sweep takes under a fifth of the cycle and the
+   rest is stillness — a breath between passes rather than a strobe. Both ends
+   are transparent, so the wrap is seamless and the 100% frame doubles as the
+   resting state. */
+@keyframes ctaBeaconSheen {
+    0% { opacity: 0; transform: translateX(-170%) skewX(-12deg); }
+    5% { opacity: 1; }
+    15% { opacity: 1; }
+    20% { opacity: 0; transform: translateX(330%) skewX(-12deg); }
+    100% { opacity: 0; transform: translateX(330%) skewX(-12deg); }
+}
+
+/* Once someone is actually on the button, stop selling it: the hover sweep on
+   ::before takes over and two sweeps crossing at once reads as a glitch. */
+.btn-gold--beacon:hover::after,
+.btn-gold--beacon:focus-visible::after,
+.btn-gold--beacon:active::after {
+    animation: none;
+    opacity: 0;
+}
+
+/* base.css already clamps every animation under reduced motion. Repeated here
+   because a looping attention-grabber is the exact thing that rule exists to
+   stop, and the next person to read this file should not have to go and check
+   that it is handled somewhere else. */
+@media (prefers-reduced-motion: reduce) {
+    .btn-gold--beacon::after {
+        animation: none;
+        opacity: 0;
+    }
+}
+
 .btn-secondary-glass {
     background: var(--color-surface-glass);
     border: 1px solid var(--border-subtle);

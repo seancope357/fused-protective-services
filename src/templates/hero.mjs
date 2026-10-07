@@ -23,7 +23,7 @@ export const hero = () => html`
             </p>
 
             <div class="hero-actions">
-                <a href="#quote" class="btn-gold">
+                <a href="#quote" class="btn-gold btn-gold--beacon">
                     ${uiIcons.bolt('class="ui-icon ui-icon--lg ui-icon--filled"')} Request Immediate Security Detail
                 </a>
                 <a href="#assessment" class="btn-secondary-glass">
