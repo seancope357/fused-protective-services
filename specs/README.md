@@ -26,16 +26,30 @@ has nothing unbuilt in its `Depends on` line.
 | [010](SPEC-010-candidate-ats.md) | Candidate ATS in the portal | F3 | L | 002 | ✅ **Done** (emails wait on B1) |
 | [011](SPEC-011-incident-and-restore.md) | Incident, rollback and restore drill | D4, D8 | S | — | ◐ **Docs done**, drill unrun (Sean) |
 | [012](SPEC-012-portal-mobile-first.md) | Portal mobile-first, ready for Cameron | F1 | L | — | ✅ **Done** on `feat/portal-mobile-first` (Cameron's first sign-in proves criterion 8) |
+| [013](SPEC-013-telegram-owner-alerts.md) | Free owner alerts over Telegram | B3 | M | — | ⏸ **Parked 2026-10-07** — WIP on `feat/telegram-owner-alerts`, does not typecheck |
+| [014](SPEC-014-officers-roster-and-coverage.md) | Officers roster, assignment, coverage | — | L | — | **Ready** (post-launch ops) |
+| [015](SPEC-015-license-expiry.md) | DPS licence expiry alerts + guard | — | S | 014 | **Ready** (post-launch ops) |
 
-**Status as of 2026-09-14.** Seven of eleven are done: 001, 002, 003, 006, 007, 010, 011,
-plus 008 audited with its gate staged pending two brand-token decisions. **004** (uptime +
-cron dead-man's switch) is the one genuinely unbuilt spec that still matters for launch —
-its dependency, 003, has now landed. **005** and **009** are recommended cut from launch
-scope: analytics tells you how launch went and a perf budget prevents future regression;
-neither is a precondition for launching, and each adds surface area on day one.
+**Status as of 2026-10-07.** Nine of twelve launch specs are done: 001, 002, 003, 006,
+007, 008 (gate now armed and blocking), 010, 011, 012. **004** (uptime + cron dead-man's
+switch) is the one genuinely unbuilt spec that still matters for launch — its dependency,
+003, has landed, and a draft PR (#12) already exists with CI green. **005** and **009** are
+recommended cut from launch scope: analytics tells you how launch went and a perf budget
+prevents future regression; neither is a precondition for launching, and each adds surface
+area on day one.
 
-What actually blocks launch now is not in this directory — it is Twilio 10DLC registration,
-attorney review, and DNS → Resend. See [`docs/GO_LIVE.md`](../docs/GO_LIVE.md).
+**013 is parked** by Sean's decision on 2026-10-07 — the channel (Telegram, free) is
+chosen and the transport is written, but the wiring is unfinished on a branch. It removes
+Twilio 10DLC from the critical path when resumed.
+
+**014 and 015 are not launch work.** They are the first two items of
+[`docs/OPERATIONS-PLAN.md`](../docs/OPERATIONS-PLAN.md), which asks a different question
+from GO_LIVE: once the site is live, can Cameron actually run a guard company on the
+portal? Today he cannot add a guard to it. Do not let either delay launch.
+
+What actually blocks launch now is not in this directory — it is attorney review and
+DNS → Resend. (Twilio 10DLC stops being a blocker once 013 lands.)
+See [`docs/GO_LIVE.md`](../docs/GO_LIVE.md).
 
 ## Not buildable here
 

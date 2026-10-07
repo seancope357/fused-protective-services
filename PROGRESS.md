@@ -287,6 +287,20 @@ a dependency order, the invariants every spec inherits, and a shared definition 
 
 ## 🔮 Backlog & Future Workstreams
 
+> **Operations backlog moved.** The question *"can Cameron run a guard company on this
+> once it is live?"* now has its own ordered, evidence-backed plan in
+> [`docs/OPERATIONS-PLAN.md`](docs/OPERATIONS-PLAN.md), with **SPEC-014** (officers roster,
+> assignment, coverage) and **SPEC-015** (DPS licence expiry) written and Ready. The
+> headline finding: the schema already models officers, assignments, clock-in, licence
+> expiry and pay rates, and almost none of it is read by any screen — there is no write
+> path to create an officer at all. The `Phase 2 operations` row below is superseded by
+> that plan.
+>
+> **SMS is going free.** Owner alerts move to Telegram (**SPEC-013**, parked 2026-10-07 on
+> `feat/telegram-owner-alerts`), which takes Twilio 10DLC off the launch critical path.
+> Client-facing SMS stays unconfigured and honest until a real carrier route exists. The
+> two Twilio rows below stand only for that client path.
+
 | Priority | Item | Description | Dependencies |
 | :---: | :--- | :--- | :--- |
 | **P1** | **Point alerts at Cameron** | Set `DISPATCH_ALERT_TO` to Cameron's dispatch inbox. | Cameron's email |

@@ -4,11 +4,27 @@ Updated: 2026-09-14. This file tracks the current implementation unit; [PROGRESS
 
 ## Current Phase
 
-SPEC-012 — the portal made mobile-first and ready for Cameron's first session. Merged to `main` and deployed 2026-09-14, together with the real DPS licence number (`01766480`).
+**2026-10-07 — two tracks, deliberately separate.**
+
+*Launch* (GO_LIVE): blocked on attorney review and DNS → Resend. Not engineering.
+SPEC-008 landed via PR #11 (a11y gate armed, gate E4 closed). SPEC-004 sits in draft
+PR #12 with CI green and is the last launch spec that matters.
+
+*Operations* (new): [`docs/OPERATIONS-PLAN.md`](../docs/OPERATIONS-PLAN.md) — can Cameron
+run a guard company on the portal once it is live? Today he cannot add a guard to it.
+SPEC-014 (roster/assignment/coverage) and SPEC-015 (licence expiry) are written and Ready.
+
+*Parked:* SPEC-013, free owner alerts over Telegram. Branch
+`feat/telegram-owner-alerts` holds a WIP commit that does not typecheck, by design —
+`main` is clean. See the spec's *Where it stopped*.
 
 ## Current Goal
 
-Every admin and client screen usable on a phone, a tablet and a desktop, and a first session Cameron can get through without Sean: his own password, two-factor explained, a getting-started checklist, Settings in plain English.
+Nothing is in progress. Next engineering move is Sean's call between:
+reviewing/merging PR #12 (SPEC-004, launch), resuming SPEC-013 (removes 10DLC from the
+critical path), or starting SPEC-014 (the operations core). Before any of them,
+GO_LIVE **F1** — Cameron pushing one fake client through quote → proposal → job →
+invoice → paid — is the highest-value item, and it is not an engineering task.
 
 ## Completed
 
