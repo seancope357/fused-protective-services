@@ -94,6 +94,13 @@ export async function dispatchWith(deps: EngineDeps, trigger: string, ctx: Ctx, 
                 await deps.log({
                     trigger, channel, recipient: '(none)', recipientRole: rule.audience,
                     entityType: opts.entityType, entityId: opts.entityId,
+                    /* The key matters most on the branch that cannot send. The hourly
+                       tick retries an unsendable alert every hour; without a key these
+                       rows miss the `dedupe_key IS NOT NULL` unique index and pile up
+                       unbounded (166 rows for one lead, in production). `(none)` keeps
+                       them distinct from a real recipient's key, so the alert still
+                       goes out once a recipient is finally configured. */
+                    dedupeKey: key('(none)'),
                     result: { configured: false, ok: false, skipped: `no_${channel}_recipient` }
                 });
                 continue;

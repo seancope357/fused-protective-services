@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { dispatchWith, type EngineDeps, type LogRow } from '@/lib/notifications/engine';
+import { failureReason, statusOf } from '@/lib/notifications/log';
 import { rules } from '@/lib/notifications/templates';
 import { unansweredLeads, jobsStartingIn24h, jobsDueReviewRequest, invoicesDueReminder, invoicesToMarkOverdue, isDigestHour } from '@/lib/notifications/conditions';
 import type { Client, Invoice, Job, Lead, Quote, Proposal } from '@/lib/db/types';
@@ -184,5 +185,102 @@ describe('scheduler conditions', () => {
         expect(isDigestHour(new Date('2026-09-09T12:00:00Z'))).toBe(true);  // CDT
         expect(isDigestHour(new Date('2026-09-09T13:00:00Z'))).toBe(false);
         expect(isDigestHour(new Date('2026-12-09T13:00:00Z'))).toBe(true);  // CST
+    });
+});
+
+/* ==========================================================================
+   Regression: an unsendable alert must not re-log every hour.
+
+   Found in production 2026-10-07: `lead_unanswered_2h` had written 166 rows
+   for ONE lead — one per hour for seven days — then went quiet only because
+   the lead aged out of the scheduler's 7-day query window, while the lead was
+   still `status = new`.
+
+   The scheduler guards with `alreadySent()`, which matches on `dedupe_key`.
+   The no-recipient branch logged its row WITHOUT a dedupe key, and the unique
+   index is `... WHERE dedupe_key IS NOT NULL`, so every one of those rows
+   escaped both the guard and the constraint.
+   ========================================================================== */
+describe('an alert nobody can receive is logged once, not hourly', () => {
+    const lead = (): Lead => ({
+        ref_code: 'TX-FPS-0001', full_name: 'Pat Client', service_division: 'Restaurant, Bar & Nightlife Venue Security',
+        phone: '(512) 555-0123', id: 'lead-1'
+    } as Lead);
+
+    it('carries a dedupe key when the owner has no phone configured', async () => {
+        const { deps, log } = fakeDeps({ ownerContacts: async () => ({ emails: [], phones: [] }) });
+        const s = await dispatchWith(deps, 'lead_unanswered_2h', { lead: lead(), link: 'https://x/portal/leads/lead-1' },
+            { entityType: 'client_quote', entityId: 'lead-1', idempotent: true });
+
+        expect(s).toEqual({ attempted: 0, sent: 0, failed: 0, skipped: 1 });
+        expect(deps.sendSms).not.toHaveBeenCalled();
+        expect(log).toHaveLength(1);
+        expect(log[0].result.skipped).toBe('no_sms_recipient');
+        /* The row the unique index can actually collapse. Without this the
+           hourly tick writes an unbounded pile of identical rows. */
+        expect(log[0].dedupeKey).toBe('lead_unanswered_2h:client_quote:lead-1:sms:(none)');
+    });
+
+    it('is stable across ticks, so the hourly retry hits the same key', async () => {
+        const { deps, log } = fakeDeps({ ownerContacts: async () => ({ emails: [], phones: [] }) });
+        const ctx = { lead: lead(), link: 'https://x/portal/leads/lead-1' };
+        const opts = { entityType: 'client_quote', entityId: 'lead-1', idempotent: true } as const;
+        for (let hour = 0; hour < 24; hour++) await dispatchWith(deps, 'lead_unanswered_2h', ctx, opts);
+
+        expect(log).toHaveLength(24);
+        const keys = new Set(log.map((l) => l.dedupeKey));
+        expect(keys.size).toBe(1);
+        /* Asserted explicitly: a set of 24 `undefined`s also has size 1. */
+        expect([...keys][0]).toBe('lead_unanswered_2h:client_quote:lead-1:sms:(none)');
+    });
+
+    it('still writes no dedupe key when the caller is not idempotent', async () => {
+        const { deps, log } = fakeDeps({ ownerContacts: async () => ({ emails: [], phones: [] }) });
+        await dispatchWith(deps, 'lead_unanswered_2h', { lead: lead() }, { entityType: 'client_quote', entityId: 'lead-1' });
+        expect(log[0].dedupeKey ?? null).toBeNull();
+    });
+});
+
+/* ==========================================================================
+   Regression: the `error` column must never record a boolean.
+
+   27 production `daily_digest` rows carried `error = 'false'`, because
+   `('skipped' in r && r.skipped)` yields `false` when the key is absent and
+   `??` does not fall through on `false`. The reason an engineer reads during
+   an incident said nothing at all.
+   ========================================================================== */
+describe('the logged failure reason', () => {
+    it('names the reason for every shape a transport can return', () => {
+        /* The exact shape behind the 27 bad rows: an unconfigured transport
+           that reports neither `error` nor `skipped`. */
+        expect(failureReason({ configured: false, ok: false })).toBe('not_configured');
+        expect(statusOf({ configured: false, ok: false })).toBe('skipped');
+
+        expect(failureReason({ configured: false, ok: false, skipped: 'no_verified_sender' })).toBe('no_verified_sender');
+        expect(failureReason({ configured: false, ok: false, skipped: 'no_sms_recipient' })).toBe('no_sms_recipient');
+        expect(failureReason({ configured: true, ok: false, error: 'resend 422' })).toBe('resend 422');
+        /* Reached a provider, refused, gave no message. */
+        expect(failureReason({ configured: true, ok: false })).toBe('send_failed');
+        expect(statusOf({ configured: true, ok: false })).toBe('failed');
+
+        expect(failureReason({ configured: true, ok: true, id: 'em_1' })).toBeNull();
+        expect(statusOf({ configured: true, ok: true, id: 'em_1' })).toBe('sent');
+    });
+
+    it('never returns a non-string, whatever the shape', () => {
+        const shapes = [
+            { configured: false, ok: false },
+            { configured: true, ok: false },
+            { configured: false, ok: false, skipped: undefined },
+            { configured: true, ok: false, error: undefined },
+            { configured: false, ok: false, skipped: '' },
+            { configured: true, ok: false, error: '' }
+        ];
+        for (const s of shapes) {
+            const reason = failureReason(s);
+            expect(typeof reason, JSON.stringify(s)).toBe('string');
+            expect(reason, JSON.stringify(s)).not.toBe('false');
+            expect((reason as string).length, JSON.stringify(s)).toBeGreaterThan(0);
+        }
     });
 });
