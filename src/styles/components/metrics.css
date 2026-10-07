@@ -1,8 +1,11 @@
 @layer components {
 .metrics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: var(--space-4);
+    /* A 220px floor collapses to one column below ~500px, which turned four
+       proof figures into 720px of scrolling on a phone. min(150px, 100%)
+       pairs them two-up instead and still never overflows the card. */
+    grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+    gap: var(--space-5) var(--space-4);
     background: var(--color-surface-card);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-xl);
@@ -15,6 +18,14 @@
 .metric-item {
     text-align: center;
     padding: var(--space-2);
+    /* Grid stretches every item to its row's height, and two-up the figures
+       and labels wrap to different line counts — "24 / 7 / 365" takes two
+       lines where "100%" takes one. Centring the pair inside the stretched
+       cell keeps the two halves of a row balanced however they wrap. */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 74px;
 }
 
 .metric-val {
@@ -26,11 +37,28 @@
 }
 
 .metric-label {
-    font-size: clamp(11px, 1.1vw, 13px);
+    font-size: clamp(12px, 1.1vw, 13px);
     color: var(--text-secondary);
     text-transform: uppercase;
     font-weight: 700;
     letter-spacing: 0.5px;
+    line-height: 1.45;
+}
+
+/* Phones. The card's interior is about 300px wide, which is 16px short of
+   what auto-fit needs for two 150px tracks — so four figures stacked into
+   half a screen of scrolling before the capability index. Asking for the two
+   columns outright reads as a stat block instead of a list. */
+@media (max-width: 560px) {
+    .metrics-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-5) var(--space-3);
+        padding: var(--space-6) var(--space-5);
+    }
+    .metric-item {
+        padding: var(--space-2) 0;
+        min-height: 96px;
+    }
 }
 
 }

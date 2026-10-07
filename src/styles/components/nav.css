@@ -38,6 +38,10 @@
     gap: 10px;
     text-decoration: none;
     padding-right: 6px;
+    /* The island's own padding left this 40px tall — the one target on the
+       page that returns a visitor home. */
+    min-height: 44px;
+    min-width: 0;
 }
 
 .brand-img {
@@ -63,11 +67,16 @@
 }
 
 .brand-subtitle {
-    font-size: 8px;
+    /* 8px with 2.5px of tracking was decoration, not a word anyone could
+       read on a phone. The extra 2.5px of size is paid for out of the
+       tracking, so the line stays the same width and the island does not
+       grow. */
+    font-size: 10.5px;
     font-weight: 800;
     color: var(--logo-gold-bevel);
-    letter-spacing: 2.5px;
+    letter-spacing: 1.6px;
     text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .segmented-nav-track {
@@ -124,5 +133,15 @@
 @media (max-width: 1080px) {
     .segmented-nav-track { display: none; }
     .mobile-toggle-btn { display: block; }
+}
+
+/* Small phones. Brand lockup plus a 44px hamburger has about 270px of
+   min-content width, and a 320px viewport offers 272px inside the island —
+   a margin too thin to trust once a platform renders the wordmark a hair
+   wider. Stepping the title down buys back 14px. */
+@media (max-width: 400px) {
+    .brand-title { font-size: 15.5px; letter-spacing: 1.4px; }
+    .brand-subtitle { font-size: 10px; letter-spacing: 1.2px; }
+    .hud-nav-island { padding: 6px 10px 6px 8px; gap: 8px; }
 }
 }

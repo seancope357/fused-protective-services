@@ -184,6 +184,8 @@
     background: var(--gradient-gold-brushed);
     color: #050504;
     padding: 8px 18px;
+    min-height: 44px;
+    justify-content: center;
     border-radius: var(--radius-full);
     font-size: 12.5px;
     font-weight: 800;
@@ -257,6 +259,10 @@
 .btn-sm {
     font-size: 13px;
     padding: 11px 22px;
+    /* 11px of padding around a 13px line box lands at 37px — the small
+       modifier is what "Apply For This Post" uses, which is the only control
+       on a job card that matters. */
+    min-height: 44px;
 }
 
 .btn-block {
