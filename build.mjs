@@ -34,6 +34,7 @@ import { careersPage } from './src/templates/careers/page.mjs';
 import { legalPage } from './src/templates/legal/page.mjs';
 import { legalPages } from './src/data/legal.mjs';
 import { site } from './src/data/site.mjs';
+import { aerialPage } from './src/templates/aerial/page.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const STYLES = join(ROOT, 'src', 'styles');
@@ -214,6 +215,10 @@ const artefacts = () => {
         { path: join(ROOT, 'index.html'), contents: String(page()) },
         { path: join(ROOT, 'invoice.html'), contents: String(invoicePage()) },
         { path: join(ROOT, 'careers.html'), contents: String(careersPage()) },
+        /* The aerial page carries no inline script, so it adds no CSP hash.
+           It still goes through `pages` so that stays true by construction:
+           if one is ever added, vercel.json picks it up instead of breaking. */
+        { path: join(ROOT, 'aerial.html'), contents: String(aerialPage()) },
         ...legalPages.map((page) => ({ path: join(ROOT, page.file), contents: String(legalPage(page)) }))
     ];
 
@@ -222,6 +227,7 @@ const artefacts = () => {
         { path: join(ROOT, 'css', 'site.css'), contents: buildStyles(STYLE_ORDER) },
         { path: join(ROOT, 'css', 'invoice.css'), contents: buildStyles(INVOICE_STYLE_ORDER) },
         { path: join(ROOT, 'css', 'noscript.css'), contents: buildStyles(NOSCRIPT_STYLE_ORDER) },
+        { path: join(ROOT, 'css', 'aerial.css'), contents: buildStyles(['tokens.css', 'base.css', 'components/aerial.css']) },
         { path: join(ROOT, 'vercel.json'), contents: vercelConfig(pages) }
     ];
 };
@@ -278,6 +284,7 @@ function assertAssets() {
 function write() {
     mkdirSync(join(ROOT, 'css'), { recursive: true });
     for (const { path, contents } of artefacts()) {
+        mkdirSync(dirname(path), { recursive: true });
         writeFileSync(path, contents);
         const lines = contents.split('\n').length;
         console.log(`  wrote ${path.replace(ROOT + '/', '')} (${lines} lines)`);

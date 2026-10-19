@@ -1,0 +1,43 @@
+@layer components {
+.aerial-page { background: var(--color-void); color: var(--text-primary); font-family: Outfit, sans-serif; margin: 0; }
+.aerial-page a { color: inherit; }
+.aerial-stage { position: fixed; inset: 0; pointer-events: none; }
+.aerial-stage::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(5,5,4,.86), rgba(5,5,4,.42) 38%, transparent 68%), linear-gradient(0deg, rgba(5,5,4,.85), transparent 24%); }
+.aerial-poster, #aerial-canvas { width: 100%; height: 100%; position: absolute; inset: 0; }
+#aerial-canvas { opacity: 0; transition: opacity 1s; }
+[data-aerial-state="ready"] #aerial-canvas { opacity: 1; }
+.aerial-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 4; padding: var(--space-8) 5vw; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(var(--color-void), transparent); }
+.aerial-nav a { text-decoration: none; font-weight: 600; letter-spacing: .12em; font-size: .85rem; min-height: 44px; display: flex; align-items: center; }
+.aerial-nav a:first-child { font-family: Cinzel, serif; font-size: 1.4rem; }
+.aerial-nav span { font: 400 .7rem Outfit, sans-serif; color: var(--text-gold-core); margin-left: 1rem; }
+#aerial-track { position: relative; z-index: 1; pointer-events: none; }
+.aerial-chapter { min-height: 115svh; display: flex; align-items: center; padding: 20vh 6vw; box-sizing: border-box; }
+.aerial-copy { max-width: 560px; pointer-events: auto; }
+.aerial-copy h1, .aerial-copy h2 { font-family: Outfit, sans-serif; text-transform: none; font-size: clamp(3rem, 5.6vw, 6.4rem); font-weight: 400; line-height: 1.02; letter-spacing: -.045em; margin: 1.5rem 0; text-wrap: balance; }
+.aerial-copy h1 { max-width: 510px; font-size: clamp(3.2rem, 5.4vw, 5.4rem); line-height: 1.02; }
+.aerial-copy h2 { font-size: clamp(2.8rem, 4.6vw, 5rem); }
+.aerial-copy > p:not(.aerial-eyebrow) { max-width: 380px; line-height: 1.7; font-size: 1.05rem; color: var(--text-primary); }
+.aerial-eyebrow, .aerial-view-label { text-transform: uppercase; letter-spacing: .18em; font-size: .65rem; color: var(--text-gold-light); }
+.aerial-next { display: inline-block; margin-top: 2rem; font-size: .75rem; letter-spacing: .12em; text-decoration: none; }
+.aerial-inquiry { display: inline-flex; padding: 1rem 0; border-bottom: 1px solid var(--text-gold-core); text-decoration: none; }
+.aerial-copy .aerial-disclaimer { font-size: .75rem !important; margin-top: 3rem; }
+.aerial-controls { position: fixed; bottom: 1.4rem; right: 3vw; z-index: 5; text-align: right; max-width: 92vw; }
+.aerial-toolbar { display: flex; gap: .35rem; justify-content: flex-end; margin-top: .6rem; }
+.aerial-controls button { white-space: nowrap; min-height: 44px; min-width: 44px; border: 1px solid var(--border-gold-subtle); border-radius: var(--radius-full); background: var(--color-surface-card); color: var(--text-primary); padding: .5rem 1rem; font: inherit; font-size: .8rem; cursor: pointer; }
+.aerial-controls button[aria-pressed="true"] { border-color: var(--text-gold-light); color: var(--text-gold-light); }
+.aerial-controls button:disabled { opacity: .5; cursor: default; }
+#aerial-status, #aerial-inspect p { font-size: .72rem; margin: .6rem 0 0; color: var(--text-primary); }
+#aerial-inspect { background: var(--color-surface-card); border-radius: var(--radius-md); padding: .8rem; margin-top: .5rem; }
+.aerial-page :focus-visible { outline: 2px solid var(--text-gold-light); outline-offset: 5px; }
+.aerial-skip { position: fixed; top: -100px; z-index: 9; background: var(--color-void); padding: 1rem; }
+.aerial-skip:focus { top: 0; }
+[data-inspecting="true"] .aerial-stage { pointer-events: auto; touch-action: pan-y; cursor: grab; }
+@media (max-width: 700px) {
+.aerial-nav { padding: 1rem 6vw; }.aerial-nav a:last-child { font-size: .65rem; letter-spacing: 0; }
+.aerial-copy { max-width: 90%; }.aerial-copy h1 { font-size: clamp(2.8rem, 10vw, 4.2rem); }
+.aerial-chapter { align-items: flex-end; padding-bottom: 28vh; }
+.aerial-stage::after { background: linear-gradient(0deg, rgba(5,5,4,.95), rgba(5,5,4,.6) 45%, transparent 80%); }
+.aerial-controls { bottom: .75rem; right: 5vw; }
+}
+@media (prefers-reduced-motion: reduce) { #aerial-canvas { transition: none; } }
+}

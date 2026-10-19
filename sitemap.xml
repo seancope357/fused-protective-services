@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Single-page site: one canonical URL. robots.txt declares this file;
-     it exists so that declaration is honest and crawlers stop logging 404s. -->
+<!-- robots.txt declares this file; it exists so that declaration is honest
+     and crawlers stop logging 404s. Keep in step with navItems in
+     src/data/site.mjs: a nav link crawlers cannot find here is a drift bug. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://fusedprotectiveservices.com/</loc>
   </url>
   <url>
     <loc>https://fusedprotectiveservices.com/careers</loc>
+  </url>
+  <url>
+    <loc>https://fusedprotectiveservices.com/aerial</loc>
   </url>
 </urlset>

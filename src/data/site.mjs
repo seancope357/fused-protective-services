@@ -155,6 +155,7 @@ export const navItems = [
     { href: '#standards', label: 'Standards', drawerLabel: 'The Fused Standard' },
     { href: '#quote', label: 'Request Detail', drawerLabel: 'Request Detail' },
     { href: '#faq', label: 'FAQ', drawerLabel: 'FAQ' },
+    { href: 'aerial', label: 'Aerial', drawerLabel: 'Fused Aerial' },
     { href: 'careers.html', label: 'Careers', drawerLabel: 'Careers & Recruiting' }
 ];
 

@@ -1,0 +1,11 @@
+{
+  "download": "https://sceneview.github.io/models/platforms/dji_mavic_3_v2.glb",
+  "sourceManifest": "https://raw.githubusercontent.com/sceneview/sceneview/2f62e027386c1776808124048ba11db0ba848675/assets/manifest.json",
+  "originalSha256": "bab7735cf0bc54f20e35314d6230a1be93da0f246e5cf9c199a18a54b00f3579",
+  "localSha256": "ec73c4f95dbdd821bce151a95cc6813e6853dd18a2581c069ebf80b785df6cf4",
+  "author": "aurumjuda747",
+  "declaredLicence": "CC-BY-4.0",
+  "source": "https://sketchfab.com/3d-models/mavic-3-cine-60d4a042a6eb4a1e944b1af2d4e9368b",
+  "rightsStatus": "LOCAL EVALUATION ONLY: uploader says taken from DJI website; upstream CC-BY declaration does not establish permission from original rights holder. Not cleared for public release.",
+  "changes": "Externalized existing image buffer views to same-origin files for strict CSP; geometry and PBR materials retained."
+}
