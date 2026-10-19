@@ -38,7 +38,7 @@
 }
 
 .btn-quick-call {
-    background: var(--gradient-gold-brushed);
+    background: var(--gradient-gold-brushed-ui);
     color: #050504;
     font-weight: 800;
     font-size: clamp(11px, 1.1vw, 13px);

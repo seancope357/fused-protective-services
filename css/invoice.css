@@ -34,6 +34,14 @@
     --gradient-gold-brushed: linear-gradient(135deg, #f7e5b2 0%, #ba9857 25%, #a1814c 50%, #87693b 75%, #72542b 100%);
     --gradient-gold-metallic: linear-gradient(180deg, #ffffff 0%, #f7e5b2 20%, #c6a25c 45%, #ba9857 70%, #72542b 100%);
 
+    /* The same brushed sheen, clamped so no stop falls below --logo-gold-core.
+       Resolves the open ui-standards.md token decision (Part E item 2): the
+       decorative ramp's 75% stop measures 3.99:1 and its 100% stop 2.93:1
+       against --color-void, so it fails as an interactive face. Every stop here
+       is >= 5.59:1 (verified by scripts/contrast-audit.mjs). Use this one for
+       anything a visitor reads or clicks; keep the ramp above for decoration. */
+    --gradient-gold-brushed-ui: linear-gradient(135deg, #f7e5b2 0%, #ba9857 45%, #a1814c 100%);
+
     /* Ambient Glows */
     --gold-glow-intense: rgba(186, 152, 87, 0.45);
     --gold-glow-soft: rgba(161, 129, 76, 0.16);
@@ -83,6 +91,42 @@
     --radius-xl: 20px;
     --radius-2xl: 28px;
     --radius-full: 9999px;
+
+    /* ----------------------------------------------------------------------
+       EDITORIAL SCALE — the restrained dialect proven on /aerial.
+       Tactical Luxury has two registers, and they are not interchangeable:
+       the ARCHITECTURAL register (Cinzel 900, uppercase, gold fills) states
+       authority on the marketing surfaces, and the EDITORIAL register below
+       (Outfit 400, negative tracking, sentence case, hairline gold) carries
+       narrative. Editorial reads as more expensive because it withholds.
+       Both draw from the one gold spectrum above; neither invents a colour.
+       ---------------------------------------------------------------------- */
+
+    /* Display faces. Outfit at weight 400 with tight negative tracking — the
+       large-and-quiet move. Never raise the weight to "strengthen" these;
+       scale and air do that job, and weight is what makes them shout. */
+    --display-xl: clamp(3.2rem, 5.4vw, 5.4rem);
+    --display-lg: clamp(2.8rem, 4.6vw, 5rem);
+    --display-md: clamp(2rem, 3.4vw, 3.2rem);
+    --display-weight: 400;
+    --display-leading: 1.02;
+    --display-tracking: -0.045em;
+
+    /* Eyebrow/label register: the opposite treatment — small, wide, uppercase. */
+    --label-size: 0.65rem;
+    --label-tracking: 0.18em;
+
+    /* Measure. Long display lines and short body lines is the whole trick. */
+    --measure-display: 560px;
+    --measure-body: 380px;
+
+    /* Editorial body copy sits looser than UI text so it reads as prose. */
+    --prose-size: 1.05rem;
+    --prose-leading: 1.7;
+
+    /* Chapter air. Editorial surfaces are mostly empty on purpose. */
+    --editorial-gutter: 6vw;
+    --editorial-air: 20vh;
 
     /* Easing & Physics.
        --ease-studio is the ramp for large sliding surfaces: a firm
@@ -287,7 +331,7 @@ body {
     transform: translateX(-50%);
     z-index: 3000;
     padding: 12px 22px;
-    background: var(--gradient-gold-brushed);
+    background: var(--gradient-gold-brushed-ui);
     color: #050504;
     font-weight: 800;
     border-radius: 0 0 var(--radius-md) var(--radius-md);
@@ -325,7 +369,7 @@ body {
 @layer components {
 /* Common Gold Buttons */
 .btn-gold {
-    background: var(--gradient-gold-brushed);
+    background: var(--gradient-gold-brushed-ui);
     color: #050504;
     font-weight: 900;
     font-size: clamp(14px, 1.2vw, 16px);
@@ -393,7 +437,7 @@ body {
 }
 
 .btn-dispatch {
-    background: var(--gradient-gold-brushed);
+    background: var(--gradient-gold-brushed-ui);
     color: #050504;
     padding: 8px 18px;
     border-radius: var(--radius-full);

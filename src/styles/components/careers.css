@@ -308,7 +308,7 @@
 }
 
 .filter-tab-btn:hover, .filter-tab-btn.active {
-    background: var(--gradient-gold-brushed);
+    background: var(--gradient-gold-brushed-ui);
     color: #050504;
     border-color: transparent;
 }

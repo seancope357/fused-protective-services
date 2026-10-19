@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en" data-reduced>
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Fused — Design System</title>
+<!-- Links the REAL built bundle so this reference cannot drift from production. -->
+<link rel="stylesheet" href="/css/site.css">
+<style>
+  /* Reference-page scaffolding only. Nothing here defines the system. */
+  body { background: var(--color-void); color: var(--text-primary); font-family: Outfit, sans-serif; margin: 0; padding: var(--space-10) var(--space-8) var(--space-24); }
+  .ds-wrap { max-width: 1040px; margin: 0 auto; }
+  .ds-head { border-bottom: 1px solid var(--border-subtle); padding-bottom: var(--space-6); margin-bottom: var(--space-16); }
+  .ds-sec { margin: var(--space-20) 0 0; }
+  .ds-sec > h2 { font-family: Cinzel, serif; font-size: 1.05rem; text-transform: uppercase; letter-spacing: .16em; color: var(--text-gold-core); font-weight: 700; margin: 0 0 var(--space-3); }
+  .ds-note { color: var(--text-secondary); font-size: .9rem; line-height: 1.65; max-width: 68ch; margin: 0 0 var(--space-8); }
+  .ds-two { display: grid; gap: var(--space-8); grid-template-columns: 1fr; }
+  @media (min-width: 860px) { .ds-two { grid-template-columns: 1fr 1fr; } }
+  .ds-card { border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-6); background: var(--surface-section-framed); }
+  .ds-card > h3 { margin: 0 0 var(--space-2); font-size: .7rem; text-transform: uppercase; letter-spacing: .18em; color: var(--text-secondary); font-weight: 700; }
+  .ds-card .ds-when { font-size: .8rem; color: var(--text-tertiary); line-height: 1.6; margin: var(--space-4) 0 0; }
+  .ds-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: var(--space-3); list-style: none; padding: 0; margin: 0; }
+  .ds-swatches li { border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }
+  .ds-chip { height: 56px; }
+  .ds-meta { padding: .5rem .6rem; font: 400 .66rem/1.5 'JetBrains Mono', monospace; color: var(--text-secondary); }
+  .ds-meta b { display: block; color: var(--text-primary); font-weight: 500; }
+  .ds-ratio { color: var(--color-emerald); }
+  .ds-ratio[data-fail] { color: var(--color-crimson); }
+  .ds-ramp { height: 64px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); }
+  .ds-row { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
+  table.ds-t { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  table.ds-t th, table.ds-t td { text-align: left; padding: .6rem .5rem; border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+  table.ds-t th { color: var(--text-gold-core); font-weight: 600; text-transform: uppercase; letter-spacing: .1em; font-size: .64rem; }
+  table.ds-t td code { font: 400 .74rem 'JetBrains Mono', monospace; color: var(--text-primary); }
+  table.ds-t td { color: var(--text-secondary); }
+  .ds-rule { margin: var(--space-6) 0 0; padding: var(--space-5); border-left: 2px solid var(--text-gold-core); background: var(--color-surface-glass); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .ds-rule p { margin: 0; font-size: .88rem; line-height: 1.7; color: var(--text-primary); }
+  .ds-rule p + p { margin-top: .7rem; }
+</style>
+</head>
+<body>
+<div class="ds-wrap">
+
+  <header class="ds-head">
+    <p class="eyebrow">Fused Protective Services</p>
+    <h1 class="display display--md" style="margin-top:1rem">Tactical Luxury has two registers.</h1>
+    <p class="ds-note" style="margin-top:1rem">
+      One gold spectrum, one spacing scale, one set of easings — two ways of speaking.
+      <strong>Architectural</strong> asserts authority. <strong>Editorial</strong>, proven on
+      <a href="/aerial" style="color:var(--text-gold-core)">/aerial</a>, carries narrative and reads as
+      more expensive because it withholds. This page renders from the real
+      <code style="font-family:'JetBrains Mono',monospace;font-size:.8rem">css/site.css</code>, so it cannot drift.
+    </p>
+  </header>
+
+  <!-- ── Registers ─────────────────────────────────────────────── -->
+  <section class="ds-sec">
+    <h2>The two registers</h2>
+    <div class="ds-two">
+      <div class="ds-card">
+        <h3>Architectural</h3>
+        <div style="font-family:Cinzel,serif;font-size:clamp(28px,4vw,42px);font-weight:900;letter-spacing:-0.5px;line-height:1.1;text-transform:uppercase">Uncompromising<br>Protection</div>
+        <p class="ds-when"><b style="color:var(--text-primary)">Use for:</b> the brand plate, hero wordmark, division headers — anywhere the page must assert authority. Cinzel 900, uppercase, gold fills.</p>
+      </div>
+      <div class="ds-card">
+        <h3>Editorial</h3>
+        <div class="display display--md">A higher perspective.</div>
+        <p class="ds-when"><b style="color:var(--text-primary)">Use for:</b> narrative — a section's opening statement, a chapter, a quiet CTA. Outfit 400, sentence case, negative tracking, hairline gold.</p>
+      </div>
+    </div>
+    <div class="ds-rule">
+      <p><b>The one hard rule:</b> never raise <code style="font-family:'JetBrains Mono',monospace">--display-weight</code> to make an editorial headline feel stronger. Scale and surrounding air do that job. Weight is exactly what turns restraint into shouting.</p>
+      <p>Do not mix the registers inside a single block. A Cinzel 900 uppercase heading above Outfit 400 body is correct; an editorial headline with a gold-filled slab button beneath it is not.</p>
+    </div>
+  </section>
+
+  <!-- ── Gold ramp ─────────────────────────────────────────────── -->
+  <section class="ds-sec">
+    <h2>The gold spectrum — decorative vs interactive</h2>
+    <p class="ds-note">
+      Measured with <code style="font-family:'JetBrains Mono',monospace;font-size:.8rem">scripts/contrast-audit.mjs</code> against
+      <code style="font-family:'JetBrains Mono',monospace;font-size:.8rem">--color-void</code>. The decorative ramp's dark stops fail as an
+      interactive face, which is why there are now two ramps.
+    </p>
+    <ul class="ds-swatches">
+      <li><div class="ds-chip" style="background:#f7e5b2"></div><div class="ds-meta"><b>specular</b>#f7e5b2<br><span class="ds-ratio">16.32:1</span></div></li>
+      <li><div class="ds-chip" style="background:#dfc07b"></div><div class="ds-meta"><b>highlight</b>#dfc07b<br><span class="ds-ratio">11.62:1</span></div></li>
+      <li><div class="ds-chip" style="background:#c6a25c"></div><div class="ds-meta"><b>glint</b>#c6a25c<br><span class="ds-ratio">8.47:1</span></div></li>
+      <li><div class="ds-chip" style="background:#ba9857"></div><div class="ds-meta"><b>bevel</b>#ba9857<br><span class="ds-ratio">7.49:1</span></div></li>
+      <li><div class="ds-chip" style="background:#a1814c"></div><div class="ds-meta"><b>core — UI floor</b>#a1814c<br><span class="ds-ratio">5.59:1</span></div></li>
+      <li><div class="ds-chip" style="background:#87693b"></div><div class="ds-meta"><b>warm</b>#87693b<br><span class="ds-ratio" data-fail>3.99:1</span></div></li>
+      <li><div class="ds-chip" style="background:#72542b"></div><div class="ds-meta"><b>shadow</b>#72542b<br><span class="ds-ratio" data-fail>2.93:1</span></div></li>
+    </ul>
+
+    <div class="ds-two" style="margin-top:var(--space-6)">
+      <div class="ds-card">
+        <h3>--gradient-gold-brushed &nbsp;·&nbsp; decorative only</h3>
+        <div class="ds-ramp" style="background:var(--gradient-gold-brushed)"></div>
+        <p class="ds-when">Full seven-stop sheen. Keep for decoration with no text on top: the <code style="font-family:'JetBrains Mono',monospace">.btn-outline</code> hover wipe and the forge HUD rule. Dark text over its last two stops measures 3.99:1 and 2.93:1.</p>
+      </div>
+      <div class="ds-card">
+        <h3>--gradient-gold-brushed-ui &nbsp;·&nbsp; anything read or clicked</h3>
+        <div class="ds-ramp" style="background:var(--gradient-gold-brushed-ui)"></div>
+        <p class="ds-when">Same sheen, clamped so no stop falls below <code style="font-family:'JetBrains Mono',monospace">--logo-gold-core</code>. Worst stop 5.59:1 — passes 4.5:1 everywhere. Resolves the open <code style="font-family:'JetBrains Mono',monospace">ui-standards.md</code> Part E item 2 decision.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Editorial primitives ──────────────────────────────────── -->
+  <section class="ds-sec">
+    <h2>Editorial primitives</h2>
+    <p class="ds-note">Defined once in <code style="font-family:'JetBrains Mono',monospace;font-size:.8rem">src/styles/editorial.css</code>, consumed by <code style="font-family:'JetBrains Mono',monospace;font-size:.8rem">/aerial</code> and available to every marketing page. No literal colours or sizes live in that file.</p>
+
+    <div class="ds-card">
+      <h3>Display scale</h3>
+      <div class="display display--xl">Display XL</div>
+      <div class="display display--lg" style="margin-top:.6rem">Display LG</div>
+      <div class="display display--md" style="margin-top:.6rem">Display MD</div>
+    </div>
+
+    <div class="ds-card" style="margin-top:var(--space-5)">
+      <h3>Label + display + prose, composed</h3>
+      <p class="eyebrow">01 / Understand the ground</p>
+      <div class="display display--md measure-display" style="margin:1rem 0">Every boundary has a bigger picture.</div>
+      <p class="prose">From the approach to the outer fence, see how an aerial perspective can complement a protective plan.</p>
+      <div style="margin-top:1.5rem"><a class="link-rule" href="/#quote">Request a conversation &#8599;</a></div>
+      <p class="ds-when">Long display lines, short body lines. Holding prose to <code style="font-family:'JetBrains Mono',monospace">--measure-body</code> (380px) is what makes the whitespace read as composition rather than a gap.</p>
+    </div>
+
+    <div class="ds-two" style="margin-top:var(--space-5)">
+      <div class="ds-card">
+        <h3>Quiet CTA — .link-rule</h3>
+        <a class="link-rule" href="#0">Discuss your property &#8599;</a>
+        <p class="ds-when">A 1px gold rule under the words instead of a filled slab. The single biggest reason /aerial reads as expensive — and the gold is never a text background, so the dark-stop problem cannot occur.</p>
+      </div>
+      <div class="ds-card">
+        <h3>Control surface — .pill</h3>
+        <div class="ds-row">
+          <button class="pill" type="button">Sensor view</button>
+          <button class="pill" type="button" aria-pressed="true">Active</button>
+          <button class="pill" type="button" disabled>Disabled</button>
+        </div>
+        <p class="ds-when">44px touch target, hairline border, frosted card backing. The border composites to 1.78:1, so the label and backing — not the border — carry the affordance.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Architectural buttons ─────────────────────────────────── -->
+  <section class="ds-sec">
+    <h2>Architectural controls, now contrast-safe</h2>
+    <p class="ds-note">Six text-bearing gold faces moved to the clamped UI ramp. Visually near-identical; measurably compliant.</p>
+    <div class="ds-row">
+      <a class="btn-gold" href="#0">Request Detail</a>
+      <a class="btn-outline" href="#0">Learn More</a>
+    </div>
+    <table class="ds-t" style="margin-top:var(--space-6)">
+      <thead><tr><th>Face</th><th>Was</th><th>Now</th></tr></thead>
+      <tbody>
+        <tr><td><code>.btn-gold</code></td><td>brushed, 2.93:1 floor</td><td>brushed-ui, 5.59:1 floor</td></tr>
+        <tr><td><code>.btn-dispatch</code></td><td>brushed</td><td>brushed-ui</td></tr>
+        <tr><td><code>.btn-quick-call</code></td><td>brushed</td><td>brushed-ui</td></tr>
+        <tr><td><code>.btn-select-division</code></td><td>brushed</td><td>brushed-ui</td></tr>
+        <tr><td><code>.filter-tab-btn.active</code></td><td>brushed</td><td>brushed-ui</td></tr>
+        <tr><td><code>.skip-link</code></td><td>brushed</td><td>brushed-ui</td></tr>
+        <tr><td><code>.btn-outline::before</code></td><td>brushed</td><td><em>unchanged — decorative wipe, no text</em></td></tr>
+        <tr><td><code>.forge-hud-left::after</code></td><td>brushed</td><td><em>unchanged — decorative rule, no text</em></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── Tokens ────────────────────────────────────────────────── -->
+  <section class="ds-sec">
+    <h2>Editorial tokens</h2>
+    <table class="ds-t">
+      <thead><tr><th>Token</th><th>Value</th><th>Job</th></tr></thead>
+      <tbody>
+        <tr><td><code>--display-xl / lg / md</code></td><td><code>clamp(3.2–5.4rem) / (2.8–5rem) / (2–3.2rem)</code></td><td>Editorial display scale</td></tr>
+        <tr><td><code>--display-weight</code></td><td><code>400</code></td><td>Never raise this</td></tr>
+        <tr><td><code>--display-tracking</code></td><td><code>-0.045em</code></td><td>Negative tracking is the move</td></tr>
+        <tr><td><code>--display-leading</code></td><td><code>1.02</code></td><td>Tight stacked lines</td></tr>
+        <tr><td><code>--label-size / --label-tracking</code></td><td><code>0.65rem / 0.18em</code></td><td>Eyebrow counterweight</td></tr>
+        <tr><td><code>--measure-display / --measure-body</code></td><td><code>560px / 380px</code></td><td>Long heads, short prose</td></tr>
+        <tr><td><code>--prose-size / --prose-leading</code></td><td><code>1.05rem / 1.7</code></td><td>Reads as prose, not UI</td></tr>
+        <tr><td><code>--editorial-air / --editorial-gutter</code></td><td><code>20vh / 6vw</code></td><td>Mostly empty on purpose</td></tr>
+        <tr><td><code>--gradient-gold-brushed-ui</code></td><td><code>specular → bevel → core</code></td><td>Every readable/clickable gold</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</div>
+</body>
+</html>
