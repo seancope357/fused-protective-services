@@ -202,7 +202,7 @@
 }
 
 .btn-select-division {
-    background: var(--gradient-gold-brushed);
+    background: var(--gradient-gold-brushed-ui);
     color: #050504;
     font-weight: 800;
     font-size: 13px;

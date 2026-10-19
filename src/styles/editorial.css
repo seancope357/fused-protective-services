@@ -1,0 +1,113 @@
+@layer components {
+/* ==========================================================================
+   EDITORIAL — the restrained register of Tactical Luxury.
+   Proven on /aerial, extracted here so the marketing pages can speak the same
+   dialect instead of a lookalike. Every rule reads from tokens.css; there are
+   no literal colours, sizes or easings in this file by design.
+
+   Pair it with the architectural register, do not replace it. Use editorial
+   for narrative: a section's opening statement, a chapter, a quiet CTA. Keep
+   architectural (Cinzel 900, uppercase, gold fill) for the brand plate, the
+   hero wordmark and anywhere the page must assert authority.
+
+   The one hard rule: never raise --display-weight to make an editorial
+   headline feel stronger. Scale and surrounding air do that. Weight is
+   exactly what turns restraint into shouting.
+   ========================================================================== */
+
+/* --- Labels -------------------------------------------------------------- */
+/* The counterweight to a large quiet headline: small, wide, uppercase.
+   Gold at 8.47:1 (core) / 16.32:1 (light) on the void — both clear 4.5:1. */
+.eyebrow {
+    text-transform: uppercase;
+    letter-spacing: var(--label-tracking);
+    font-size: var(--label-size);
+    color: var(--text-gold-light);
+    margin: 0;
+}
+.eyebrow--core { color: var(--text-gold-core); }
+
+/* --- Display ------------------------------------------------------------- */
+/* Outfit, not Cinzel, and sentence case, not uppercase. text-wrap: balance
+   keeps the ragged edge deliberate rather than accidental. */
+.display {
+    font-family: Outfit, sans-serif;
+    text-transform: none;
+    font-weight: var(--display-weight);
+    line-height: var(--display-leading);
+    letter-spacing: var(--display-tracking);
+    text-wrap: balance;
+    margin: 0;
+}
+.display--xl { font-size: var(--display-xl); }
+.display--lg { font-size: var(--display-lg); }
+.display--md { font-size: var(--display-md); }
+
+/* --- Measure ------------------------------------------------------------- */
+/* Display lines run long, body lines run short. Holding body to ~380px is
+   what makes the whitespace read as composition instead of as a gap. */
+.measure-display { max-width: var(--measure-display); }
+.measure-body { max-width: var(--measure-body); }
+
+/* --- Prose --------------------------------------------------------------- */
+.prose {
+    font-size: var(--prose-size);
+    line-height: var(--prose-leading);
+    color: var(--text-primary);
+    max-width: var(--measure-body);
+}
+
+/* --- Quiet CTA ----------------------------------------------------------- */
+/* A hairline gold rule under the words, instead of a filled gold slab. This
+   is the single biggest reason /aerial reads as more expensive than a
+   gradient button, and it sidesteps the dark-stop contrast failure entirely
+   because the gold is a 1px rule, never a text background. */
+.link-rule {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--text-gold-core);
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: border-color var(--duration-normal) var(--ease-spring),
+                color var(--duration-normal) var(--ease-spring);
+}
+.link-rule:hover,
+.link-rule:focus-visible { border-bottom-color: var(--text-gold-light); color: var(--text-gold-light); }
+
+/* --- Outline pill -------------------------------------------------------- */
+/* The editorial control surface: 44px touch target, hairline border, frosted
+   card backing. The border is decorative at 1.78:1 composited, so the label
+   text and the card backing — not the border — carry the affordance. */
+.pill {
+    white-space: nowrap;
+    min-height: 44px;
+    min-width: 44px;
+    border: 1px solid var(--border-gold-subtle);
+    border-radius: var(--radius-full);
+    background: var(--color-surface-card);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: border-color var(--duration-normal) var(--ease-spring),
+                color var(--duration-normal) var(--ease-spring);
+}
+.pill[aria-pressed="true"] { border-color: var(--text-gold-light); color: var(--text-gold-light); }
+.pill:disabled { opacity: 0.5; cursor: default; }
+
+/* --- Editorial band ------------------------------------------------------ */
+/* A full-height narrative section. Mostly empty on purpose. */
+.editorial-band {
+    display: flex;
+    align-items: center;
+    padding: var(--editorial-air) var(--editorial-gutter);
+    box-sizing: border-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .link-rule, .pill { transition: none; }
+}
+}

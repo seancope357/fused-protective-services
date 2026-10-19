@@ -11,13 +11,13 @@
 .aerial-nav a:first-child { font-family: Cinzel, serif; font-size: 1.4rem; }
 .aerial-nav span { font: 400 .7rem Outfit, sans-serif; color: var(--text-gold-core); margin-left: 1rem; }
 #aerial-track { position: relative; z-index: 1; pointer-events: none; }
-.aerial-chapter { min-height: 115svh; display: flex; align-items: center; padding: 20vh 6vw; box-sizing: border-box; }
-.aerial-copy { max-width: 560px; pointer-events: auto; }
-.aerial-copy h1, .aerial-copy h2 { font-family: Outfit, sans-serif; text-transform: none; font-size: clamp(3rem, 5.6vw, 6.4rem); font-weight: 400; line-height: 1.02; letter-spacing: -.045em; margin: 1.5rem 0; text-wrap: balance; }
-.aerial-copy h1 { max-width: 510px; font-size: clamp(3.2rem, 5.4vw, 5.4rem); line-height: 1.02; }
-.aerial-copy h2 { font-size: clamp(2.8rem, 4.6vw, 5rem); }
-.aerial-copy > p:not(.aerial-eyebrow) { max-width: 380px; line-height: 1.7; font-size: 1.05rem; color: var(--text-primary); }
-.aerial-eyebrow, .aerial-view-label { text-transform: uppercase; letter-spacing: .18em; font-size: .65rem; color: var(--text-gold-light); }
+.aerial-chapter { min-height: 115svh; display: flex; align-items: center; padding: var(--editorial-air) var(--editorial-gutter); box-sizing: border-box; }
+.aerial-copy { max-width: var(--measure-display); pointer-events: auto; }
+.aerial-copy h1, .aerial-copy h2 { font-family: Outfit, sans-serif; text-transform: none; font-weight: var(--display-weight); line-height: var(--display-leading); letter-spacing: var(--display-tracking); margin: 1.5rem 0; text-wrap: balance; }
+.aerial-copy h1 { max-width: 510px; font-size: var(--display-xl); }
+.aerial-copy h2 { font-size: var(--display-lg); }
+.aerial-copy > p:not(.aerial-eyebrow) { max-width: var(--measure-body); line-height: var(--prose-leading); font-size: var(--prose-size); color: var(--text-primary); }
+.aerial-eyebrow, .aerial-view-label { text-transform: uppercase; letter-spacing: var(--label-tracking); font-size: var(--label-size); color: var(--text-gold-light); }
 .aerial-next { display: inline-block; margin-top: 2rem; font-size: .75rem; letter-spacing: .12em; text-decoration: none; }
 .aerial-inquiry { display: inline-flex; padding: 1rem 0; border-bottom: 1px solid var(--text-gold-core); text-decoration: none; }
 .aerial-copy .aerial-disclaimer { font-size: .75rem !important; margin-top: 3rem; }

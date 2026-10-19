@@ -186,7 +186,7 @@ body {
     transform: translateX(-50%);
     z-index: 3000;
     padding: 12px 22px;
-    background: var(--gradient-gold-brushed);
+    background: var(--gradient-gold-brushed-ui);
     color: #050504;
     font-weight: 800;
     border-radius: 0 0 var(--radius-md) var(--radius-md);

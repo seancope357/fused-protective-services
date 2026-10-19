@@ -45,6 +45,7 @@ const STYLE_ORDER = [
     'tokens.css',
     'base.css',
     'layout.css',
+    'editorial.css',
     'components/icons.css',
     'components/buttons.css',
     'components/nav.css',
@@ -227,7 +228,7 @@ const artefacts = () => {
         { path: join(ROOT, 'css', 'site.css'), contents: buildStyles(STYLE_ORDER) },
         { path: join(ROOT, 'css', 'invoice.css'), contents: buildStyles(INVOICE_STYLE_ORDER) },
         { path: join(ROOT, 'css', 'noscript.css'), contents: buildStyles(NOSCRIPT_STYLE_ORDER) },
-        { path: join(ROOT, 'css', 'aerial.css'), contents: buildStyles(['tokens.css', 'base.css', 'components/aerial.css']) },
+        { path: join(ROOT, 'css', 'aerial.css'), contents: buildStyles(['tokens.css', 'base.css', 'editorial.css', 'components/aerial.css']) },
         { path: join(ROOT, 'vercel.json'), contents: vercelConfig(pages) }
     ];
 };

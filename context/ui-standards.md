@@ -243,11 +243,19 @@ everything else to 4.5:1; `.standard-index` passes only because it is 34px at we
 1. **Decided 2026-09-14 (Sean): `--text-tertiary` is `#8f8a86`** (was `#78716c`). Measured 5.97:1 on
    the void, 5.84:1 on the sunken surfaces, 5.74:1 on framed; the old value was 4.08–4.25:1 and failed
    everywhere it was used. Applies to the site and the portal (the portal imports `tokens.css`).
-2. **Still open:** the gold ramp fails as an interactive face: the 75% stop is 3.99:1 and the 100% stop 2.93:1
-   against `--color-void`. Recommendation is an additive `--gradient-gold-brushed-ui` clamped at
-   `--logo-gold-core` (`#a1814c`), leaving the decorative gradient untouched.
-
-Record the outcome here when decided — this document owns the gold tokens.
+2. **Resolved 2026-10-19: the gold ramp is split in two.** The decorative ramp failed as an
+   interactive face exactly as predicted — measured with `scripts/contrast-audit.mjs`, the 75% stop
+   (`#87693b`) is 3.99:1 and the 100% stop (`#72542b`) is 2.93:1 against `--color-void`. Because
+   `.btn-gold` and friends paint `color: #050504` **on** that ramp, label text crossing those stops
+   failed 4.5:1 on the live primary CTA. axe never caught it: it cannot compute contrast against a
+   gradient, so the blocking gate passed while the defect shipped.
+   **`--gradient-gold-brushed-ui`** is the additive fix recommended by this document — the same
+   135° sheen clamped at `--logo-gold-core`, worst stop **5.59:1**, passing 4.5:1 at every stop.
+   Six text-bearing faces moved to it (`.btn-gold`, `.btn-dispatch`, `.btn-quick-call`,
+   `.btn-select-division`, `.filter-tab-btn.active`, `.skip-link`). Two decorative uses with no text
+   on top keep the full ramp on purpose: `.btn-outline::before` (hover wipe) and
+   `.forge-hud-left::after` (HUD rule). **Rule: gold behind anything a visitor reads or clicks uses
+   the `-ui` ramp; the full ramp is decoration only.**
 
 
 ### 1. Semantic Interactive Controls
@@ -293,12 +301,56 @@ When `prefers-reduced-motion: reduce` is active:
 * Transition delays are explicitly zeroed (`transition-delay: 0s !important`) to prevent delayed cascading reveals from flashing.
 * The WebGL voxel track collapses to a static, assembled emblem (`data-forge-fallback`).
 
-## Isolated aerial preview
+## Two registers (established 2026-10-19)
 
-`/prototypes/aerial/` is a local-only four-chapter cinematic exploration, separate
-from the homepage. Existing Outfit/Cinzel fonts and charcoal/gold tokens frame one
-continuous aircraft/property scene. Controls remain explicit: sensor, pause, opt-in
-bounded inspection with keyboard equivalents. Reduced motion fixes the camera and
-hover while retaining explicit controls. A self-authored inline SVG scene and
-readable semantic content precede WebGL and remain available on failure. No fake
-telemetry, live-feed claims, through-wall overlays, or new business facts.
+Tactical Luxury speaks in **two registers** drawn from one gold spectrum, one spacing scale and one
+set of easings. They are not interchangeable, and the difference is the system.
+
+| | Architectural | Editorial |
+| :--- | :--- | :--- |
+| Face | Cinzel, weight 900 | Outfit, weight 400 |
+| Case | Uppercase | Sentence case |
+| Tracking | `-0.5px` | `--display-tracking` (`-0.045em`) |
+| Gold | Fills (`--gradient-gold-brushed-ui`) | Flat colour + 1px rules |
+| Primary CTA | `.btn-gold` filled slab | `.link-rule` hairline underline |
+| Job | Assert authority | Carry narrative |
+
+Architectural owns the brand plate, the hero wordmark and division headers. Editorial — proven on
+`/aerial`, extracted into `src/styles/editorial.css` — owns narrative: a section's opening statement,
+a chapter, a quiet CTA. **Editorial reads as more expensive because it withholds.**
+
+Primitives: `.eyebrow`, `.display` + `--xl/--lg/--md`, `.measure-display`, `.measure-body`, `.prose`,
+`.link-rule`, `.pill`, `.editorial-band`. Tokens: the `--display-*`, `--label-*`, `--measure-*`,
+`--prose-*` and `--editorial-*` groups in `tokens.css`. `editorial.css` contains **no literal
+colours, sizes or easings** — every rule reads a token, which is what keeps the two registers from
+drifting into two systems.
+
+**Hard rules.**
+
+1. **Never raise `--display-weight`** to make an editorial headline feel stronger. Scale and
+   surrounding air do that; weight is exactly what turns restraint into shouting.
+2. **Do not mix registers inside one block.** A Cinzel 900 uppercase heading above Outfit 400 body is
+   correct. An editorial headline with a gold-filled slab button under it is not — use `.link-rule`.
+3. **Long display lines, short body lines.** `--measure-display` is 560px and `--measure-body` 380px.
+   Holding prose to the shorter measure is what makes the whitespace read as composition, not a gap.
+4. `/aerial` consumes these primitives rather than carrying its own copies. If you change an
+   editorial token, run `scripts/verify-editorial-parity.mjs` — it diffs 35 computed properties on
+   `/aerial` against production and fails if the dialect drifted.
+5. Verify any gold change with `scripts/contrast-audit.mjs`, and the whole system with
+   `scripts/verify-design-system.mjs`. A rendered reference lives at `prototypes/design-system/`
+   (local only, links the real `css/site.css` so it cannot drift).
+
+---
+
+## Aerial (`/aerial`)
+
+A public four-chapter cinematic page, live at `https://fusedprotectiveservices.com/aerial` and linked
+from the nav island and drawer. It is the reference implementation of the editorial register:
+Outfit/Cinzel and the charcoal/gold tokens frame one continuous aircraft/property scene. Controls
+remain explicit — sensor, pause, opt-in bounded inspection with keyboard equivalents. Reduced motion
+fixes the camera, hover and rotors while retaining explicit controls. A self-authored inline SVG
+scene and readable semantic content precede WebGL and remain available on failure. No fake telemetry,
+live-feed claims, through-wall overlays, or new business facts. The copy makes **no operational
+claim**: Part 107 / Texas coverage is unconfirmed, so it stays capability-worded. Aircraft
+redistribution rights are unresolved and the risk was accepted on 2026-10-19 — see
+`assets/aerial/PROVENANCE.md`.

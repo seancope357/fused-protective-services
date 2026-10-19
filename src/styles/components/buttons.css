@@ -1,7 +1,7 @@
 @layer components {
 /* Common Gold Buttons */
 .btn-gold {
-    background: var(--gradient-gold-brushed);
+    background: var(--gradient-gold-brushed-ui);
     color: #050504;
     font-weight: 900;
     font-size: clamp(14px, 1.2vw, 16px);
@@ -69,7 +69,7 @@
 }
 
 .btn-dispatch {
-    background: var(--gradient-gold-brushed);
+    background: var(--gradient-gold-brushed-ui);
     color: #050504;
     padding: 8px 18px;
     border-radius: var(--radius-full);
