@@ -190,3 +190,16 @@ Everything authenticated lives in a second workspace so the zero-dependency mark
 * **Environment separation:** `deployEnv()` (`api/_lib/env.mjs`) returns `production` only when `VERCEL_ENV` says so. Non-production rows carry `source_env`, non-production sends are skipped and reported as `non_production_env`, and the scheduler filters to production rows.
 * **Observability:** `api/_lib/report.mjs` on the static side and `@sentry/nextjs` in the portal (server and edge only, inactive until `SENTRY_DSN` is set). Browser errors reach `/api/client-error` without PII; alert storms are deduplicated through `alert_gate()`.
 * **Migrations are not deployed by Git.** A push ships code but never changes the hosted database; apply new migrations by hand before or with the code that needs them (`docs/RUNBOOK.md` §1).
+
+## Local aerial preview (2026-10-14)
+
+Explicit `node build.mjs --aerial-preview` generates only `prototypes/aerial/index.html`
+and `css/aerial.css`; add `--check` to verify those two artifacts. Default build
+artifacts and CSP remain unchanged. Copy is in `src/data/aerial.mjs`, the semantic
+shell in `src/templates/aerial/page.mjs`, styling in `src/styles/components/aerial.css`.
+`js/aerial/boot.mjs` owns all controllers; scene/world/state modules use one vendored
+r160 renderer and controller-supplied local loaders/assets. Aircraft image URIs are
+external same-origin files. No blob-image CSP exception is needed. HDR failure uses
+an original PMREM studio environment; aircraft/texture failure presents a real error.
+The property is fictional; the depth-tested sensor grid covers only its boundary.
+This noindex local evaluation is not a live service/fleet claim or public release.

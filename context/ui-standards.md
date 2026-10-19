@@ -292,3 +292,13 @@ When `prefers-reduced-motion: reduce` is active:
 * CSS animations and transitions are clamped to `0.01ms`.
 * Transition delays are explicitly zeroed (`transition-delay: 0s !important`) to prevent delayed cascading reveals from flashing.
 * The WebGL voxel track collapses to a static, assembled emblem (`data-forge-fallback`).
+
+## Isolated aerial preview
+
+`/prototypes/aerial/` is a local-only four-chapter cinematic exploration, separate
+from the homepage. Existing Outfit/Cinzel fonts and charcoal/gold tokens frame one
+continuous aircraft/property scene. Controls remain explicit: sensor, pause, opt-in
+bounded inspection with keyboard equivalents. Reduced motion fixes the camera and
+hover while retaining explicit controls. A self-authored inline SVG scene and
+readable semantic content precede WebGL and remain available on failure. No fake
+telemetry, live-feed claims, through-wall overlays, or new business facts.

@@ -1,0 +1,25 @@
+{
+  "version": "three.js r160",
+  "licence": "MIT",
+  "changes": "Only ES module import paths rewritten to self-hosted siblings; engine unchanged.",
+  "files": [
+    {
+      "file": "GLTFLoader.mjs",
+      "source": "https://raw.githubusercontent.com/mrdoob/three.js/r160/examples/jsm/loaders/GLTFLoader.js",
+      "upstreamSha256": "d073b438e6a07e1359741dd5d6c76c953420cc0d4fd84eb1bdde94315540e6a3",
+      "localSha256": "4633e509b9643a3ea3d33913168c3bfd8576d016c37e46b13023b0bdf024998a"
+    },
+    {
+      "file": "RGBELoader.mjs",
+      "source": "https://raw.githubusercontent.com/mrdoob/three.js/r160/examples/jsm/loaders/RGBELoader.js",
+      "upstreamSha256": "f0e87d0008d9484d31358b32befd1bf80e4301f77573cc9a7cf7d871cc3f64b4",
+      "localSha256": "d57e823a38f19e3687630c2bcd989091a7e6579bb016b3b88e779887aa4a992f"
+    },
+    {
+      "file": "BufferGeometryUtils.mjs",
+      "source": "https://raw.githubusercontent.com/mrdoob/three.js/r160/examples/jsm/utils/BufferGeometryUtils.js",
+      "upstreamSha256": "9be041e96308775d00e2695cc607645b9a9b64fd7c0e759dd8f7c00a8d92becb",
+      "localSha256": "6f7a59439dd3f4399b25e9214aef65e5969422ed467083f406272b9b1fcef48c"
+    }
+  ]
+}

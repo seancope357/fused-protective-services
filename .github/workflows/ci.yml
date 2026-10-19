@@ -146,6 +146,7 @@ jobs:
           npx --yes @axe-core/cli@"$AXE_CLI_VERSION" \
             http://localhost:5050/ \
             http://localhost:5050/careers \
+            http://localhost:5050/aerial \
             http://localhost:5050/privacy \
             http://localhost:5050/terms \
             http://localhost:5050/sms-consent \
@@ -168,6 +169,7 @@ jobs:
           npx --yes @axe-core/cli@"$AXE_CLI_VERSION" \
             http://localhost:5050/ \
             http://localhost:5050/careers \
+            http://localhost:5050/aerial \
             http://localhost:5050/privacy \
             http://localhost:5050/terms \
             http://localhost:5050/sms-consent \
