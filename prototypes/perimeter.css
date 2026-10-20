@@ -1,0 +1,69 @@
+/* Prototype styles. EXTERNAL on purpose: the production CSP is
+ * `style-src 'self'` with no 'unsafe-inline', so an inline <style> block is
+ * refused outright — the same rule as the repo's no-inline-styles invariant.
+ * Discovered by serving the prototype through serve.py, which applies the
+ * real production headers. */
+:root {
+    --void: #050504; --surface: #090a09; --gold: #c6a25c; --gold-dim: #87693b;
+    --specular: #f7e5b2; --text: #f5f5f4; --muted: #a8a29e; --dim: #8f8a86;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--void); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+  /* The scroll track. 4 viewports of scroll drive one pinned canvas. */
+  #track { height: 400vh; position: relative; }
+  #stage { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+  canvas { width: 100%; height: 100%; display: block; }
+
+  .beats { position: absolute; inset: 0; pointer-events: none;
+           display: grid; place-items: center; }
+  .beat { position: absolute; max-width: 30rem; padding: 0 1.5rem; text-align: center;
+          opacity: 0; transition: opacity .45s ease; }
+  .beat h2 { font-size: clamp(1.5rem, 4vw, 2.4rem); margin: 0 0 .6rem;
+             letter-spacing: -.01em; }
+  .beat p { margin: 0; color: var(--muted); line-height: 1.55; font-size: 1.02rem; }
+  .beat .tag { display: inline-block; font-size: .72rem; letter-spacing: .16em;
+               text-transform: uppercase; color: var(--gold); margin-bottom: .9rem; }
+
+  /* Beats ride the RAW clock (--perimeter); anything asserting completion must
+     use --perimeter-settled instead. Same contract as the existing forge. */
+  #b1 { opacity: calc(1 - (var(--perimeter, 0) / 0.20)); }
+  #b2 { opacity: calc((var(--perimeter, 0) - 0.22) / 0.10); }
+  #b3 { opacity: calc((var(--perimeter, 0) - 0.50) / 0.10); }
+  #b4 { opacity: calc((var(--perimeter, 0) - 0.74) / 0.10); }
+  #b2, #b3, #b4 { transition: none; }
+
+  /* The honest-facts panel. Every number a placeholder until Cameron confirms,
+     using the repo's fail-closed convention: visible by default, flagged. */
+  .envelope { position: absolute; left: 50%; transform: translateX(-50%);
+    bottom: 8vh; display: flex; gap: 1.6rem; flex-wrap: wrap; justify-content: center;
+    opacity: calc((var(--perimeter, 0) - 0.78) / 0.12); }
+  .envelope div { text-align: center; }
+  .envelope dt { font-size: .68rem; letter-spacing: .14em; text-transform: uppercase;
+                 color: var(--dim); margin-bottom: .3rem; }
+  .envelope dd { margin: 0; font-size: 1.1rem; color: var(--specular); }
+  .ph { color: #ef4444; font-size: .62rem; letter-spacing: .1em; vertical-align: super; }
+
+  /* Horizontal drag orbits; vertical gestures must still scroll the page, so
+     the canvas opts into pan-y rather than swallowing touch outright. */
+  canvas { touch-action: pan-y; cursor: crosshair; }
+
+  .readout { position: absolute; left: 50%; transform: translateX(-50%);
+    bottom: 19vh; margin: 0; font-size: .82rem; letter-spacing: .08em;
+    text-transform: uppercase; padding: .45rem .9rem; border-radius: 999px;
+    border: 1px solid #1d1f1d; background: rgba(5,5,4,.72); color: var(--muted);
+    transition: color .2s ease, border-color .2s ease; }
+  .readout[data-state="covered"] { color: var(--specular); border-color: var(--gold-dim); }
+  .readout[data-state="outside"] { color: #ef8d8d; border-color: #5c2a2a; }
+
+  .hud { position: fixed; top: .6rem; left: .6rem; z-index: 9; font: 11px/1.5 ui-monospace,
+         SFMono-Regular, Menlo, monospace; color: var(--dim); background: rgba(5,5,4,.82);
+         border: 1px solid #1d1f1d; border-radius: 6px; padding: .5rem .6rem; }
+  .hud b { color: var(--gold); font-weight: 600; }
+  .note { max-width: 46rem; margin: 0 auto; padding: 4rem 1.5rem 6rem; color: var(--muted);
+          line-height: 1.6; }
+  .note h3 { color: var(--text); }
+  .note code { color: var(--gold); }
+  @media (prefers-reduced-motion: reduce) {
+    .beat { transition: none; }
+  }

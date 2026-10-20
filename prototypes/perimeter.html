@@ -1,0 +1,77 @@
+<!doctype html>
+<!-- PROTOTYPE — not part of the build, not linked from the site, not generated.
+     `node build.mjs` does not touch prototypes/. Nothing here ships until the
+     facts in docs/RESEARCH-webgl-drone-scene.md §7 are answered.
+
+     Serve from the repo root so the vendored three.js resolves:
+         python3 serve.py        → http://localhost:5050/prototypes/perimeter.html
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Perimeter scan — prototype</title>
+<link rel="stylesheet" href="./perimeter.css">
+</head>
+<body>
+
+<div class="hud" id="hud">booting…</div>
+
+<div id="track">
+  <div id="stage">
+    <canvas id="c" aria-hidden="true"></canvas>
+    <div class="beats">
+      <div class="beat" id="b1">
+        <span class="tag">Aerial coverage</span>
+        <h2>Your perimeter, scanned.</h2>
+        <p>Not one camera on one corner. A sweep of the whole property, on a schedule.</p>
+      </div>
+      <div class="beat" id="b2">
+        <span class="tag">Active patrol</span>
+        <h2>Coverage that moves.</h2>
+        <p>A fixed camera sees one angle forever. A patrol pattern covers ground no
+           mast position can reach.</p>
+      </div>
+      <div class="beat" id="b3">
+        <span class="tag">Consent-bounded</span>
+        <h2>Your property. Nothing past the line.</h2>
+        <p>Flights are flown on written owner consent, and the coverage stops at your
+           boundary — by design, and because Texas law requires it.</p>
+      </div>
+      <div class="beat" id="b4">
+        <span class="tag">Detection to response</span>
+        <h2>A drone finds it. A person handles it.</h2>
+        <p>Aerial detection hands straight to a licensed officer on the ground. That
+           handoff is the service.</p>
+      </div>
+    </div>
+    <p id="zone-readout" class="readout" role="status" aria-live="polite"
+       data-state="idle">Move across the plan to inspect coverage &middot; click to direct the patrol</p>
+    <dl class="envelope">
+      <div><dt>Sweep interval</dt><dd>—<span class="ph">TBC</span></dd></div>
+      <div><dt>Altitude band</dt><dd>—<span class="ph">TBC</span></dd></div>
+      <div><dt>Officer response</dt><dd>—<span class="ph">TBC</span></dd></div>
+      <div><dt>Part 107 RPIC</dt><dd>—<span class="ph">TBC</span></dd></div>
+    </dl>
+  </div>
+</div>
+
+<div class="note">
+  <h3>What this prototype is</h3>
+  <p>One <code>THREE.Points</code> cloud, one draw call, driven by four shader uniforms.
+     The site plan is <strong>synthetic</strong> — a generic yard, building footprint,
+     fence line and access drive. No real client geometry, deliberately: displaying a
+     drone-captured image of private real property can implicate
+     Tex. Gov't Code&nbsp;§423.004.</p>
+  <p>There are <strong>no detection markers and no timestamps</strong>. Fused has not run
+     this service yet, so any incident shown here would be invented. The fourth beat sells
+     the drone-to-officer handoff instead, which is true on day one.</p>
+  <p>Every number in the envelope row is a <span class="ph">TBC</span> placeholder and is
+     flagged red by default, following the repo's fail-closed placeholder rule
+     (SPEC-001). They are not guesses; they are blanks waiting on Cameron.</p>
+</div>
+
+<script type="module" src="./perimeter-boot.mjs"></script>
+</body>
+</html>
