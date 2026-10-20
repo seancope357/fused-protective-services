@@ -2,7 +2,10 @@
 .footer-block {
     background: #020302;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding: var(--space-16) 0 var(--space-8);
+    /* The last band on every page, so it is the one that reserves room for
+       the fixed dispatch pill — without this the copyright line sat
+       underneath it at every viewport width. */
+    padding: var(--space-16) 0 calc(var(--space-8) + var(--dispatch-clearance));
     text-align: center;
 }
 
@@ -17,7 +20,9 @@
 .footer-menu {
     display: flex;
     justify-content: center;
-    gap: clamp(16px, 3vw, 32px);
+    /* Row gap stays small because the links now carry their own 44px of
+       height; column gap is what separates them along a line. */
+    gap: 4px clamp(16px, 3vw, 28px);
     margin: var(--space-5) 0;
     flex-wrap: wrap;
 }
@@ -25,19 +30,34 @@
 .footer-menu a {
     color: var(--text-secondary);
     text-decoration: none;
-    font-size: clamp(12px, 1.1vw, 14px);
+    font-size: clamp(12.5px, 1.1vw, 14px);
     font-weight: 600;
     transition: color var(--duration-fast) ease;
+    /* Thirteen links wrapping over four lines, each 19px tall: on a phone
+       this was the densest, least hittable thing on the site. */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 2px;
+}
+
+/* A short label like "FAQ" is a 28px-wide target, which is fine for a mouse
+   and not for a thumb — but padding it out to 44px on a desktop row is what
+   pushed the twelfth link onto a line of its own. Widen it only where a
+   finger is doing the pointing. */
+@media (pointer: coarse) {
+    .footer-menu a { min-width: 44px; }
 }
 
 .footer-menu a:hover { color: var(--logo-gold-specular); }
 
 .footer-menu--legal {
-    margin-top: calc(-1 * var(--space-3));
+    margin-top: 0;
 }
 
 .footer-menu--legal a {
-    font-size: 11.5px;
+    font-size: 12.5px;
     font-weight: 500;
     color: var(--text-tertiary);
 }
@@ -45,7 +65,7 @@
 /* Derived from site.areaServed, so the visible list and the schema.org
    areaServed record can never disagree about where Fused operates. */
 .footer-areas {
-    font-size: clamp(11px, 1.05vw, 13px);
+    font-size: clamp(12.5px, 1.05vw, 13px);
     color: var(--text-secondary);
     letter-spacing: 0.04em;
     margin: 0 auto var(--space-5);
@@ -55,9 +75,9 @@
 
 .footer-areas-label {
     display: block;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--logo-gold-bevel);
     margin-bottom: 4px;
@@ -67,7 +87,7 @@
    Rendered from site.licenseNumber alongside the schema.org identifier. */
 .footer-license {
     font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(11px, 1.05vw, 13px);
+    font-size: clamp(12.5px, 1.05vw, 13px);
     color: var(--text-secondary);
     letter-spacing: 0.06em;
     margin: 0 auto var(--space-4);
@@ -76,9 +96,9 @@
 .footer-license-label {
     display: block;
     font-family: 'Outfit', sans-serif;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--logo-gold-bevel);
     margin-bottom: 4px;
@@ -90,7 +110,7 @@
 }
 
 .footer-disclaimer {
-    font-size: clamp(10.5px, 1vw, 12px);
+    font-size: clamp(12px, 1vw, 13px);
     color: var(--text-tertiary);
     max-width: 800px;
     margin: 0 auto var(--space-4);
@@ -108,14 +128,15 @@
 
 .footer-motto {
     color: var(--logo-gold-bevel);
-    font-size: clamp(11px, 1.2vw, 13px);
+    font-size: clamp(12px, 1.2vw, 13px);
     font-weight: 700;
-    letter-spacing: 3px;
+    letter-spacing: 2.4px;
     margin-bottom: 28px;
 }
 
 .footer-credit {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-tertiary);
+    line-height: 1.7;
 }
 }

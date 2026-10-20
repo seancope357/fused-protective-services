@@ -109,7 +109,7 @@ html[data-forge-fallback] .forge-track {
 
 .forge-motto {
     font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(11px, 1.3vw, 14px);
+    font-size: clamp(12px, 1.3vw, 14px);
     font-weight: 700;
     color: var(--logo-gold-bevel);
     letter-spacing: 4px;

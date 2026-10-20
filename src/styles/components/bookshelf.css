@@ -51,6 +51,10 @@
 
 .spine-code {
     font-family: 'JetBrains Mono', monospace;
+    /* Stays 11px while it is stood upright: the rail only has about 130px of
+       height left over for it under the longest title, and 12px pushed
+       "DIV-07 // VENUE" onto a second vertical line. The stacked layout
+       below, where it reads as an ordinary line of text, takes 12px. */
     font-size: 11px;
     font-weight: 800;
     color: var(--logo-gold-bevel);
@@ -150,7 +154,7 @@
 
 .payload-badge {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     color: var(--logo-gold-specular);
     background: rgba(186, 152, 87, 0.2);
@@ -216,6 +220,8 @@
     border: none;
     cursor: pointer;
     width: fit-content;
+    min-height: 44px;
+    justify-content: center;
 }
 
 .tactical-svg {
@@ -262,9 +268,11 @@
     }
     .spine-rail {
         width: 100%;
-        height: 80px;
+        height: auto;
+        min-height: 84px;
         flex-direction: row;
-        padding: 0 20px;
+        gap: 16px;
+        padding: 14px 20px;
         border-right: none;
         border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
@@ -272,9 +280,25 @@
         writing-mode: horizontal-tb;
         transform: none;
     }
+    /* The base rule's `white-space: nowrap` is what broke this layout. Stood
+       upright the title is a column and nowrap is what keeps it one; laid
+       flat, "RESTAURANT, BAR & NIGHTLIFE" is ~300px of unbreakable text that
+       ran straight out past the card's rounded edge, squeezing the division
+       code beside it into a 40px ribbon that wrapped and clipped. Letting it
+       wrap, and letting it shrink below its min-content width, puts both back
+       inside the rail. */
     .spine-vertical-title {
-        margin: 0 auto 0 16px;
+        margin: 0;
+        flex: 1 1 auto;
+        min-width: 0;
+        white-space: normal;
         font-size: 16px;
+        line-height: 1.3;
+    }
+    .spine-code {
+        flex-shrink: 0;
+        white-space: nowrap;
+        font-size: 12px;
     }
     /* On the stacked layout the payload opens by height, not display — a
        display:none toggle snaps and also suppresses the cascade above,
@@ -295,6 +319,30 @@
     .bookshelf-spine.active .spine-expanded-payload {
         max-height: 560px;
         padding: 24px 20px;
+    }
+}
+
+/* Phones. Side by side, the code and a two-line title leave each other
+   about 100px; stacked against the icon they both read at full size, and the
+   rail grows to fit instead of clipping at a fixed 80px. */
+@media (max-width: 700px) {
+    .spine-rail {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-areas:
+            'icon code'
+            'icon title';
+        align-items: center;
+        column-gap: 16px;
+        row-gap: 3px;
+        padding: 16px 18px;
+    }
+    .spine-icon-housing { grid-area: icon; }
+    .spine-code { grid-area: code; align-self: end; }
+    .spine-vertical-title {
+        grid-area: title;
+        align-self: start;
+        letter-spacing: 1.2px;
     }
 }
 

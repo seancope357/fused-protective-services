@@ -172,14 +172,24 @@
 .prequal-choice {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     cursor: pointer;
     font-size: 13px;
     font-weight: 700;
-    padding: 6px 14px;
+    padding: 6px 16px;
+    min-height: 44px;
     background: var(--color-surface-elevated);
     border: 1px solid var(--border-muted);
     border-radius: var(--radius-sm);
+}
+
+/* The label is the target — it wraps the control — but the control is still
+   what a visitor aims at, and the user-agent default renders it at 13px. */
+.prequal-choice input {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    accent-color: var(--logo-gold-glint);
 }
 
 .prequal-choice input:checked + span {
@@ -299,6 +309,7 @@
     font-size: 14px;
     font-weight: 700;
     padding: 10px 18px;
+    min-height: 44px;
     background: var(--color-surface-elevated);
     border: 1px solid var(--border-muted);
     border-radius: var(--radius-full);
@@ -412,9 +423,9 @@
 }
 
 .position-badge {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 800;
-    padding: 2px 8px;
+    padding: 3px 9px;
     background: rgba(186, 152, 87, 0.15);
     border: 1px solid var(--border-gold-subtle);
     border-radius: var(--radius-sm);
@@ -529,6 +540,9 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    /* Bare text on a card: 16px tall, and the only way to read what a post
+       actually requires before applying for it. */
+    min-height: 44px;
 }
 
 /* ── Vetting Protocol ──────────────────────────────────────────────── */
@@ -570,7 +584,7 @@
 
 .stage-badge {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     color: var(--logo-gold-core);
     letter-spacing: 0.1em;

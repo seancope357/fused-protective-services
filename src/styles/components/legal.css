@@ -59,18 +59,20 @@
 }
 
 .form-consent input {
-    width: 18px;
-    height: 18px;
-    margin-top: 2px;
+    width: 24px;
+    height: 24px;
+    margin-top: 1px;
     accent-color: var(--logo-gold-glint);
+    flex-shrink: 0;
 }
 
 .form-consent label {
     text-transform: none;
     letter-spacing: 0;
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 500;
     color: var(--text-secondary);
+    line-height: 1.6;
 }
 
 .form-consent a {

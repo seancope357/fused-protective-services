@@ -130,6 +130,12 @@
 
 html {
     scroll-behavior: smooth;
+    /* The nav island is sticky at top:14px and stands about 62px tall, so an
+       in-page jump used to land its target underneath the island — on a phone
+       that hid the whole first line of every section the footer menu links
+       to. Reserving the island's own height means #quote, #assessment and the
+       rest arrive just below it. */
+    scroll-padding-top: 88px;
 }
 
 body {
@@ -173,7 +179,9 @@ body {
     width: 100%;
     max-width: 1280px;
     margin: 0 auto;
-    padding: 0 clamp(16px, 4vw, 32px);
+    /* 20px, not 16, at the narrow end: 4vw only reaches 16px around a 400px
+       viewport, which left every card on a phone almost touching the bezel. */
+    padding: 0 clamp(20px, 4vw, 32px);
     position: relative;
     z-index: 1;
 }

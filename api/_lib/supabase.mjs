@@ -52,3 +52,41 @@ export async function selectRows(table, query) {
 export async function rpc(name, args) {
     return call(`rpc/${name}`, { method: 'POST', body: args });
 }
+
+/**
+ * A bounded liveness probe for the health endpoint (SPEC-004).
+ *
+ * It lives here, not in the health handler, because this module is the only
+ * place that may read the URL and the service-role key — a probe that fetched
+ * them itself would put credentials in a file whose whole job is to be safe to
+ * expose publicly.
+ *
+ * HEAD with `limit=0` returns no rows and no body: it proves the URL resolves,
+ * TLS completes, the key authenticates and PostgREST is serving, without
+ * reading a single row of anyone's data. An empty table is still a healthy one,
+ * so this must never assert on content.
+ *
+ * `AbortSignal.timeout` is the point of the function. Without it a hung
+ * Supabase leaves the health check hanging, the monitor times out instead of
+ * getting a 503, and the alert says "no response" rather than "the database is
+ * unreachable" — the same symptom for two very different incidents.
+ *
+ * @returns {Promise<'ok' | 'unreachable' | 'not_configured'>}
+ */
+export async function reachable({ timeoutMs = 2500 } = {}) {
+    if (!supabaseConfigured()) return 'not_configured';
+    const { url, key } = config();
+    try {
+        const res = await fetch(`${url}/rest/v1/settings?select=key&limit=0`, {
+            method: 'HEAD',
+            headers: { apikey: key, Authorization: `Bearer ${key}` },
+            signal: AbortSignal.timeout(timeoutMs)
+        });
+        return res.ok ? 'ok' : 'unreachable';
+    } catch {
+        /* Timeout, DNS failure, TLS failure, connection refused — all the same
+           answer to the only question being asked. The reason belongs in the
+           logs, never in a public response body. */
+        return 'unreachable';
+    }
+}

@@ -22,7 +22,7 @@
 .form-field.full-span { grid-column: 1 / -1; }
 
 .form-field label {
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--logo-gold-specular);
     text-transform: uppercase;
@@ -36,6 +36,9 @@
     padding: clamp(12px, 1.8vw, 16px) clamp(14px, 2vw, 18px);
     border-radius: var(--radius-md);
     font-size: clamp(14px, 1.1vw, 15px);
+    /* 42px without this — two short of a comfortable target, on the fields
+       that collect a protective detail's schedule and location. */
+    min-height: 44px;
     outline: none;
     transition: all var(--duration-normal) ease;
 }
