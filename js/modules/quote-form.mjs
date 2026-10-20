@@ -8,6 +8,9 @@
    Integrated with live /api/intake backend with local offline resilience.
    ========================================================================== */
 
+import { config } from './config.mjs';
+import { aerialIntent, prepareAerialInquiry, withAerialIntent } from './aerial-inquiry.mjs';
+
 const reference = () => 'TX-FPS-' + String(Math.floor(1000 + Math.random() * 9000));
 
 async function deliver(payload) {
@@ -26,22 +29,25 @@ async function deliver(payload) {
             body: JSON.stringify({ type: 'quote', ...payload })
         });
         if (response.ok) {
-            return await response.json();
+            const result = await response.json();
+            if (result?.ok === true || result?.ok === false) return result;
         }
         /* The server answers 503 when every delivery stage failed. Surface that
            rather than telling the visitor their request went through. */
-        const failure = await response.json().catch(() => null);
+        const failure = response.ok ? null : await response.json().catch(() => null);
         if (failure && failure.ok === false) return failure;
     } catch (err) {
         console.warn('[FPS Dispatch] Live endpoint unreachable, backup stored:', err);
     }
-    return { ok: true, refCode: payload.refCode };
+    return { ok: false, message: 'We could not send your request. Please try again or call Fused directly.' };
 }
 
 export function initQuoteForm() {
     const form = document.getElementById('securityQuoteForm');
     const status = document.getElementById('formStatus');
     if (!form) return;
+    const inquiry = aerialIntent(window.location.search, config?.aerialInquiry);
+    prepareAerialInquiry(form, inquiry);
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -51,7 +57,7 @@ export function initQuoteForm() {
             return;
         }
 
-        const data = Object.fromEntries(new FormData(form));
+        const data = withAerialIntent(Object.fromEntries(new FormData(form)), inquiry);
         const refCode = reference();
         const payload = { refCode, ...data, timestamp: new Date().toISOString() };
 
@@ -67,7 +73,7 @@ export function initQuoteForm() {
             return;
         }
 
-        const msg = result?.message ||
+        const msg = (inquiry ? `${inquiry.confirmation} Reference: ${code}.` : result?.message) ||
             `Request received — dispatch reference ${code}. A commanding officer will contact ${data.formPhone} within 2 hours.`;
 
         if (status) {
@@ -75,6 +81,7 @@ export function initQuoteForm() {
         }
 
         form.reset();
+        if (inquiry) form.elements.formArmedPreference.value = inquiry.armedPreference;
         status?.scrollIntoView({
             behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
             block: 'center'

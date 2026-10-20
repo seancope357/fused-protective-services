@@ -397,3 +397,14 @@ Money is integer cents everywhere; the `invoices` dollar columns are generated. 
 | `sms_opt_outs` | numbers that replied STOP; never texted again | — |
 
 Numbering functions: `next_invoice_number(prefix, pad)` (prefix and padding passed from `src/data/invoice.mjs`), `next_quote_number()`, `reserve_invoice_sequence(number)` for legacy imports. Payment application: `apply_stripe_payment_event(...)` — one transaction, returns `{applied, reason, invoice_status}`.
+
+
+### Aerial inquiry handoff (2026-10-20)
+
+`src/data/aerial.mjs` owns the aerial offer, chapters, CTA and inquiry copy. The homepage
+`#fps-config.aerialInquiry` supplies a closed `service=aerial` query intent. No arbitrary URL text
+is rendered. The existing form retains field names and seven division values; aerial visitors
+choose a division instead of silently inheriting PPO. Armed preference starts at the existing
+assessment recommendation. On submission the aerial marker is prepended to `formNotes`, retaining
+visitor text and keeping the service visible after the server's existing notes truncation.
+There is no new endpoint, division, schema or storage contract. No personal data is put in the URL.

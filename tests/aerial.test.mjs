@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { cameraPose, initialState, rotate, clampProgress, aircraftSpan, aircraftPosition } from '../js/aerial/state.mjs';
+import { cameraPose, initialState, timeOfDay, clampProgress, aircraftSpan, aircraftPosition } from '../js/aerial/state.mjs';
 import { aerialPage } from '../src/templates/aerial/page.mjs';
 test('camera travel is bounded, reversible, continuous and stays above property', () => {
     assert.equal(clampProgress(-1), 0); assert.equal(clampProgress(2), 1);
@@ -13,15 +13,18 @@ test('camera travel is bounded, reversible, continuous and stays above property'
         assert.deepEqual(a, cameraPose(u));
     }
 });
-test('reduced motion and inspect bounds', () => {
-    const state = initialState(true); assert.equal(state.paused, true);
+test('day is the default, invalid lighting selections are normalized, reduced motion is stable', () => {
+    assert.deepEqual(initialState(true), {paused:true,timeOfDay:'day',progress:0});
+    assert.equal(timeOfDay('night'),'night');
+    for(const value of ['day','sensor',null,{},'NIGHT']) assert.equal(timeOfDay(value),'day');
     assert.deepEqual(cameraPose(0, true), cameraPose(1, true));
-    assert.deepEqual(rotate({ yaw: 0, pitch: 0 }, 99, -99), { yaw: .6, pitch: -.3 });
 });
 test('public aerial shell has no inline executable content and is indexable', () => {
     const page = String(aerialPage());
-    for (const marker of ['aerial-canvas', 'aerial-track', 'aerial-status', 'Illustrative visualization', '/#quote', '/assets/aerial/PROVENANCE.md']) assert.ok(page.includes(marker), marker);
-    for (const action of ['sensor', 'pause', 'inspect', 'reset', 'rotate-left', 'rotate-right', 'rotate-up', 'rotate-down']) assert.ok(page.includes(`data-action="${action}"`));
+    for (const marker of ['aerial-canvas', 'aerial-track', 'aerial-status', 'Illustrative visualization', '/?service=aerial#quote', '/assets/aerial/PROVENANCE.md']) assert.ok(page.includes(marker), marker);
+    for (const action of ['day', 'night']) assert.ok(page.includes(`data-action="${action}"`));
+    assert.doesNotMatch(page, /data-action="(?:sensor|pause|inspect|rotate-[^"]*|reset)"/);
+    assert.match(page, /role="group" aria-label="Time of day"/);
     assert.doesNotMatch(page, /\s(?:style|on\w+)=/);
     assert.doesNotMatch(page, /<script(?![^>]*src=)/);
     assert.equal((page.match(/<canvas/g) || []).length, 1);
@@ -50,7 +53,7 @@ register('./helpers/three-esm-loader.mjs', import.meta.url);
 const THREE = await import('../js/vendor/three.module.js');
 const { GLTFLoader } = await import('../js/vendor/aerial/GLTFLoader.mjs');
 const { batchStatic } = await import('../js/aerial/batch.mjs');
-import { exitInspection, pixelRatio, scanPosition, scanDirection, sensorTarget, needsFrame, dampFactor } from '../js/aerial/state.mjs';
+import { pixelRatio, needsFrame, dampFactor } from '../js/aerial/state.mjs';
 
 test('portrait camera is continuous and uses a dedicated hero composition', () => {
     assert.deepEqual(cameraPose(0, false, 16 / 9).position, [3.8, 10.85, 5.6]);
@@ -60,22 +63,9 @@ test('portrait camera is continuous and uses a dedicated hero composition', () =
         assert.ok(a.position.every(Number.isFinite));
         assert.ok(Math.hypot(...a.position.map((v, j) => v - b.position[j])) < .3);
     }
-    assert.equal(pixelRatio(3, 390), 1);
-    assert.equal(pixelRatio(3, 900, true), 1);
+    assert.equal(pixelRatio(3, 390), 1.75);
+    assert.equal(pixelRatio(3, 900, true), 1.75);
     assert.equal(pixelRatio(3, 1440), 2);
-});
-test('scan travels continuously inside parcel, reduced motion fixes it, view overrides chapter', () => {
-    for (let i = 0; i < 10000; i++) {
-        const time = i / 100;
-        assert.ok(scanPosition(time) >= -25 && scanPosition(time) <= 7);
-        assert.ok(Math.abs(scanPosition(time + .01) - scanPosition(time)) < .057);
-        assert.equal(scanPosition(time, true), -9);
-    }
-    assert.equal(scanDirection(0), 1); assert.equal(scanDirection(10), -1);
-    assert.equal(sensorTarget(2 / 3, null), 1);
-    assert.equal(sensorTarget(0, null), 0);
-    assert.equal(sensorTarget(2 / 3, false), 0);
-    assert.equal(sensorTarget(0, true), 1);
 });
 test('hidden-tab lifecycle discards the old convergence timestamp', () => {
     const source = readFileSync('js/aerial/boot.mjs', 'utf8');
@@ -86,24 +76,21 @@ test('hidden-tab lifecycle discards the old convergence timestamp', () => {
     assert.equal(cancelled, true); assert.deepEqual(result, { previous: 0, frame: 0 });
 });
 
-test('camera convergence is frame-rate-independent and input inspection keeps touch scrolling', () => {
+test('camera convergence is frame-rate-independent and day/night input leaves touch scrolling native', () => {
     const advance = fps => { let value = 0; for (let i = 0; i < fps; i++) value += (1 - value) * dampFactor(1 / fps); return value; };
     assert.ok(Math.abs(advance(30) - advance(60)) < 1e-10);
     assert.ok(Math.abs(advance(10) - advance(60)) < 1e-10);
     assert.equal(dampFactor(0), 0);
-    assert.match(readFileSync('src/styles/components/aerial.css', 'utf8'), /touch-action: pan-y/);
-    assert.match(readFileSync('js/aerial/scene.mjs', 'utf8'), /if \(state.inspect\) target.fromArray\(aircraftPosition\)/);
+    assert.doesNotMatch(readFileSync('js/aerial/boot.mjs', 'utf8'), /setPointerCapture|preventDefault\(\).*scroll|addEventListener\('wheel'/);
 });
 
-test('inspection exit restores current scroll composition and settled motion needs no RAF', () => {
-    const state = { ...initialState(false), inspect: true, yaw: .4, pitch: -.2, progress: .42, paused: true };
-    const exited = exitInspection(state);
-    assert.deepEqual(exited, { ...state, inspect: false, yaw: 0, pitch: 0 });
-    assert.equal(needsFrame(exited, false, 0), false);
-    assert.equal(needsFrame({ ...exited, sensor: true }, false, .4), true);
-    assert.equal(needsFrame({ ...exited, sensor: true }, false, 1), false);
-    assert.equal(needsFrame({ ...exited, paused: false }, true, 0), false);
-    assert.equal(needsFrame({ ...exited, paused: false }, false, 0), true);
+test('reduced motion stops autonomous rendering in either lighting mode', () => {
+    for(const timeOfDay of ['day','night']) {
+        const state={...initialState(false),timeOfDay};
+        assert.equal(needsFrame(state,true),false);
+        assert.equal(needsFrame({...state,paused:true},false),false);
+        assert.equal(needsFrame(state,false),true);
+    }
 });
 test('static batching preserves hierarchy transforms, UVs, normals and material identity', () => {
     const root = new THREE.Group(), parent = new THREE.Group(); parent.position.set(3, 4, -2); parent.rotation.y = .7; root.add(parent);
@@ -151,33 +138,26 @@ test('actual aircraft merges 147 primitives into two material meshes with bounds
 
 const { createWorld } = await import('../js/aerial/world.mjs');
 const { RGBELoader } = await import('../js/vendor/aerial/RGBELoader.mjs');
-test('world retains eight static batches, instanced foliage and a depth-tested scan without recoloring', () => {
-    const previousDocument = globalThis.document;
-    globalThis.document = { createElement: () => ({ getContext: () => ({ fillRect() {} }) }) };
-    try {
-        const scene = new THREE.Scene(), world = createWorld(scene), meshes = [];
-        scene.traverse(o => { if (o.isMesh) meshes.push(o); });
-        assert.equal(meshes.length, 10);
-        assert.equal(meshes.filter(mesh => mesh.isInstancedMesh).length, 1);
-        const leaves = meshes.find(mesh => mesh.isInstancedMesh);
-        assert.ok(leaves.count <= 40 * 72);
-        assert.equal(leaves.material.alphaTest, .45);
-        assert.equal(leaves.material.transparent, false);
-        const triangles = meshes.reduce((sum, mesh) => sum +
-            (mesh.geometry.index?.count ?? mesh.geometry.attributes.position.count) / 3 * (mesh.count ?? 1), 0);
-        assert.ok(triangles < 24000, `environment including sensor: ${triangles}`);
-        const overlay = meshes.find(mesh => mesh.material.isShaderMaterial);
-        const colors = meshes.filter(mesh => mesh !== overlay).map(mesh => mesh.material.color.getHex());
-        world.sensor(1, 3, false);
-        assert.equal(overlay.visible, true);
-        assert.equal(overlay.material.depthTest, true); assert.equal(overlay.material.depthWrite, false);
-        assert.equal(overlay.material.uniforms.sweep.value, scanPosition(3));
-        assert.deepEqual(meshes.filter(mesh => mesh !== overlay).map(mesh => mesh.material.color.getHex()), colors);
-        world.sensor(0, 3, false); assert.equal(overlay.visible, false);
-        for (const mesh of meshes) { mesh.geometry.dispose(); mesh.material.map?.dispose(); mesh.material.dispose(); }
-    } finally {
-        if (previousDocument === undefined) delete globalThis.document; else globalThis.document = previousDocument;
-    }
+test('property has real glazing depth, coherent roof layers and bounded instanced landscaping', () => {
+    const scene=new THREE.Scene(),world=createWorld(scene),meshes=[];
+    scene.updateMatrixWorld(true);scene.traverse(o=>{if(o.isMesh)meshes.push(o);});
+    assert.equal(meshes.filter(m=>m.isInstancedMesh).length,5);
+    const leaves=scene.getObjectByName('leaf-sprays');
+    assert.ok(leaves.count<=55*168);assert.equal(leaves.material.alphaToCoverage,true);
+    assert.equal(leaves.material.transparent,false);assert.ok(leaves.material.map.generateMipmaps);
+    const opaque=meshes.filter(m=>!m.isInstancedMesh&&!m.material.transparent);
+    const ray=new THREE.Raycaster(new THREE.Vector3(.7,1.9,-7),new THREE.Vector3(0,0,-1));
+    const hit=ray.intersectObjects(opaque,false)[0];
+    assert.ok(hit && hit.distance>5,'window aperture must open into a room instead of overlapping a solid facade');
+    assert.ok(world.property.wingStart-world.property.pavilionEnd>=.1,'solid wings must not share coplanar facade faces');
+    const triangles=meshes.reduce((sum,m)=>sum+(m.geometry.index?.count??m.geometry.attributes.position.count)/3*(m.count??1),0);
+    assert.ok(triangles<200000,`environment triangles: ${triangles}`);
+    assert.ok(world.stats().batches<20);
+    world.setNight(1);
+    assert.ok(scene.children.filter(o=>o.isPointLight).every(l=>l.intensity>0));
+    world.setNight(0);
+    assert.ok(scene.children.filter(o=>o.isPointLight).every(l=>l.intensity===0));
+    scene.traverse(o=>{o.geometry?.dispose();o.material?.map?.dispose();o.material?.dispose();});
 });
 test('optional local HDR is a decodable 1024 by 512 lighting asset', () => {
     const bytes = readFileSync('assets/aerial/blue-hour.hdr');
@@ -190,7 +170,7 @@ test('procedural surface keeps preprocessor directives on their own GLSL lines',
     const material = surface(0x333333, .9, true);
     const shader = { vertexShader: THREE.ShaderLib.standard.vertexShader, fragmentShader: THREE.ShaderLib.standard.fragmentShader };
     material.onBeforeCompile(shader);
-    assert.match(shader.fragmentShader, /}\n#define STANDARD/);
+    assert.match(shader.fragmentShader, /}\n+#define STANDARD/);
     assert.doesNotMatch(shader.fragmentShader, /[^\n\s]#(?:define|include|ifdef)/);
     material.dispose();
 });
@@ -216,7 +196,7 @@ test('physical aircraft fits the hero frame above portrait copy, with the body v
 test('procedural landscape is deterministic and the complete pass count stays conservatively bounded', () => {
     const scenes = [new THREE.Scene(), new THREE.Scene()];
     scenes.forEach(createWorld);
-    const foliage = scenes.map(scene => scene.children.find(mesh => mesh.isInstancedMesh));
+    const foliage = scenes.map(scene => scene.getObjectByName('leaf-sprays'));
     assert.deepEqual(foliage[0].instanceMatrix.array, foliage[1].instanceMatrix.array);
     assert.deepEqual(foliage[0].material.map.image.data, foliage[1].material.map.image.data);
     const meshes = []; scenes[0].traverse(o => { if (o.isMesh) meshes.push(o); });
@@ -224,4 +204,29 @@ test('procedural landscape is deterministic and the complete pass count stays co
     // This is a structural upper bound, not a substitute for renderer.info QA.
     assert.ok(meshes.length + meshes.filter(m => m.castShadow).length + 5 <= 50);
     for (const scene of scenes) scene.traverse(o => { o.geometry?.dispose(); o.material?.map?.dispose(); o.material?.dispose(); });
+});
+
+const {terrainHeight}=await import('../js/aerial/world.mjs');
+const {createLighting}=await import('../js/aerial/lighting.mjs');
+test('day/night changes physical illumination and fixtures together without moving the camera',()=>{
+    const scene=new THREE.Scene(),renderer={shadowMap:{}},amounts=[];
+    const lighting=createLighting(scene,renderer,{setNight:n=>amounts.push(n)});
+    lighting.setMode('day');
+    const sun=scene.children.find(o=>o.isDirectionalLight&&o.castShadow),day=sun.intensity;
+    lighting.setMode('night');assert.ok(sun.intensity<day);assert.equal(amounts.at(-1),1);
+    assert.equal(lighting.stats().mode,'night');assert.equal(renderer.shadowMap.needsUpdate,true);
+    const count=amounts.length;lighting.setMode('night');assert.equal(amounts.length,count,'unchanged modes must not rebuild shadows');
+    lighting.setMode('day');assert.equal(sun.intensity,day);assert.equal(amounts.at(-1),0);
+    assert.ok(sun.shadow.camera.near>0 && sun.shadow.camera.far<100);
+    scene.traverse(o=>{o.geometry?.dispose();o.material?.dispose();});
+});
+test('terrain is level beneath the property and continuous across the meadow transition',()=>{
+    for(const [x,z] of [[0,-8],[-19,-25],[20,7],[7,18]])assert.equal(terrainHeight(x,z),-.2);
+    let changes=false;
+    for(let x=-220;x<=220;x+=.5){
+        const a=terrainHeight(x,-75),b=terrainHeight(x+.01,-75);
+        assert.ok(Number.isFinite(a)&&Math.abs(a-b)<.02);
+        if(Math.abs(a+.2)>.5)changes=true;
+    }
+    assert.equal(changes,true);
 });

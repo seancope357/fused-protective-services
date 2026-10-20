@@ -92,15 +92,15 @@
     --radius-2xl: 28px;
     --radius-full: 9999px;
 
-    /* ----------------------------------------------------------------------
-       EDITORIAL SCALE — the restrained dialect proven on /aerial.
-       Tactical Luxury has two registers, and they are not interchangeable:
-       the ARCHITECTURAL register (Cinzel 900, uppercase, gold fills) states
-       authority on the marketing surfaces, and the EDITORIAL register below
-       (Outfit 400, negative tracking, sentence case, hairline gold) carries
-       narrative. Editorial reads as more expensive because it withholds.
-       Both draw from the one gold spectrum above; neither invents a colour.
-       ---------------------------------------------------------------------- */
+    /* Shared public-site typography, adopted from /aerial (2026-10-20).
+       Cinzel is reserved for the brand; Outfit carries content and controls. */
+    --font-body: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-brand: 'Cinzel', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --section-air: clamp(72px, 10vw, 144px);
+    --control-size: 0.875rem;
+    --control-weight: 500;
+    --control-height: 44px;
 
     /* Display faces. Outfit at weight 400 with tight negative tracking — the
        large-and-quiet move. Never raise the weight to "strengthen" these;
@@ -280,7 +280,7 @@ html {
 body {
     background-color: var(--color-void);
     color: var(--text-primary);
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-body);
     font-size: clamp(15px, 1.1vw, 16px);
     line-height: 1.6;
     overflow-x: hidden;
@@ -358,6 +358,7 @@ body {
        cascade) would otherwise replay as a sequence of timed pops. */
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
+        animation-delay: 0s !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
         transition-delay: 0s !important;
@@ -367,54 +368,50 @@ body {
 
 /* ── layout.css ──────────────────────────────────────────────── */
 @layer layout {
-/* Section Commons */
 .section-padding {
-    padding: var(--space-16) 0;
+    padding: var(--section-air) 0;
     position: relative;
+    background: var(--color-void);
 }
 
-.section-tag {
+.section-tag, .tactical-eyebrow, .tactical-badge {
     display: inline-block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--logo-gold-bevel);
+    font-family: var(--font-body);
+    font-size: var(--label-size);
+    font-weight: var(--control-weight);
+    color: var(--text-gold-light);
     text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: var(--space-2);
+    letter-spacing: var(--label-tracking);
+    margin-bottom: var(--space-5);
 }
 
 .section-title {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(28px, 4vw, 42px);
-    font-weight: 800;
-    margin-bottom: var(--space-3);
-    letter-spacing: -0.5px;
+    font-family: var(--font-body);
+    font-size: var(--display-lg);
+    font-weight: var(--display-weight);
+    line-height: var(--display-leading);
+    letter-spacing: var(--display-tracking);
+    text-wrap: balance;
+    max-width: 20ch;
+    margin-bottom: var(--space-6);
 }
 
-.section-desc {
-    font-size: clamp(14px, 1.5vw, 17px);
+.section-desc, .section-lead {
+    font-size: var(--prose-size);
+    line-height: var(--prose-leading);
     color: var(--text-secondary);
-    max-width: 720px;
-    margin: 0 auto;
+    max-width: var(--measure-display);
 }
 
-.section-head {
-    text-align: center;
+.section-head, .section-header-centered {
+    text-align: left;
+    margin-bottom: var(--space-12);
 }
 
-/* Recessed bands. These were four near-identical inline background values;
-   two of them differed by one step per channel for no reason anyone recorded. */
-.section-padding--sunken {
-    background: var(--surface-section-sunken);
-}
-
-.section-padding--deep {
-    background: var(--surface-section-deep);
-}
-
+.section-padding--sunken { background: var(--color-surface-base); }
+.section-padding--deep { background: var(--color-void); }
 .section-padding--framed {
-    background: var(--surface-section-framed);
+    background: var(--color-surface-base);
     border-top: 1px solid var(--border-subtle);
     border-bottom: 1px solid var(--border-subtle);
 }
@@ -428,10 +425,8 @@ body {
    dialect instead of a lookalike. Every rule reads from tokens.css; there are
    no literal colours, sizes or easings in this file by design.
 
-   Pair it with the architectural register, do not replace it. Use editorial
-   for narrative: a section's opening statement, a chapter, a quiet CTA. Keep
-   architectural (Cinzel 900, uppercase, gold fill) for the brand plate, the
-   hero wordmark and anywhere the page must assert authority.
+   This is the public site's shared visual language. Cinzel is reserved for
+   the Fused wordmark; headings, prose and controls use Outfit throughout.
 
    The one hard rule: never raise --display-weight to make an editorial
    headline feel stronger. Scale and surrounding air do that. Weight is
@@ -454,7 +449,7 @@ body {
 /* Outfit, not Cinzel, and sentence case, not uppercase. text-wrap: balance
    keeps the ragged edge deliberate rather than accidental. */
 .display {
-    font-family: Outfit, sans-serif;
+    font-family: var(--font-body);
     text-transform: none;
     font-weight: var(--display-weight);
     line-height: var(--display-leading);
@@ -584,171 +579,53 @@ body {
 
 /* ── components/buttons.css ──────────────────────────────────── */
 @layer components {
-/* Common Gold Buttons */
-.btn-gold {
-    background: var(--gradient-gold-brushed-ui);
-    color: #050504;
-    font-weight: 900;
-    font-size: clamp(14px, 1.2vw, 16px);
-    padding: clamp(14px, 2vw, 18px) clamp(28px, 3.5vw, 42px);
-    border-radius: var(--radius-md);
-    text-decoration: none;
-    box-shadow: 0 10px 30px rgba(186, 152, 87, 0.4);
-    transition: all var(--duration-normal) var(--ease-spring);
+/* One quiet control family, shared by both public-site CSS bundles.
+   Existing class names remain stable for templates and integrations. */
+.btn-gold, .btn-secondary-glass, .btn-outline, .btn-dispatch {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    border: none;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    text-align: center;
-}
-
-.btn-gold::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-    transition: left 0.6s ease;
-}
-
-.btn-gold:hover::before {
-    left: 100%;
-}
-
-.btn-gold:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 15px 45px rgba(186, 152, 87, 0.6);
-}
-
-.btn-secondary-glass {
-    background: var(--color-surface-glass);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-primary);
-    font-weight: 700;
-    font-size: clamp(14px, 1.2vw, 16px);
-    padding: clamp(14px, 2vw, 18px) clamp(24px, 3vw, 38px);
-    border-radius: var(--radius-md);
-    text-decoration: none;
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-    transition: all var(--duration-normal) var(--ease-spring);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    cursor: pointer;
-    text-align: center;
-}
-
-.btn-secondary-glass:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--border-gold-subtle);
-    color: var(--logo-gold-highlight);
-    transform: translateY(-3px);
-}
-
-.btn-dispatch {
-    background: var(--gradient-gold-brushed-ui);
-    color: #050504;
-    padding: 8px 18px;
+    gap: var(--space-2);
+    min-height: var(--control-height);
+    padding: var(--space-3) var(--space-6);
+    border: 1px solid var(--border-gold-subtle);
     border-radius: var(--radius-full);
-    font-size: 12.5px;
-    font-weight: 800;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: 0 0 15px rgba(186, 152, 87, 0.3);
-    transition: all var(--duration-normal) var(--ease-spring);
-    white-space: nowrap;
-}
-
-.btn-dispatch:hover {
-    transform: translateY(-1px) scale(1.03);
-    box-shadow: 0 0 25px rgba(186, 152, 87, 0.6);
-}
-
-/* Outlined gold companion to .btn-gold. Used where two actions sit side by
-   side and only one may carry the solid brushed plate: the outline keeps the
-   same footprint and weight, so the pair reads as one system rather than a
-   button next to a text link (which is exactly how an unstyled <a> rendered:
-   default blue, underlined, sized by the paragraph around it). */
-.btn-outline {
-    background: rgba(186, 152, 87, 0.06);
-    color: var(--logo-gold-highlight);
-    border: 1.5px solid var(--logo-gold-bevel);
-    font-weight: 800;
-    font-size: clamp(14px, 1.2vw, 16px);
-    letter-spacing: 0.02em;
-    padding: clamp(14px, 2vw, 18px) clamp(28px, 3.5vw, 42px);
-    border-radius: var(--radius-md);
-    text-decoration: none;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 8px 24px rgba(0, 0, 0, 0.45);
-    transition: all var(--duration-normal) var(--ease-spring);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    cursor: pointer;
-    position: relative;
-    /* The hover fill is a ::before layer sent to z-index -1. Isolating the
-       button keeps that -1 inside its own stacking context, so the fill sits
-       behind the label text (a bare text node) and above the page. */
-    isolation: isolate;
-    overflow: hidden;
+    background: var(--color-surface-card);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-weight: var(--control-weight);
+    font-size: var(--control-size);
+    line-height: 1.4;
     text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color var(--duration-normal) ease,
+                color var(--duration-normal) ease,
+                background-color var(--duration-normal) ease;
 }
 
-.btn-outline::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: var(--gradient-gold-brushed);
-    opacity: 0;
-    transition: opacity var(--duration-normal) ease;
+.btn-gold { border-color: var(--text-gold-core); }
+.btn-secondary-glass { border-color: var(--border-muted); background: transparent; }
+
+:is(.btn-gold, .btn-secondary-glass, .btn-outline, .btn-dispatch):hover {
+    border-color: var(--text-gold-light);
+    color: var(--text-gold-light);
+    background: var(--color-surface-elevated);
 }
 
-.btn-outline:hover {
-    color: #050504;
-    border-color: var(--logo-gold-specular);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 34px rgba(186, 152, 87, 0.45);
+:is(.btn-gold, .btn-secondary-glass, .btn-outline, .btn-dispatch):disabled {
+    opacity: 0.5;
+    cursor: default;
 }
 
-.btn-outline:hover::before {
-    opacity: 1;
-}
-
-/* Size modifiers shared by every button family. */
-.btn-sm {
-    font-size: 13px;
-    padding: 11px 22px;
-}
-
-.btn-block {
-    width: 100%;
-    justify-content: center;
-}
+.btn-dispatch { font-size: 0.8rem; white-space: nowrap; padding: var(--space-2) var(--space-4); }
+.btn-sm { font-size: 0.8rem; padding: var(--space-2) var(--space-5); }
+.btn-block, .btn-gold--block { width: 100%; }
+.btn-gold--lg { font-size: 1rem; }
 
 @media (max-width: 850px) {
     .btn-dispatch { display: none; }
     .btn-gold, .btn-secondary-glass, .btn-outline { width: 100%; }
-}
-
-.btn-gold--block {
-    width: 100%;
-    justify-content: center;
-}
-
-.btn-gold--lg {
-    font-size: 17px;
 }
 }
 
@@ -769,11 +646,11 @@ body {
     max-width: 1240px;
     margin: 0 auto;
     background: rgba(9, 10, 9, 0.9);
-    border: 1px solid rgba(186, 152, 87, 0.38);
-    border-radius: var(--radius-full);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
     -webkit-backdrop-filter: blur(30px);
     backdrop-filter: blur(30px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.85), 0 0 35px rgba(186, 152, 87, 0.16);
+    box-shadow: none;
     padding: 7px 14px 7px 10px;
     display: flex;
     justify-content: space-between;
@@ -784,7 +661,7 @@ body {
 
 .hud-nav-island:hover {
     border-color: rgba(186, 152, 87, 0.65);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95), 0 0 45px rgba(186, 152, 87, 0.28);
+    box-shadow: none;
 }
 
 .brand-link {
@@ -799,19 +676,19 @@ body {
     height: 40px;
     width: auto;
     border-radius: var(--radius-sm);
-    box-shadow: 0 0 15px rgba(186, 152, 87, 0.35);
+    box-shadow: none;
     border: 1px solid rgba(186, 152, 87, 0.4);
     transition: transform var(--duration-normal) var(--ease-spring);
 }
 
 .brand-link:hover .brand-img {
-    transform: scale(1.08) rotate(-2deg);
+    transform: none;
 }
 
 .brand-title {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-brand);
     font-size: 17px;
-    font-weight: 900;
+    font-weight: 600;
     letter-spacing: 2px;
     color: var(--text-pure);
     line-height: 1;
@@ -819,7 +696,7 @@ body {
 
 .brand-subtitle {
     font-size: 8px;
-    font-weight: 800;
+    font-weight: var(--control-weight);
     color: var(--logo-gold-bevel);
     letter-spacing: 2.5px;
     text-transform: uppercase;
@@ -828,8 +705,8 @@ body {
 .segmented-nav-track {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: transparent;
+    border: 0;
     border-radius: var(--radius-full);
     padding: 3px;
     gap: 2px;
@@ -838,9 +715,12 @@ body {
 .nav-pill-item {
     color: var(--text-secondary);
     text-decoration: none;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
-    padding: 6px 14px;
+    padding: var(--space-2) var(--space-3);
+    min-height: var(--control-height);
+    display: inline-flex;
+    align-items: center;
     border-radius: var(--radius-full);
     transition: all var(--duration-fast) ease;
     white-space: nowrap;
@@ -848,8 +728,8 @@ body {
 
 .nav-pill-item:hover {
     color: #ffffff;
-    background: rgba(186, 152, 87, 0.15);
-    box-shadow: 0 0 12px rgba(186, 152, 87, 0.2);
+    background: var(--color-surface-glass);
+    box-shadow: none;
 }
 
 .nav-actions-cluster {
@@ -906,7 +786,7 @@ body {
     padding: var(--space-8) var(--space-6);
     flex-direction: column;
     gap: var(--space-5);
-    box-shadow: -15px 0 40px rgba(0, 0, 0, 0.9);
+    box-shadow: none;
     transition: right var(--duration-normal) var(--ease-spring);
 }
 
@@ -931,12 +811,14 @@ body {
     color: var(--text-primary);
     text-decoration: none;
     font-size: 16px;
-    font-weight: 700;
+    font-weight: var(--control-weight);
     padding: 10px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-family: var(--font-body);
+    min-height: var(--control-height);
 }
 
 .drawer-head {
@@ -947,10 +829,12 @@ body {
 }
 
 .drawer-title {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: 18px;
-    font-weight: 800;
+    font-weight: var(--display-weight);
     color: var(--text-pure);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .drawer-close {
@@ -1060,17 +944,18 @@ html[data-forge-fallback] .forge-track {
 }
 
 .forge-line {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(30px, 5.2vw, 58px);
-    font-weight: 900;
-    line-height: 1.12;
-    letter-spacing: -0.5px;
+    font-family: var(--font-brand);
+    font-size: clamp(30px, 5.2vw, 64px);
+    font-weight: 600;
+    line-height: 1.2;
     color: var(--text-pure);
     text-shadow: 0 2px 24px rgba(5, 5, 4, 0.85), 0 0 60px rgba(5, 5, 4, 0.6);
+    letter-spacing: 0.01em;
+    text-wrap: balance;
+    text-transform: none;
 }
 
-/* Gradient-clipped words ignore text-shadow; a dark drop-shadow keeps
-   the key word separated from the gold vortex converging behind it. */
+/* Keep the highlighted word legible against the converging gold emblem. */
 .forge-line .gold-gradient-text {
     filter: drop-shadow(0 2px 6px rgba(5, 5, 4, 0.95)) drop-shadow(0 0 26px rgba(5, 5, 4, 0.8));
 }
@@ -1215,68 +1100,62 @@ html[data-forge-fallback] .forge-cue {
 /* ── components/hero.css ─────────────────────────────────────── */
 @layer components {
 .hero {
-    padding: var(--space-16) 0 var(--space-12);
-    text-align: center;
+    padding: var(--section-air) 0 var(--space-12);
+    text-align: left;
     position: relative;
+    /* The emblem owns the intro. A calm opaque reading surface starts here. */
+    background: var(--color-void);
 }
 
-.emblem-wrapper {
-    position: relative;
-    display: inline-block;
-    perspective: 1000px;
-    margin-bottom: var(--space-5);
-}
-
+.hero .container { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--space-12); }
+.emblem-wrapper { grid-column: 2; grid-row: 1 / 4; perspective: 1000px; align-self: start; }
 .emblem-card {
-    width: clamp(140px, 22vw, 185px);
+    width: clamp(90px, 12vw, 150px);
     height: auto;
-    border-radius: var(--radius-xl);
-    box-shadow: 
-        0 25px 50px rgba(0, 0, 0, 0.95),
-        0 0 60px rgba(186, 152, 87, 0.4);
-    border: 2px solid rgba(186, 152, 87, 0.6);
-    transition: transform 0.1s ease-out, box-shadow var(--duration-normal) ease;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-gold-subtle);
+    transition: transform var(--duration-fast) ease-out;
     cursor: pointer;
     display: block;
 }
 
-.emblem-wrapper:hover .emblem-card {
-    box-shadow: 
-        0 35px 70px rgba(0, 0, 0, 0.98),
-        0 0 85px rgba(186, 152, 87, 0.7);
-}
-
 .hero-heading {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(34px, 5.5vw, 64px);
-    font-weight: 900;
-    line-height: 1.1;
-    letter-spacing: -0.5px;
-    margin-bottom: var(--space-5);
-    max-width: 1100px;
-    margin-left: auto;
-    margin-right: auto;
+    grid-column: 1;
+    font-family: var(--font-body);
+    font-size: var(--display-xl);
+    font-weight: var(--display-weight);
+    line-height: var(--display-leading);
+    letter-spacing: var(--display-tracking);
+    text-wrap: balance;
+    margin-bottom: var(--space-8);
+    max-width: 18ch;
 }
 
 .hero-lead {
-    font-size: clamp(15px, 1.8vw, 20px);
+    grid-column: 1;
+    font-size: var(--prose-size);
     color: var(--text-secondary);
-    max-width: 840px;
-    margin: 0 auto var(--space-8);
-    line-height: 1.65;
-    font-weight: 400;
+    max-width: var(--measure-display);
+    margin-bottom: var(--space-8);
+    line-height: var(--prose-leading);
 }
 
 .hero-actions {
+    grid-column: 1;
     display: flex;
-    justify-content: center;
-    gap: var(--space-4);
+    align-items: center;
+    gap: var(--space-6);
     flex-wrap: wrap;
-    margin-bottom: var(--space-12);
+    margin-bottom: var(--space-16);
 }
+.hero .metrics-grid { grid-column: 1 / -1; }
 
 @media (max-width: 850px) {
-    .hero-actions { flex-direction: column; align-items: stretch; }
+    .hero .container { grid-template-columns: minmax(0, 1fr); }
+    .emblem-wrapper { grid-column: 1; grid-row: auto; margin-bottom: var(--space-8); }
+    .emblem-card { width: 72px; }
+    .hero-heading { font-size: clamp(2.8rem, 9vw, 4.2rem); }
+    .hero-actions { align-items: stretch; flex-direction: column; gap: var(--space-4); }
 }
 }
 
@@ -1286,24 +1165,25 @@ html[data-forge-fallback] .forge-cue {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: var(--space-4);
-    background: var(--color-surface-card);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-xl);
-    padding: var(--space-6) var(--space-8);
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+    background: transparent;
+    border: 0;
+    border-top: 1px solid var(--border-subtle);
+    border-radius: 0;
+    padding: var(--space-8) 0;
+    box-shadow: none;
     -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
 }
 
 .metric-item {
-    text-align: center;
+    text-align: left;
     padding: var(--space-2);
 }
 
 .metric-val {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-body);
     font-size: clamp(24px, 3vw, 32px);
-    font-weight: 800;
+    font-weight: var(--display-weight);
     color: var(--logo-gold-specular);
     margin-bottom: 4px;
 }
@@ -1312,7 +1192,7 @@ html[data-forge-fallback] .forge-cue {
     font-size: clamp(11px, 1.1vw, 13px);
     color: var(--text-secondary);
     text-transform: uppercase;
-    font-weight: 700;
+    font-weight: var(--control-weight);
     letter-spacing: 0.5px;
 }
 
@@ -1333,7 +1213,7 @@ html[data-forge-fallback] .forge-cue {
     position: relative;
     flex: 1;
     height: 100%;
-    background: linear-gradient(180deg, #131413 0%, #0a0b0a 100%);
+    background: var(--color-surface-card);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-xl);
     overflow: hidden;
@@ -1345,14 +1225,14 @@ html[data-forge-fallback] .forge-cue {
                 box-shadow var(--duration-slide) var(--ease-studio),
                 background var(--duration-slow) ease;
     display: flex;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+    box-shadow: none;
 }
 
 .bookshelf-spine:hover, .bookshelf-spine.active {
     flex: 4.5;
     border-color: var(--border-gold-bright);
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px var(--gold-glow-intense);
-    background: linear-gradient(180deg, #1a1c1a 0%, #0d0f0d 100%);
+    box-shadow: none;
+    background: var(--color-surface-card-hover);
 }
 
 .spine-rail {
@@ -1389,21 +1269,22 @@ html[data-forge-fallback] .forge-cue {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+    box-shadow: none;
     flex-shrink: 0;
 }
 
 .spine-vertical-title {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: 15px;
-    font-weight: 800;
+    font-weight: var(--display-weight);
     color: #ffffff;
-    letter-spacing: 2px;
     writing-mode: vertical-rl;
     transform: rotate(180deg);
     white-space: nowrap;
     margin-top: auto;
     margin-bottom: auto;
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .spine-expanded-payload {
@@ -1483,13 +1364,15 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .payload-heading {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: 26px;
-    font-weight: 900;
+    font-weight: var(--display-weight);
     color: #ffffff;
     margin-bottom: 12px;
     line-height: 1.15;
     max-width: 18ch;
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .payload-desc {
@@ -1523,18 +1406,20 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .btn-select-division {
-    background: var(--gradient-gold-brushed-ui);
-    color: #050504;
-    font-weight: 800;
-    font-size: 13px;
+    background: var(--color-surface-card);
+    color: var(--text-primary);
+    font-weight: var(--control-weight);
+    font-family: var(--font-body);
+    font-size: var(--control-size);
     padding: 10px 20px;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-full);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 0 15px rgba(186, 152, 87, 0.3);
-    border: none;
+    box-shadow: none;
+    border: 1px solid var(--border-gold-subtle);
+    min-height: var(--control-height);
     cursor: pointer;
     width: fit-content;
 }
@@ -1628,11 +1513,11 @@ html[data-forge-fallback] .forge-cue {
 /* ── components/protocol.css ─────────────────────────────────── */
 @layer components {
 .protocol-hub {
-    background: linear-gradient(180deg, rgba(18, 19, 18, 0.95) 0%, rgba(9, 10, 9, 0.98) 100%);
+    background: var(--color-surface-card);
     border: 1px solid var(--border-gold-subtle);
-    border-radius: var(--radius-2xl);
+    border-radius: var(--radius-lg);
     padding: clamp(24px, 4vw, 48px);
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+    box-shadow: none;
     margin-top: var(--space-10);
     position: relative;
     -webkit-backdrop-filter: blur(24px);
@@ -1659,6 +1544,8 @@ html[data-forge-fallback] .forge-cue {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    font-family: var(--font-body);
+    min-height: var(--control-height);
 }
 
 .protocol-stepper-btn::after {
@@ -1681,7 +1568,7 @@ html[data-forge-fallback] .forge-cue {
 .protocol-stepper-btn.active {
     background: rgba(186, 152, 87, 0.16);
     border-color: var(--border-gold-bright);
-    box-shadow: 0 0 20px rgba(186, 152, 87, 0.25);
+    box-shadow: none;
     transform: translateY(-2px);
 }
 
@@ -1696,10 +1583,12 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .step-name {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: clamp(13px, 1.2vw, 15px);
-    font-weight: 800;
+    font-weight: var(--display-weight);
     color: #ffffff;
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .protocol-stage-content {
@@ -1720,12 +1609,14 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .stage-hero-heading {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: clamp(24px, 3vw, 34px);
-    font-weight: 900;
+    font-weight: var(--display-weight);
     color: #ffffff;
     line-height: 1.15;
     margin-bottom: var(--space-4);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .stage-paragraph {
@@ -1770,11 +1661,11 @@ html[data-forge-fallback] .forge-cue {
 /* ── components/assessment.css ───────────────────────────────── */
 @layer components {
 .assessment-wrapper {
-    background: linear-gradient(180deg, rgba(18, 19, 18, 0.95) 0%, rgba(9, 10, 9, 0.98) 100%);
+    background: var(--color-surface-card);
     border: 1px solid var(--border-gold-subtle);
-    border-radius: var(--radius-2xl);
+    border-radius: var(--radius-lg);
     padding: clamp(20px, 4vw, 40px);
-    box-shadow: 0 25px 60px rgba(0,0,0,0.85);
+    box-shadow: none;
     max-width: 960px;
     margin: var(--space-8) auto 0;
     -webkit-backdrop-filter: blur(20px);
@@ -1785,10 +1676,12 @@ html[data-forge-fallback] .forge-cue {
 .threat-quiz-step.active { display: block; }
 
 .quiz-q-title {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: clamp(18px, 2.5vw, 24px);
     color: #fff;
     margin-bottom: var(--space-4);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .quiz-options-grid {
@@ -1805,20 +1698,22 @@ html[data-forge-fallback] .forge-cue {
     padding: clamp(12px, 2vw, 16px) clamp(14px, 2.5vw, 20px);
     border-radius: var(--radius-md);
     font-size: clamp(13px, 1.1vw, 14px);
-    font-weight: 600;
+    font-weight: var(--control-weight);
     cursor: pointer;
     text-align: left;
     transition: all var(--duration-fast) ease;
     display: flex;
     align-items: center;
     gap: 12px;
+    font-family: var(--font-body);
+    min-height: var(--control-height);
 }
 
 .quiz-option-btn:hover, .quiz-option-btn.selected {
     background: rgba(186, 152, 87, 0.18);
     border-color: var(--logo-gold-bevel);
     color: var(--logo-gold-specular);
-    box-shadow: 0 0 15px rgba(186, 152, 87, 0.25);
+    box-shadow: none;
 }
 
 
@@ -1827,10 +1722,12 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .quiz-result-heading {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: clamp(20px, 3vw, 26px);
     color: var(--text-pure);
     margin-bottom: 8px;
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .quiz-result-rec {
@@ -1858,11 +1755,11 @@ html[data-forge-fallback] .forge-cue {
 /* ── components/estimator.css ────────────────────────────────── */
 @layer components {
 .estimator-card {
-    background: linear-gradient(180deg, rgba(18, 19, 18, 0.95) 0%, rgba(9, 10, 9, 0.98) 100%);
+    background: var(--color-surface-card);
     border: 1px solid var(--border-gold-subtle);
-    border-radius: var(--radius-2xl);
+    border-radius: var(--radius-lg);
     padding: clamp(20px, 4vw, 44px);
-    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.85), 0 0 50px var(--gold-glow-soft);
+    box-shadow: none;
     max-width: 980px;
     margin: var(--space-8) auto 0;
     -webkit-backdrop-filter: blur(24px);
@@ -1905,17 +1802,19 @@ html[data-forge-fallback] .forge-cue {
     padding: clamp(10px, 1.5vw, 14px) 6px;
     border-radius: var(--radius-md);
     font-size: clamp(10.5px, 1vw, 12px);
-    font-weight: 700;
+    font-weight: var(--control-weight);
     cursor: pointer;
     text-align: center;
     transition: all var(--duration-normal) var(--ease-spring);
+    font-family: var(--font-body);
+    min-height: var(--control-height);
 }
 
 .tier-button.active {
     background: rgba(186, 152, 87, 0.2);
     border-color: var(--logo-gold-bevel);
     color: var(--logo-gold-specular);
-    box-shadow: 0 0 20px rgba(186, 152, 87, 0.3);
+    box-shadow: none;
     transform: translateY(-2px);
 }
 
@@ -1925,7 +1824,7 @@ html[data-forge-fallback] .forge-cue {
     appearance: none;
     height: 10px;
     border-radius: var(--radius-sm);
-    background: #1e293b;
+    background: var(--border-muted);
     outline: none;
 }
 
@@ -1944,7 +1843,7 @@ html[data-forge-fallback] .forge-cue {
     border-radius: var(--radius-full);
     background: var(--logo-gold-bevel);
     cursor: pointer;
-    box-shadow: 0 0 14px var(--logo-gold-bevel);
+    box-shadow: none;
     transition: transform var(--duration-fast) ease;
 }
 
@@ -1960,28 +1859,28 @@ html[data-forge-fallback] .forge-cue {
     border-radius: var(--radius-full);
     background: var(--logo-gold-bevel);
     cursor: pointer;
-    box-shadow: 0 0 14px var(--logo-gold-bevel);
+    box-shadow: none;
 }
 
 .range-slider::-moz-range-track {
     height: 10px;
     border-radius: var(--radius-sm);
-    background: #1e293b;
+    background: var(--border-muted);
 }
 
 .estimate-summary-box {
-    background: #04060a;
+    background: var(--color-surface-base);
     border: 1px solid var(--border-gold-subtle);
     border-radius: var(--radius-lg);
     padding: clamp(24px, 3vw, 36px) clamp(16px, 2vw, 24px);
     text-align: center;
-    box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.9);
+    box-shadow: none;
 }
 
 .price-output {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-body);
     font-size: clamp(36px, 5vw, 54px);
-    font-weight: 900;
+    font-weight: var(--display-weight);
     color: var(--text-pure);
     margin: 10px 0 4px;
 }
@@ -1993,7 +1892,6 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .tier-button {
-    font-family: inherit;
     appearance: none;
     -webkit-appearance: none;
 }
@@ -2047,13 +1945,13 @@ html[data-forge-fallback] .forge-cue {
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-xl);
     padding: clamp(20px, 3vw, 32px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+    box-shadow: none;
     transition: border-color var(--duration-normal) ease, box-shadow var(--duration-normal) ease, transform var(--duration-normal) var(--ease-spring);
 }
 
 .standard-card:hover {
     border-color: var(--border-gold-subtle);
-    box-shadow: 0 25px 55px rgba(0, 0, 0, 0.85), 0 0 30px var(--gold-glow-soft);
+    box-shadow: none;
     transform: translateY(-3px);
 }
 
@@ -2064,24 +1962,28 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .standard-index {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: 34px;
-    font-weight: 900;
-    /* 0.35 composited to 1.87:1 over the card. 34px at weight 900 is large
+    font-weight: var(--display-weight);
+    /* 0.35 composited to 1.87:1 over the card. 34px at weight 400 is large
        text, so the floor is 3:1 rather than 4.5:1; 0.62 measures 3.37:1.
        That margin is thin — if this numeral ever drops below 24px, or below
        18.66px bold, it needs 4.5:1 and this value is no longer enough.
        A11Y-AUDIT.md A-02. */
     color: rgba(186, 152, 87, 0.62);
     margin-bottom: 12px;
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .standard-title {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: 20px;
-    font-weight: 800;
+    font-weight: var(--display-weight);
     margin-bottom: 10px;
     color: var(--text-pure);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .standard-body {
@@ -2096,11 +1998,11 @@ html[data-forge-fallback] .forge-cue {
 .form-shell {
     background: var(--color-surface-card);
     border: 1px solid var(--border-gold-subtle);
-    border-radius: var(--radius-2xl);
+    border-radius: var(--radius-lg);
     padding: clamp(20px, 4vw, 44px);
     max-width: 940px;
     margin: 0 auto;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+    box-shadow: none;
     -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
 }
@@ -2129,15 +2031,17 @@ html[data-forge-fallback] .forge-cue {
     color: var(--text-primary);
     padding: clamp(12px, 1.8vw, 16px) clamp(14px, 2vw, 18px);
     border-radius: var(--radius-md);
-    font-size: clamp(14px, 1.1vw, 15px);
-    outline: none;
+    font-size: 16px;
+    font-family: var(--font-body);
+    outline: revert;
     transition: all var(--duration-normal) ease;
 }
 
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
     border-color: var(--logo-gold-bevel);
-    box-shadow: 0 0 0 3px rgba(186, 152, 87, 0.25);
-    background: #0b0c0b;
+    outline: 2px solid var(--text-gold-light);
+    outline-offset: 3px;
+    background: var(--color-surface-base);
 }
 
 .form-field--notes {
@@ -2256,32 +2160,34 @@ html[data-forge-fallback] .forge-cue {
 /* ── Hero ─────────────────────────────────────────────────────────── */
 .careers-hero-section {
     padding: clamp(100px, 14vw, 150px) 0 clamp(40px, 6vw, 60px);
-    background: radial-gradient(circle at 50% 20%, rgba(186, 152, 87, 0.08) 0%, transparent 70%);
+    background: var(--color-void);
 }
 
 .careers-hero-content {
-    max-width: 860px;
-    margin: 0 auto clamp(36px, 6vw, 56px);
-    text-align: center;
+    max-width: none;
+    margin-bottom: var(--space-16);
+    text-align: left;
 }
 
 .careers-hero-title {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(32px, 5.5vw, 56px);
-    font-weight: 900;
-    line-height: 1.1;
+    max-width: 15ch;
+    text-wrap: balance;
+    font-family: var(--font-body);
+    font-size: var(--display-xl);
+    font-weight: var(--display-weight);
+    line-height: var(--display-leading);
     margin: var(--space-4) 0;
-    letter-spacing: -0.01em;
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
-/* The highlighted half of the headline is a single phrase. Left to wrap it
-   breaks as "COUNTS" / "HERE" at desktop widths, stranding one word on its
-   own line; the browser now breaks before the span instead. */
+/* The editorial heading can wrap naturally even on narrow phones. */
 .careers-hero-title .gold-gradient-text {
-    white-space: nowrap;
+    white-space: normal;
 }
 
 .careers-hero-lead {
+    max-width: var(--measure-display);
     font-size: clamp(16px, 1.25vw, 19px);
     color: var(--text-secondary);
     line-height: 1.7;
@@ -2290,7 +2196,7 @@ html[data-forge-fallback] .forge-cue {
 
 .careers-hero-actions {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     gap: var(--space-4);
     flex-wrap: wrap;
 }
@@ -2335,15 +2241,17 @@ html[data-forge-fallback] .forge-cue {
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: var(--space-6);
-    text-align: center;
+    text-align: left;
     backdrop-filter: blur(10px);
 }
 
 .careers-metric-card .metric-val {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: clamp(24px, 3vw, 32px);
-    font-weight: 800;
+    font-weight: var(--display-weight);
     margin-bottom: var(--space-2);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .careers-metric-card .metric-lbl {
@@ -2356,8 +2264,8 @@ html[data-forge-fallback] .forge-cue {
 
 /* ── Pre-Qualification ─────────────────────────────────────────────── */
 .careers-prequal-section {
-    padding: clamp(50px, 8vw, 80px) 0;
-    background: var(--surface-section-sunken);
+    padding: var(--section-air) 0;
+    background: var(--color-surface-base);
     border-top: 1px solid var(--border-subtle);
     border-bottom: 1px solid var(--border-subtle);
 }
@@ -2486,7 +2394,7 @@ html[data-forge-fallback] .forge-cue {
 
 /* ── Benefits Grid ─────────────────────────────────────────────────── */
 .careers-benefits-section {
-    padding: clamp(60px, 9vw, 100px) 0;
+    padding: var(--section-air) 0;
 }
 
 .benefits-grid {
@@ -2517,11 +2425,13 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .benefit-title {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: 18px;
-    font-weight: 700;
+    font-weight: var(--display-weight);
     color: var(--text-primary);
     margin-bottom: var(--space-3);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .benefit-desc {
@@ -2532,8 +2442,8 @@ html[data-forge-fallback] .forge-cue {
 
 /* ── Positions Board ───────────────────────────────────────────────── */
 .careers-positions-section {
-    padding: clamp(60px, 9vw, 100px) 0;
-    background: var(--surface-section-deep);
+    padding: var(--section-air) 0;
+    background: var(--color-void);
 }
 
 .filter-tabs-track {
@@ -2545,9 +2455,10 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .filter-tab-btn {
-    font-family: 'Outfit', sans-serif;
+    min-height: var(--control-height);
+    font-family: var(--font-body);
     font-size: 14px;
-    font-weight: 700;
+    font-weight: var(--control-weight);
     padding: 10px 18px;
     background: var(--color-surface-elevated);
     border: 1px solid var(--border-muted);
@@ -2558,9 +2469,9 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .filter-tab-btn:hover, .filter-tab-btn.active {
-    background: var(--gradient-gold-brushed-ui);
-    color: #050504;
-    border-color: transparent;
+    background: var(--color-surface-card);
+    color: var(--text-gold-light);
+    border-color: var(--text-gold-core);
 }
 
 /* Pay scale strip. Reuses the hero metric card so the four license bands
@@ -2571,12 +2482,14 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .pay-scale-heading {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: clamp(16px, 2vw, 20px);
-    font-weight: 700;
+    font-weight: var(--display-weight);
     color: var(--text-primary);
     text-align: center;
     margin-bottom: var(--space-4);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .pay-scale-unit {
@@ -2679,11 +2592,13 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .position-title {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: clamp(20px, 2.5vw, 24px);
-    font-weight: 700;
+    font-weight: var(--display-weight);
     margin-bottom: var(--space-4);
     color: var(--text-primary);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .position-stats-strip {
@@ -2770,20 +2685,22 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .position-toggle-btn {
+    min-height: var(--control-height);
     background: none;
     border: none;
     color: var(--logo-gold-core);
     font-size: 14px;
-    font-weight: 700;
+    font-weight: var(--control-weight);
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 6px;
+    font-family: var(--font-body);
 }
 
 /* ── Vetting Protocol ──────────────────────────────────────────────── */
 .careers-vetting-section {
-    padding: clamp(60px, 9vw, 100px) 0;
+    padding: var(--section-air) 0;
 }
 
 .vetting-stepper-track {
@@ -2828,10 +2745,12 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .stage-heading {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: 18px;
-    font-weight: 700;
+    font-weight: var(--display-weight);
     margin-bottom: var(--space-2);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .stage-text {
@@ -2852,7 +2771,7 @@ html[data-forge-fallback] .forge-cue {
 
 /* ── Candidate Intake Form ─────────────────────────────────────────── */
 .careers-apply-section {
-    padding: clamp(60px, 9vw, 100px) 0;
+    padding: var(--section-air) 0;
     background: var(--surface-section-framed);
     border-top: 1px solid var(--border-subtle);
 }
@@ -2892,7 +2811,7 @@ html[data-forge-fallback] .forge-cue {
     border-radius: var(--radius-sm);
     color: var(--text-primary);
     padding: 12px 14px;
-    font-size: 14px;
+    font-size: 16px;
     font-family: 'Outfit', sans-serif;
     transition: border-color var(--duration-fast);
 }
@@ -2961,6 +2880,8 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .legal-section h2 {
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
     font-size: clamp(17px, 1.6vw, 20px);
     color: var(--logo-gold-specular);
     margin-bottom: var(--space-3);
@@ -3019,6 +2940,18 @@ html[data-forge-fallback] .forge-cue {
     color: var(--logo-gold-highlight);
     overflow-wrap: anywhere;
 }
+
+/* Export uses the same type scale even though it has a smaller CSS bundle. */
+.inv-moved h1 {
+    font-family: var(--font-body);
+    font-size: var(--display-md);
+    font-weight: var(--display-weight);
+    line-height: var(--display-leading);
+    letter-spacing: var(--display-tracking);
+    text-wrap: balance;
+}
+
+.inv-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
 
 .inv-moved pre {
     background: #060706;
@@ -3140,15 +3073,9 @@ html[data-forge-fallback] .forge-cue {
     border: 1px solid var(--border-gold-bright);
     border-radius: var(--radius-full);
     padding: 6px 14px 6px 10px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), 0 0 25px var(--gold-glow-soft);
+    box-shadow: none;
     -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
-    animation: pulseGlow 3s infinite alternate;
-}
-
-@keyframes pulseGlow {
-    0% { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), 0 0 15px rgba(186, 152, 87, 0.2); }
-    100% { box-shadow: 0 10px 35px rgba(0, 0, 0, 0.95), 0 0 30px rgba(186, 152, 87, 0.5); }
 }
 
 .pulse-dot {
@@ -3156,21 +3083,16 @@ html[data-forge-fallback] .forge-cue {
     height: 8px;
     background: var(--color-emerald);
     border-radius: var(--radius-full);
-    box-shadow: 0 0 10px var(--color-emerald);
-    animation: pulseWave 1.8s infinite ease-in-out;
+    box-shadow: none;
     flex-shrink: 0;
 }
 
-@keyframes pulseWave {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.4); opacity: 0.4; }
-}
-
 .btn-quick-call {
-    background: var(--gradient-gold-brushed-ui);
-    color: #050504;
-    font-weight: 800;
+    background: var(--color-surface-card);
+    color: var(--text-primary);
+    font-weight: var(--control-weight);
     font-size: clamp(11px, 1.1vw, 13px);
+    border: 1px solid var(--border-gold-subtle);
     padding: 6px 14px;
     min-height: 44px;
     border-radius: var(--radius-full);
@@ -3207,7 +3129,7 @@ html[data-forge-fallback] .forge-cue {
     height: auto;
     border-radius: var(--radius-md);
     margin-bottom: var(--space-5);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), 0 0 30px var(--gold-glow-soft);
+    box-shadow: none;
 }
 
 .footer-menu {
@@ -3294,9 +3216,9 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .footer-wordmark {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-brand);
     font-size: clamp(18px, 2.5vw, 24px);
-    font-weight: 900;
+    font-weight: 600;
     color: var(--text-pure);
     letter-spacing: 1.5px;
     margin-bottom: 6px;
@@ -3325,14 +3247,11 @@ html[data-forge-fallback] .forge-cue {
 }
 
 .font-mono {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
 }
 
 .gold-gradient-text {
-    background: var(--gradient-gold-metallic);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 2px 10px rgba(186, 152, 87, 0.4));
+    color: var(--text-gold-light);
 }
 
 /* Available to assistive tech, removed from the visual flow. */

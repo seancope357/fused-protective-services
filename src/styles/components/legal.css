@@ -35,6 +35,8 @@
 }
 
 .legal-section h2 {
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
     font-size: clamp(17px, 1.6vw, 20px);
     color: var(--logo-gold-specular);
     margin-bottom: var(--space-3);
@@ -93,6 +95,18 @@
     color: var(--logo-gold-highlight);
     overflow-wrap: anywhere;
 }
+
+/* Export uses the same type scale even though it has a smaller CSS bundle. */
+.inv-moved h1 {
+    font-family: var(--font-body);
+    font-size: var(--display-md);
+    font-weight: var(--display-weight);
+    line-height: var(--display-leading);
+    letter-spacing: var(--display-tracking);
+    text-wrap: balance;
+}
+
+.inv-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
 
 .inv-moved pre {
     background: #060706;

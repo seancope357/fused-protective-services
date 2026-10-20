@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { storyPose, sensorEnvelope, arrivalWeight, stabilizationPose } from '../js/aerial/choreography.mjs';
+import { storyPose, stabilizationPose } from '../js/aerial/choreography.mjs';
 
 const distance = (a, b) => Math.hypot(...a.map((v, i) => v - b[i]));
 test('opening keeps the approved hero while allowing a restrained orbit before the reveal', () => {
@@ -29,13 +29,6 @@ test('curved camera and look target retain continuous velocity across authored s
     const a=storyPose(.17,1.5).position,b=storyPose(.22,1.5).position,c=storyPose(.27,1.5).position;
     const ab=b.map((v,i)=>v-a[i]),bc=c.map((v,i)=>v-b[i]);
     assert.ok(Math.hypot(ab[1]*bc[2]-ab[2]*bc[1],ab[2]*bc[0]-ab[0]*bc[2],ab[0]*bc[1]-ab[1]*bc[0])>.01,'journey is not a straight-segment dolly');
-});
-test('sensor reveal holds around arrival and remains bounded and reversible', () => {
-    assert.equal(sensorEnvelope(0),0);assert.equal(sensorEnvelope(1),0);
-    for(const u of [.64,2/3,.72,.78])assert.equal(sensorEnvelope(u),1);
-    for(let i=0;i<=1000;i++){const u=i/1000;assert.ok(sensorEnvelope(u)>=0&&sensorEnvelope(u)<=1);assert.equal(sensorEnvelope(u),sensorEnvelope(u));}
-    assert.equal(arrivalWeight(0,0),1);assert.equal(arrivalWeight(20,10),0);
-    assert.ok(arrivalWeight(.5,.2)>arrivalWeight(3,2));
 });
 test('stabilization is deterministic, subtle and absent under reduced motion', () => {
     for(let t=0;t<100;t+=.17){

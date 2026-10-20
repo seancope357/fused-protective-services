@@ -6,32 +6,34 @@
 /* ── Hero ─────────────────────────────────────────────────────────── */
 .careers-hero-section {
     padding: clamp(100px, 14vw, 150px) 0 clamp(40px, 6vw, 60px);
-    background: radial-gradient(circle at 50% 20%, rgba(186, 152, 87, 0.08) 0%, transparent 70%);
+    background: var(--color-void);
 }
 
 .careers-hero-content {
-    max-width: 860px;
-    margin: 0 auto clamp(36px, 6vw, 56px);
-    text-align: center;
+    max-width: none;
+    margin-bottom: var(--space-16);
+    text-align: left;
 }
 
 .careers-hero-title {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(32px, 5.5vw, 56px);
-    font-weight: 900;
-    line-height: 1.1;
+    max-width: 15ch;
+    text-wrap: balance;
+    font-family: var(--font-body);
+    font-size: var(--display-xl);
+    font-weight: var(--display-weight);
+    line-height: var(--display-leading);
     margin: var(--space-4) 0;
-    letter-spacing: -0.01em;
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
-/* The highlighted half of the headline is a single phrase. Left to wrap it
-   breaks as "COUNTS" / "HERE" at desktop widths, stranding one word on its
-   own line; the browser now breaks before the span instead. */
+/* The editorial heading can wrap naturally even on narrow phones. */
 .careers-hero-title .gold-gradient-text {
-    white-space: nowrap;
+    white-space: normal;
 }
 
 .careers-hero-lead {
+    max-width: var(--measure-display);
     font-size: clamp(16px, 1.25vw, 19px);
     color: var(--text-secondary);
     line-height: 1.7;
@@ -40,7 +42,7 @@
 
 .careers-hero-actions {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     gap: var(--space-4);
     flex-wrap: wrap;
 }
@@ -85,15 +87,17 @@
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     padding: var(--space-6);
-    text-align: center;
+    text-align: left;
     backdrop-filter: blur(10px);
 }
 
 .careers-metric-card .metric-val {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: clamp(24px, 3vw, 32px);
-    font-weight: 800;
+    font-weight: var(--display-weight);
     margin-bottom: var(--space-2);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .careers-metric-card .metric-lbl {
@@ -106,8 +110,8 @@
 
 /* ── Pre-Qualification ─────────────────────────────────────────────── */
 .careers-prequal-section {
-    padding: clamp(50px, 8vw, 80px) 0;
-    background: var(--surface-section-sunken);
+    padding: var(--section-air) 0;
+    background: var(--color-surface-base);
     border-top: 1px solid var(--border-subtle);
     border-bottom: 1px solid var(--border-subtle);
 }
@@ -236,7 +240,7 @@
 
 /* ── Benefits Grid ─────────────────────────────────────────────────── */
 .careers-benefits-section {
-    padding: clamp(60px, 9vw, 100px) 0;
+    padding: var(--section-air) 0;
 }
 
 .benefits-grid {
@@ -267,11 +271,13 @@
 }
 
 .benefit-title {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: 18px;
-    font-weight: 700;
+    font-weight: var(--display-weight);
     color: var(--text-primary);
     margin-bottom: var(--space-3);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .benefit-desc {
@@ -282,8 +288,8 @@
 
 /* ── Positions Board ───────────────────────────────────────────────── */
 .careers-positions-section {
-    padding: clamp(60px, 9vw, 100px) 0;
-    background: var(--surface-section-deep);
+    padding: var(--section-air) 0;
+    background: var(--color-void);
 }
 
 .filter-tabs-track {
@@ -295,9 +301,10 @@
 }
 
 .filter-tab-btn {
-    font-family: 'Outfit', sans-serif;
+    min-height: var(--control-height);
+    font-family: var(--font-body);
     font-size: 14px;
-    font-weight: 700;
+    font-weight: var(--control-weight);
     padding: 10px 18px;
     background: var(--color-surface-elevated);
     border: 1px solid var(--border-muted);
@@ -308,9 +315,9 @@
 }
 
 .filter-tab-btn:hover, .filter-tab-btn.active {
-    background: var(--gradient-gold-brushed-ui);
-    color: #050504;
-    border-color: transparent;
+    background: var(--color-surface-card);
+    color: var(--text-gold-light);
+    border-color: var(--text-gold-core);
 }
 
 /* Pay scale strip. Reuses the hero metric card so the four license bands
@@ -321,12 +328,14 @@
 }
 
 .pay-scale-heading {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: clamp(16px, 2vw, 20px);
-    font-weight: 700;
+    font-weight: var(--display-weight);
     color: var(--text-primary);
     text-align: center;
     margin-bottom: var(--space-4);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .pay-scale-unit {
@@ -429,11 +438,13 @@
 }
 
 .position-title {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: clamp(20px, 2.5vw, 24px);
-    font-weight: 700;
+    font-weight: var(--display-weight);
     margin-bottom: var(--space-4);
     color: var(--text-primary);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .position-stats-strip {
@@ -520,20 +531,22 @@
 }
 
 .position-toggle-btn {
+    min-height: var(--control-height);
     background: none;
     border: none;
     color: var(--logo-gold-core);
     font-size: 14px;
-    font-weight: 700;
+    font-weight: var(--control-weight);
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 6px;
+    font-family: var(--font-body);
 }
 
 /* ── Vetting Protocol ──────────────────────────────────────────────── */
 .careers-vetting-section {
-    padding: clamp(60px, 9vw, 100px) 0;
+    padding: var(--section-air) 0;
 }
 
 .vetting-stepper-track {
@@ -578,10 +591,12 @@
 }
 
 .stage-heading {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: 18px;
-    font-weight: 700;
+    font-weight: var(--display-weight);
     margin-bottom: var(--space-2);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .stage-text {
@@ -602,7 +617,7 @@
 
 /* ── Candidate Intake Form ─────────────────────────────────────────── */
 .careers-apply-section {
-    padding: clamp(60px, 9vw, 100px) 0;
+    padding: var(--section-air) 0;
     background: var(--surface-section-framed);
     border-top: 1px solid var(--border-subtle);
 }
@@ -642,7 +657,7 @@
     border-radius: var(--radius-sm);
     color: var(--text-primary);
     padding: 12px 14px;
-    font-size: 14px;
+    font-size: 16px;
     font-family: 'Outfit', sans-serif;
     transition: border-color var(--duration-fast);
 }

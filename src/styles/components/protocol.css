@@ -1,10 +1,10 @@
 @layer components {
 .protocol-hub {
-    background: linear-gradient(180deg, rgba(18, 19, 18, 0.95) 0%, rgba(9, 10, 9, 0.98) 100%);
+    background: var(--color-surface-card);
     border: 1px solid var(--border-gold-subtle);
-    border-radius: var(--radius-2xl);
+    border-radius: var(--radius-lg);
     padding: clamp(24px, 4vw, 48px);
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+    box-shadow: none;
     margin-top: var(--space-10);
     position: relative;
     -webkit-backdrop-filter: blur(24px);
@@ -31,6 +31,8 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    font-family: var(--font-body);
+    min-height: var(--control-height);
 }
 
 .protocol-stepper-btn::after {
@@ -53,7 +55,7 @@
 .protocol-stepper-btn.active {
     background: rgba(186, 152, 87, 0.16);
     border-color: var(--border-gold-bright);
-    box-shadow: 0 0 20px rgba(186, 152, 87, 0.25);
+    box-shadow: none;
     transform: translateY(-2px);
 }
 
@@ -68,10 +70,12 @@
 }
 
 .step-name {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: clamp(13px, 1.2vw, 15px);
-    font-weight: 800;
+    font-weight: var(--display-weight);
     color: #ffffff;
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .protocol-stage-content {
@@ -92,12 +96,14 @@
 }
 
 .stage-hero-heading {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: clamp(24px, 3vw, 34px);
-    font-weight: 900;
+    font-weight: var(--display-weight);
     color: #ffffff;
     line-height: 1.15;
     margin-bottom: var(--space-4);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .stage-paragraph {

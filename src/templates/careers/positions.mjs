@@ -19,7 +19,7 @@ export const careersPositions = () => html`
     <div class="container">
         <div class="section-header-centered" data-reveal>
             <div class="tactical-badge">ACTIVE REQUISITIONS</div>
-            <h2 class="section-title">DEPLOYMENT ROSTER OPENINGS</h2>
+            <h2 class="section-title">Deployment roster openings</h2>
             <p class="section-lead">
                 Review active contractual security assignments across the greater Austin and San Antonio areas and statewide Texas. Select a requisition to inspect operational duties and prerequisite licensing.
             </p>

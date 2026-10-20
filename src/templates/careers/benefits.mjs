@@ -11,7 +11,7 @@ export const careersBenefits = () => html`
     <div class="container">
         <div class="section-header-centered" data-reveal>
             <div class="tactical-badge">OPERATIONAL CULTURE</div>
-            <h2 class="section-title">THE FUSED STANDARD FOR OFFICERS</h2>
+            <h2 class="section-title">The Fused standard for officers</h2>
             <p class="section-lead">
                 We demand the top 5% of protective talent, whether it comes from military service, law enforcement, or confirmed skilled civilian protection work. In return, we invest heavily in your tactical capabilities, support your gear loadout, and respect your operational professionalism.
             </p>

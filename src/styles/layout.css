@@ -1,52 +1,48 @@
 @layer layout {
-/* Section Commons */
 .section-padding {
-    padding: var(--space-16) 0;
+    padding: var(--section-air) 0;
     position: relative;
+    background: var(--color-void);
 }
 
-.section-tag {
+.section-tag, .tactical-eyebrow, .tactical-badge {
     display: inline-block;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--logo-gold-bevel);
+    font-family: var(--font-body);
+    font-size: var(--label-size);
+    font-weight: var(--control-weight);
+    color: var(--text-gold-light);
     text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: var(--space-2);
+    letter-spacing: var(--label-tracking);
+    margin-bottom: var(--space-5);
 }
 
 .section-title {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(28px, 4vw, 42px);
-    font-weight: 800;
-    margin-bottom: var(--space-3);
-    letter-spacing: -0.5px;
+    font-family: var(--font-body);
+    font-size: var(--display-lg);
+    font-weight: var(--display-weight);
+    line-height: var(--display-leading);
+    letter-spacing: var(--display-tracking);
+    text-wrap: balance;
+    max-width: 20ch;
+    margin-bottom: var(--space-6);
 }
 
-.section-desc {
-    font-size: clamp(14px, 1.5vw, 17px);
+.section-desc, .section-lead {
+    font-size: var(--prose-size);
+    line-height: var(--prose-leading);
     color: var(--text-secondary);
-    max-width: 720px;
-    margin: 0 auto;
+    max-width: var(--measure-display);
 }
 
-.section-head {
-    text-align: center;
+.section-head, .section-header-centered {
+    text-align: left;
+    margin-bottom: var(--space-12);
 }
 
-/* Recessed bands. These were four near-identical inline background values;
-   two of them differed by one step per channel for no reason anyone recorded. */
-.section-padding--sunken {
-    background: var(--surface-section-sunken);
-}
-
-.section-padding--deep {
-    background: var(--surface-section-deep);
-}
-
+.section-padding--sunken { background: var(--color-surface-base); }
+.section-padding--deep { background: var(--color-void); }
 .section-padding--framed {
-    background: var(--surface-section-framed);
+    background: var(--color-surface-base);
     border-top: 1px solid var(--border-subtle);
     border-bottom: 1px solid var(--border-subtle);
 }

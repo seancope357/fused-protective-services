@@ -24,6 +24,21 @@ node --test 'tests/*.test.mjs'
 python3 serve.py
 ```
 
+### Public design and interaction verification
+
+Use the existing portal test-tool installation (or supply equivalent external module paths):
+
+```bash
+PLAYWRIGHT_MODULE="$PWD/app/node_modules/playwright/index.mjs" \
+AXE_MODULE="$PWD/app/node_modules/@axe-core/playwright/dist/index.mjs" \
+node scripts/verify-design-system.mjs
+```
+
+Requires the preview server above. Checks all seven public pages at five widths in both motion
+modes, keyboard/conversion flows, no-JavaScript headings and optionally axe WCAG AA. Intake calls
+are intercepted fixtures. Captures in `output/playwright/` are ignored local evidence. Set
+`SITE_FLOWS_ONLY=1` for the focused interaction checks. This adds no dependency to the public site.
+
 * **Local Preview URL:** `http://localhost:5050` (Main Landing Page)
 * **Local Legacy Export URL:** `http://localhost:5050/invoice` (reads old browser-stored invoices for Portal → Invoices → Import legacy)
 
@@ -207,3 +222,14 @@ Maintained in one place: [`docs/OPEN_QUESTIONS.md`](file:///Users/cope/projects/
 > The flag is now pure CSS with no JavaScript involved, and `node build.mjs --verify-release` exits 1
 > while any `placeholder: true` remains, so a release cannot be cut with one. Do not reintroduce
 > host gating: a placeholder that hides itself in production is worse than no flag at all.
+
+
+### Aerial sales-funnel verification (2026-10-20)
+
+Run `node scripts/verify-aerial-funnel.mjs` against `python3 serve.py`. It defaults to the existing
+Playwright/axe modules in `app/node_modules`; optional `PLAYWRIGHT_MODULE`, `AXE_MODULE` and
+`SITE_PREVIEW_URL` override those locations. Checks cover 320–1440px chapter/CTA geometry,
+Day/Night AA scans, the real CTA-to-form handoff, preserved notes and division contracts, consent,
+explicit failure/offline/invalid-response behavior, mocked success, unknown intent and no-JS copy.
+Every intake request is intercepted. Reports and captures live in ignored
+`output/playwright/aerial-funnel/`; they do not prove live lead ingestion or booking availability.

@@ -15,7 +15,7 @@ export const hero = () => html`
             </div>
 
             <h1 class="hero-heading">
-                Elite Protection When <span class="gold-gradient-text">Discretion &amp; Defense</span> Matter Most.
+                Elite protection when <span class="gold-gradient-text">discretion &amp; defense</span> matter most.
             </h1>
 
             <p class="hero-lead">

@@ -10,7 +10,7 @@ export const careersPrequal = () => html`
     <div class="container">
         <div class="section-header-centered" data-reveal>
             <div class="tactical-badge">STATUTORY ELIGIBILITY</div>
-            <h2 class="section-title">60-SECOND CANDIDATE PRE-CHECK</h2>
+            <h2 class="section-title">60-second candidate pre-check</h2>
             <p class="section-lead">
                 Texas Occupations Code §1702 sets stringent legal standards for commissioned security personnel. Confirm your operational eligibility before filing an official candidate packet.
             </p>

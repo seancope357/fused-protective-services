@@ -1,63 +1,68 @@
 import * as THREE from '../vendor/three.module.js';
 import { batchStatic } from './batch.mjs';
-import { createSensor } from './sensor.mjs';
 import { surface } from './visual-surfaces.mjs';
 import { createVegetation } from './visual-vegetation.mjs';
+import { createProperty } from './property.mjs';
+import { createLandscape } from './landscape.mjs';
+
+export function terrainHeight(x, z) {
+    const away = Math.max(0, Math.min(1, (Math.hypot(x, z + 8) - 38) / 65));
+    const hills = 2.5 + 2.0*Math.sin(x*.028 + z*.018) + 1.8*Math.sin(z*.035 - x*.012);
+    return -.2 + away*away*hills;
+}
 export function createWorld(scene) {
-    const concrete = surface(0x8b897e, .87), stone = surface(0x545957, .88);
-    const ground = surface(0x303d32, 1, true), road = surface(0x373e42, .96);
-    const metal = new THREE.MeshStandardMaterial({ color: 0x343c40, roughness: .48, metalness: .65, envMapIntensity: .5 });
-    const glass = new THREE.MeshStandardMaterial({ color: 0x334a54, roughness: .13, metalness: .65, envMapIntensity: .9, emissive: 0xc48b4b, emissiveIntensity: .12 });
-    const interior = new THREE.MeshStandardMaterial({ color: 0x9d8062, roughness: .75, emissive: 0xffc17d, emissiveIntensity: .55 });
+    const limestone = surface(0xb3ab95, .82), paving = surface(0xa9a698, .88, false, 'paving');
+    const ground = surface(0x576344, 1, true), road = surface(0x414441, .96, false, 'asphalt');
+    const gravel = surface(0x787a69, 1, false, 'gravel'), timber = surface(0x785137, .69, false, 'timber');
+    const metal = new THREE.MeshStandardMaterial({ color: 0x292e2e, roughness: .42, metalness: .72, envMapIntensity: .8 });
+    const glass = new THREE.MeshPhysicalMaterial({ color: 0xb3cfcc, roughness: .1, metalness: .15, transparent: true, opacity: .22, depthWrite: false, envMapIntensity: 1.3 });
+    const interior = new THREE.MeshStandardMaterial({ color: 0x3d3527, roughness: 1 });
+    const roof = surface(0x777970,.95,false,'roof');
+    const fabric = surface(0xafa995, .96, false, 'fabric');
+    const glow = new THREE.MeshStandardMaterial({ color: 0xffdfae, emissive: 0xffb669, emissiveIntensity: 0 });
     const staticWorld = new THREE.Group();
-    function box(w, h, d, x, y, z, material) {
+    const fixtures = [];
+    function box(w, h, d, x, y, z, material, castShadow = true) {
         const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
-        mesh.position.set(x, y, z); mesh.castShadow = true; mesh.receiveShadow = true; staticWorld.add(mesh); return mesh;
+        mesh.position.set(x, y, z); mesh.castShadow = castShadow; mesh.receiveShadow = true; staticWorld.add(mesh); return mesh;
     }
-    box(250, .4, 250, 0, -.3, 0, ground);
-    box(5, .06, 60, 7, -.02, 21, road);
-    box(23, .14, 14, 0, .02, -8, stone);
-    box(15, 3.6, 7, -2, 1.9, -12, concrete);
-    box(7, 3, 7, 8, 1.6, -12, stone);
-    box(15.8, .3, 7.8, -2, 3.9, -12, metal);
-    box(7.8, .3, 7.8, 8, 3.25, -12, metal);
-    // Recessed glazing, stone reveals and a few warm occupied bays.
-    box(10.3, 2.75, .12, -2, 1.8, -8.42, metal);
-    box(10, 2.5, .08, -2, 1.8, -8.33, glass);
-    for (const x of [-5.75, -2, 1.75]) box(1.15, 2.35, .02, x, 1.8, -8.275, interior);
-    box(10.6, .13, .5, -2, .45, -8.2, stone);
-    box(10.6, .16, .5, -2, 3.16, -8.2, concrete);
-    // Thin coping and a recessed roof plane make the slab edge legible.
-    box(15.3, .09, 7.3, -2, 4.09, -12, stone);
-    box(7.3, .09, 7.3, 8, 3.44, -12, stone);
-    for (let x = -10; x <= 10; x += 2) box(.018, .005, 13.8, x, .093, -8, metal);
-    for (let z = -14; z <= -2; z += 2) box(22.8, .005, .018, 0, .093, z, metal);
-    // Horizontal glazing transom and offset arrival steps.
-    box(10, .045, .15, -2, 2.65, -8.24, metal);
-    box(5.5, .12, 1.1, 6, .04, -.5, stone);
-    for (let x = -7; x <= 3; x += 1.25) box(.07, 2.7, .18, x, 1.8, -8.22, metal);
-    for (let x = -9; x < 12; x += 1.4) box(.09, .15, 2.7, x, 3.5, -6, metal);
-    for (const x of [-9, 11]) box(.14, 3.5, .14, x, 1.8, -4.7, metal);
-    box(21, .15, .15, 1, 3.5, -4.7, metal);
-    // Warm architectural light belongs to the building, not a screen-space effect.
-    for (const x of [-6, 1, 9]) {
-        const light = new THREE.PointLight(0xffbd79, 12, 7, 2); light.position.set(x, 2.3, -7.5); scene.add(light);
-        box(.16, .35, .1, x, 2.4, -8.3, interior);
+    const terrain = new THREE.PlaneGeometry(550, 550, 96, 96); terrain.rotateX(-Math.PI/2);
+    const positions = terrain.attributes.position;
+    for (let i=0; i<positions.count; i++) positions.setY(i, terrainHeight(positions.getX(i), positions.getZ(i)));
+    terrain.computeVertexNormals();
+    const land = new THREE.Mesh(terrain, ground); land.receiveShadow = true; land.name = 'rolling-meadow'; staticWorld.add(land);
+    // Level access drive, gravel shoulders and a generous forecourt.
+    box(6.5, .12, 70, 7, -.12, 34, gravel);
+    box(5.3, .12, 70, 7, -.045, 34, road);
+    box(10, .13, 8, 7, .01, 3, gravel);
+    const property = createProperty(box, { limestone, paving, metal, timber, glass, interior, fabric, light: glow, roof });
+    // Perimeter rails remain within the fictional parcel, with an open vehicle approach.
+    for (let x=-19; x<=19; x+=2) for (const z of [-25,7]) {
+        if(z===7 && x>3 && x<11) continue;
+        box(.13,1.5,.13,x,.65,z,metal);
+        for(const y of [.45,1.1]) box(1.97,.065,.08,x+.92,y,z,metal);
     }
-    // Perimeter fence, with a clear vehicle opening at the approach.
-    for (let x = -19; x <= 19; x += 2) for (const z of [-25, 7]) {
-        if (z === 7 && x > 3 && x < 11) continue;
-        box(.12, 1.5, .12, x, .75, z, metal);
-        box(1.95, .055, .07, x + .9, 1.2, z, metal);
-        box(1.95, .055, .07, x + .9, .55, z, metal);
+    for(const x of [-19,20]) for(let z=-25;z<7;z+=2) {
+        box(.13,1.5,.13,x,.65,z,metal);
+        for(const y of [.45,1.1]) box(.08,.065,2,x,y,z+1,metal);
     }
-    for (const x of [-19, 20]) for (let z = -25; z < 7; z += 2) {
-        box(.12, 1.5, .12, x, .75, z, metal);
-        box(.07, .055, 2, x, 1.2, z + 1, metal); box(.07, .055, 2, x, .55, z + 1, metal);
+    // Actual local luminaires illuminate paving and walls at night, never fake telemetry.
+    for(const [x,z] of [[-6,-7.8],[1,-7.8],[9,-7.8]]) {
+        const lamp = new THREE.PointLight(0xffcc92, 0, 9, 2); lamp.position.set(x,2.9,z); scene.add(lamp); fixtures.push({lamp,power:38});
+        box(.14,.24,.12,x,2.85,z-.35,glow,false);
     }
-    const trunkMaterial = new THREE.MeshStandardMaterial({ color: 0x39332e, roughness: 1 });
-    createVegetation(scene, staticWorld, trunkMaterial);
-    const batched = batchStatic(staticWorld);
-    scene.add(batched);
-    return createSensor(scene, batched);
+    for(const z of [3,10,18,26]) for(const x of [3.8,10.2]) {
+        box(.12,.65,.12,x,.2,z,metal); box(.14,.06,.14,x,.55,z,glow,false);
+    }
+    // A single wide arrival fill avoids eight extra light loops per shaded fragment.
+    const arrival = new THREE.PointLight(0xffd1a1,0,22,2); arrival.position.set(7,1.7,7); scene.add(arrival); fixtures.push({lamp:arrival,power:45});
+    const trunk = surface(0x514737,1,false,'bark');
+    const vegetation = createVegetation(scene,staticWorld,trunk,terrainHeight);
+    createLandscape(scene,terrainHeight);
+    const batched=batchStatic(staticWorld); batched.name='property-batches'; scene.add(batched);
+    return {
+        property, vegetation,
+        setNight(amount) { glow.emissiveIntensity=amount*3.2; fixtures.forEach(({lamp,power})=>{lamp.intensity=power*amount;lamp.visible=amount>0;}); },
+        stats:()=>({batches:batched.children.length,trees:vegetation.trees,property}),
+    };
 }

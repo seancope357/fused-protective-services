@@ -12,7 +12,7 @@
     position: relative;
     flex: 1;
     height: 100%;
-    background: linear-gradient(180deg, #131413 0%, #0a0b0a 100%);
+    background: var(--color-surface-card);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-xl);
     overflow: hidden;
@@ -24,14 +24,14 @@
                 box-shadow var(--duration-slide) var(--ease-studio),
                 background var(--duration-slow) ease;
     display: flex;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+    box-shadow: none;
 }
 
 .bookshelf-spine:hover, .bookshelf-spine.active {
     flex: 4.5;
     border-color: var(--border-gold-bright);
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px var(--gold-glow-intense);
-    background: linear-gradient(180deg, #1a1c1a 0%, #0d0f0d 100%);
+    box-shadow: none;
+    background: var(--color-surface-card-hover);
 }
 
 .spine-rail {
@@ -68,21 +68,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+    box-shadow: none;
     flex-shrink: 0;
 }
 
 .spine-vertical-title {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: 15px;
-    font-weight: 800;
+    font-weight: var(--display-weight);
     color: #ffffff;
-    letter-spacing: 2px;
     writing-mode: vertical-rl;
     transform: rotate(180deg);
     white-space: nowrap;
     margin-top: auto;
     margin-bottom: auto;
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .spine-expanded-payload {
@@ -162,13 +163,15 @@
 }
 
 .payload-heading {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: 26px;
-    font-weight: 900;
+    font-weight: var(--display-weight);
     color: #ffffff;
     margin-bottom: 12px;
     line-height: 1.15;
     max-width: 18ch;
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .payload-desc {
@@ -202,18 +205,20 @@
 }
 
 .btn-select-division {
-    background: var(--gradient-gold-brushed-ui);
-    color: #050504;
-    font-weight: 800;
-    font-size: 13px;
+    background: var(--color-surface-card);
+    color: var(--text-primary);
+    font-weight: var(--control-weight);
+    font-family: var(--font-body);
+    font-size: var(--control-size);
     padding: 10px 20px;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-full);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 0 15px rgba(186, 152, 87, 0.3);
-    border: none;
+    box-shadow: none;
+    border: 1px solid var(--border-gold-subtle);
+    min-height: var(--control-height);
     cursor: pointer;
     width: fit-content;
 }

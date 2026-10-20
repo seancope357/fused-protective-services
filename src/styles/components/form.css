@@ -2,11 +2,11 @@
 .form-shell {
     background: var(--color-surface-card);
     border: 1px solid var(--border-gold-subtle);
-    border-radius: var(--radius-2xl);
+    border-radius: var(--radius-lg);
     padding: clamp(20px, 4vw, 44px);
     max-width: 940px;
     margin: 0 auto;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+    box-shadow: none;
     -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
 }
@@ -35,15 +35,17 @@
     color: var(--text-primary);
     padding: clamp(12px, 1.8vw, 16px) clamp(14px, 2vw, 18px);
     border-radius: var(--radius-md);
-    font-size: clamp(14px, 1.1vw, 15px);
-    outline: none;
+    font-size: 16px;
+    font-family: var(--font-body);
+    outline: revert;
     transition: all var(--duration-normal) ease;
 }
 
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
     border-color: var(--logo-gold-bevel);
-    box-shadow: 0 0 0 3px rgba(186, 152, 87, 0.25);
-    background: #0b0c0b;
+    outline: 2px solid var(--text-gold-light);
+    outline-offset: 3px;
+    background: var(--color-surface-base);
 }
 
 .form-field--notes {

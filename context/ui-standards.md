@@ -4,13 +4,21 @@ This document details the visual design language, color token taxonomy, typograp
 
 ---
 
-## 🎨 Aesthetic Identity: Tactical Luxury
+## 🎨 Aesthetic Identity: Refined Protective Services
 
-Fused Protective Services embodies a **Tactical Military-Grade Luxury** aesthetic:
+The public website adopts the visual language established by `/aerial`, at Sean's explicit
+request on 2026-10-20. This supersedes the earlier two-register treatment for public content.
 
-* **Atmosphere:** Deep obsidian/carbon surfaces, metallic brushed-gold accents, glowing amber/emerald indicators, and razor-sharp typographic telemetry.
-* **Tone:** Uncompromising authority, military discipline, and ultra-high-net-worth discretion.
-* **Visual Restraint:** Avoid flashy consumer-grade novelty. Every element should feel engineered, deliberate, and mission-critical.
+* **Atmosphere:** Quiet obsidian surfaces, warm white text, restrained flat gold accents.
+* **Typography:** Outfit 400 for display headings, sentence case, tight tracking and generous space.
+  Cinzel remains on the Fused wordmark and the opening assembly statements; JetBrains Mono remains for reference codes.
+* **Controls:** Hairline gold links and outlined pills, with visible selected, hover and keyboard
+  focus states. No metallic button fills, shine sweeps, panel glows or pulsing dispatch chrome.
+* **Feature preservation:** Keep the scroll-forged emblem, seven-division accordion, protocol tabs,
+  assessment routing, budget calculations and quote prefilling, recruiting interactions, forms,
+  legal content and legacy invoice export. Styling does not change their contracts.
+* **Scope:** Public pages `/`, `/careers`, `/aerial`, `/privacy`, `/terms`, `/sms-consent`, `/invoice`.
+  The authenticated operations portal remains its separate application.
 
 ---
 
@@ -49,10 +57,14 @@ All color values derive strictly from the official 3D Brushed Gold Shield logo p
 ```
 
 ### 4. Section Scrims (Contrast Over Canvas)
-The animated WebGL particle mesh and voxel canvas sit behind page content. Legibility is strictly guaranteed via semi-opaque section scrims:
+The animated WebGL particle mesh and voxel canvas sit behind page content. The following scrim tokens remain available for canvas overlays:
 * `--surface-section-sunken`: `rgba(9, 10, 9, 0.75)`
 * `--surface-section-deep`: `rgba(9, 10, 9, 0.80)`
 * `--surface-section-framed`: `rgba(12, 13, 12, 0.85)`
+
+Public reading sections use opaque `--color-void` / `--color-surface-base` surfaces so the
+assembled emblem stays within its intro rather than competing with subsequent copy. Panels retain
+the existing card tokens, restrained borders and reduced radii.
 
 > [!NOTE]
 > **Why `mix-blend-mode` is Forbidden Over Canvas:**
@@ -62,9 +74,11 @@ The animated WebGL particle mesh and voxel canvas sit behind page content. Legib
 
 ## 📐 Typography & Font Hierarchy
 
-* **Primary Typeface:** `'Outfit', -apple-system, BlinkMacSystemFont, sans-serif`
+* **Primary Typeface:** `--font-body` (`'Outfit', -apple-system, BlinkMacSystemFont, sans-serif`).
+* **Brand Typeface:** `--font-brand` (Cinzel); `--font-mono` carries reference codes.
 * **Self-Hosted Faces:** Cinzel, Outfit and JetBrains Mono are served from `assets/fonts/` and declared in `src/styles/base.css`. There are no Google Fonts requests; the marketing-site CSP allows no third-party origin.
-* **Heading Style:** Bold, architectural, high-contrast, uppercase where tactical codes are displayed.
+* **Heading Style:** Outfit 400, `--display-leading: 1.02`, `--display-tracking: -0.045em`; use
+  `--display-xl/lg/md` for page/section headings. Uppercase is reserved for small labels and codes.
 * **Tactical Callout Format:** Code prefixes (e.g. `DIV-01 // PPO`, `POS-01 // PPO`) must feature:
   * Monospaced or structured uppercase sans-serif
   * `letter-spacing: 0.12em` to `0.18em`
@@ -177,6 +191,9 @@ Animations follow real-world physical inertia curves defined in `tokens.css`:
 * Under `prefers-reduced-motion`, `reveal.css` lifts the hidden state entirely so nothing waits on a scroll event.
 
 ### The Assembly Dual Clocks
+* **Intro typography (Sean, 2026-10-20):** “Protection is a thousand moving parts.” and its
+  companion “We fuse them into one.” use the Fused wordmark's Cinzel 600 serif, with a responsive
+  30–64px display size. This is the explicit exception to the Outfit content-heading system.
 * **Intro copy:** The opening hero displays “Protection is a thousand moving parts.” without the “FPS // Assembly Protocol” badge, removed at Sean's request on 2026-09-14 to reduce clutter and avoid visitor-facing implementation jargon.
 * **Scroll indicator:** Display “SCROLL” with the existing downward arrow. Preserve the cue's fade as scrolling begins; “TO ASSEMBLE” was removed at Sean's request on 2026-09-14.
 * `--assembly`: Bound to viewport scroll offset (`0.0000` to `1.0000`). Used for pacing copy beat opacities.
@@ -237,7 +254,7 @@ none of the above.
 **Contrast is measured against the composited background, not the token.** Several surfaces are
 translucent (`--color-surface-card` is `rgba(18,19,18,0.86)` over `--color-void`), so a ratio
 computed against the nominal hex is wrong. Large text (≥24px, or ≥18.66px bold) is held to 3:1 and
-everything else to 4.5:1; `.standard-index` passes only because it is 34px at weight 900.
+everything else to 4.5:1; `.standard-index` passes only because it is 34px at weight 400.
 
 **Token decisions** (`docs/A11Y-AUDIT.md` Part E, items 1 and 8):
 1. **Decided 2026-09-14 (Sean): `--text-tertiary` is `#8f8a86`** (was `#78716c`). Measured 5.97:1 on
@@ -251,10 +268,9 @@ everything else to 4.5:1; `.standard-index` passes only because it is 34px at we
    gradient, so the blocking gate passed while the defect shipped.
    **`--gradient-gold-brushed-ui`** is the additive fix recommended by this document — the same
    135° sheen clamped at `--logo-gold-core`, worst stop **5.59:1**, passing 4.5:1 at every stop.
-   Six text-bearing faces moved to it (`.btn-gold`, `.btn-dispatch`, `.btn-quick-call`,
-   `.btn-select-division`, `.filter-tab-btn.active`, `.skip-link`). Two decorative uses with no text
-   on top keep the full ramp on purpose: `.btn-outline::before` (hover wipe) and
-   `.forge-hud-left::after` (HUD rule). **Rule: gold behind anything a visitor reads or clicks uses
+   At that time, six text-bearing faces moved to it (`.btn-gold`, `.btn-dispatch`, `.btn-quick-call`,
+   `.btn-select-division`, `.filter-tab-btn.active`, `.skip-link`). The 2026-10-20 refinement replaces the button faces and outline hover wipe with flat
+   outlined controls. The skip link keeps the safe ramp; the forge HUD keeps its decorative rule. **Rule: gold behind anything a visitor reads or clicks uses
    the `-ui` ramp; the full ramp is decoration only.**
 
 
@@ -301,56 +317,64 @@ When `prefers-reduced-motion: reduce` is active:
 * Transition delays are explicitly zeroed (`transition-delay: 0s !important`) to prevent delayed cascading reveals from flashing.
 * The WebGL voxel track collapses to a static, assembled emblem (`data-forge-fallback`).
 
-## Two registers (established 2026-10-19)
+## Shared editorial system (adopted 2026-10-20)
 
-Tactical Luxury speaks in **two registers** drawn from one gold spectrum, one spacing scale and one
-set of easings. They are not interchangeable, and the difference is the system.
+`/aerial` is the reference. All public page and section headings now use the same display
+family, weight and tracking. Main-page content and recruiting introductions align left;
+sections use `--section-air`, short prose measures and a generous gap before interactive content.
+Small widget headings use the same family and weight at a readable smaller size.
 
-| | Architectural | Editorial |
-| :--- | :--- | :--- |
-| Face | Cinzel, weight 900 | Outfit, weight 400 |
-| Case | Uppercase | Sentence case |
-| Tracking | `-0.5px` | `--display-tracking` (`-0.045em`) |
-| Gold | Fills (`--gradient-gold-brushed-ui`) | Flat colour + 1px rules |
-| Primary CTA | `.btn-gold` filled slab | `.link-rule` hairline underline |
-| Job | Assert authority | Carry narrative |
+Primitives: `.eyebrow`, `.display` + `--xl/--lg/--md`, `.measure-display`, `.measure-body`,
+`.prose`, `.link-rule`, `.pill`, `.editorial-band`. Existing `.btn-gold`, `.btn-outline`,
+`.btn-secondary-glass` and `.btn-dispatch` names remain compatible but now render as restrained
+outlined pills. Primary actions have a stronger gold border. Standard controls are at least
+44px high; form fields use 16px Outfit to avoid phone focus zoom.
 
-Architectural owns the brand plate, the hero wordmark and division headers. Editorial — proven on
-`/aerial`, extracted into `src/styles/editorial.css` — owns narrative: a section's opening statement,
-a chapter, a quiet CTA. **Editorial reads as more expensive because it withholds.**
+Tokens live in `src/styles/tokens.css`; section rules in `layout.css`; primitives in
+`editorial.css`; feature styles in their existing owning component modules. No theme-override
+bundle or new dependency is introduced. The invoice bundle reuses tokens, buttons and legal
+styles; aerial keeps its existing composition and controls.
 
-Primitives: `.eyebrow`, `.display` + `--xl/--lg/--md`, `.measure-display`, `.measure-body`, `.prose`,
-`.link-rule`, `.pill`, `.editorial-band`. Tokens: the `--display-*`, `--label-*`, `--measure-*`,
-`--prose-*` and `--editorial-*` groups in `tokens.css`. `editorial.css` contains **no literal
-colours, sizes or easings** — every rule reads a token, which is what keeps the two registers from
-drifting into two systems.
+Rules:
 
-**Hard rules.**
-
-1. **Never raise `--display-weight`** to make an editorial headline feel stronger. Scale and
-   surrounding air do that; weight is exactly what turns restraint into shouting.
-2. **Do not mix registers inside one block.** A Cinzel 900 uppercase heading above Outfit 400 body is
-   correct. An editorial headline with a gold-filled slab button under it is not — use `.link-rule`.
-3. **Long display lines, short body lines.** `--measure-display` is 560px and `--measure-body` 380px.
-   Holding prose to the shorter measure is what makes the whitespace read as composition, not a gap.
-4. `/aerial` consumes these primitives rather than carrying its own copies. If you change an
-   editorial token, run `scripts/verify-editorial-parity.mjs` — it diffs 35 computed properties on
-   `/aerial` against production and fails if the dialect drifted.
-5. Verify any gold change with `scripts/contrast-audit.mjs`, and the whole system with
-   `scripts/verify-design-system.mjs`. A rendered reference lives at `prototypes/design-system/`
-   (local only, links the real `css/site.css` so it cannot drift).
+1. Keep `--display-weight` at 400. Use scale and whitespace for hierarchy.
+2. Use flat gold text, hairline rules and outlined controls. Keep metallic gradients for brand
+   assets/decorative artwork; the safe `-ui` ramp remains available for the skip link.
+3. Use Cinzel for wordmarks and, by Sean's 2026-10-20 follow-up, the opening assembly statements.
+   `.forge-line` uses the wordmark's Cinzel 600 at a responsive 30–64px, balanced lines and
+   `0.01em` tracking. JetBrains Mono remains for reference codes and readouts.
+4. Verify with `scripts/verify-design-system.mjs` (responsive computed styles, interaction flows,
+   optional WCAG AA scans). `scripts/verify-editorial-parity.mjs` still checks aerial composition
+   against the deployed reference when that reference is available.
+5. `prototypes/design-system/` is the historical 2026-10-19 two-register exploration; it no longer
+   describes the approved public-site treatment. This document and the source styles are current.
 
 ---
 
 ## Aerial (`/aerial`)
 
 A public four-chapter cinematic page, live at `https://fusedprotectiveservices.com/aerial` and linked
-from the nav island and drawer. It is the reference implementation of the editorial register:
+from the nav island and drawer. It is the reference implementation of the shared editorial system:
 Outfit/Cinzel and the charcoal/gold tokens frame one continuous aircraft/property scene. Controls
-remain explicit — sensor, pause, opt-in bounded inspection with keyboard equivalents. Reduced motion
-fixes the camera, hover and rotors while retaining explicit controls. A self-authored inline SVG
+are Day and Night buttons in a named group, with mutually exclusive `aria-pressed` states and 44px
+targets. Day is the default; keyboard activation and touch both work. Sensor/Pause/Inspect and
+inspection orbit controls were replaced at Sean's request on 2026-10-20. Native scrolling drives the
+story camera; reduced motion fixes the camera, hover and rotors while lighting remains selectable. A self-authored inline SVG
 scene and readable semantic content precede WebGL and remain available on failure. No fake telemetry,
-live-feed claims, through-wall overlays, or new business facts. The copy makes **no operational
-claim**: Part 107 / Texas coverage is unconfirmed, so it stays capability-worded. Aircraft
+live-feed claims, through-wall overlays, or new business facts. Sean confirmed pilot-operated patrols on 2026-10-20. The four chapters now explain the offer,
+property concerns, pilot-led planning and the inquiry step. Every primary CTA reads “Request drone
+protection” and carries aerial intent into the existing quote form. No thermal/night, autonomous,
+certification, flight-territory or performance claims are made. Scope, flight permissions and
+availability are confirmed before booking; Day/Night remains illustrative. Aircraft
 redistribution rights are unresolved and the risk was accepted on 2026-10-19 — see
 `assets/aerial/PROVENANCE.md`.
+
+
+### Aerial environment finish (2026-10-20)
+
+Use credible architectural depth: separate wall openings, glazing, occupied interiors, shadow
+reveals, coping and recessed roof beds. Avoid overlapping facade faces and near-coplanar line meshes.
+Stone/paver/timber/terrain finishes use derivative filtering and restrained roughness/normal variation;
+foliage uses mipmapped cutouts with alpha-to-coverage plus irregular inner crowns. The house sits in
+rolling terrain with instanced trees, native-looking planting, gravel and stone borders. Day/Night
+changes the whole lighting setup and fixtures, keeping the same camera composition and content.

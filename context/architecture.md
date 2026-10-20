@@ -65,7 +65,7 @@ This guarantees that:
 
 ### 2. Build Targets
 The compiler builds three page bundles plus the deployment config:
-1. **Marketing & Quote Intake (`index.html` + `css/site.css`):** Dark tactical UI, WebGL intro, interactive quiz, budget calculator, and quote intake form.
+1. **Marketing & Quote Intake (`index.html` + `css/site.css`):** Aerial-derived editorial UI, WebGL intro, interactive quiz, budget calculator, and quote intake form.
 2. **Legal pages and the legacy invoice export (`privacy.html`, `terms.html`, `sms-consent.html`, `invoice.html`):** generated from `src/data/legal.mjs` and `src/templates/invoice/page.mjs`.
 3. **Careers & Recruitment Portal (`careers.html` + `css/site.css`):** Interactive job board, 5-stage vetting protocol, 60-second eligibility pre-check, and candidate intake form with Google Jobs Schema.org markup.
 4. **`css/noscript.css` and `vercel.json`:** no-JavaScript fallback styles, and the Vercel config with clean URLs plus the Content-Security-Policy (a sha256 for every inline JSON `<script>` block), HSTS and frame headers. `vercel.json` changes whenever `src/data/` does; see `docs/RUNBOOK.md` §8b.
@@ -191,15 +191,37 @@ Everything authenticated lives in a second workspace so the zero-dependency mark
 * **Observability:** `api/_lib/report.mjs` on the static side and `@sentry/nextjs` in the portal (server and edge only, inactive until `SENTRY_DSN` is set). Browser errors reach `/api/client-error` without PII; alert storms are deduplicated through `alert_gate()`.
 * **Migrations are not deployed by Git.** A push ships code but never changes the hosted database; apply new migrations by hand before or with the code that needs them (`docs/RUNBOOK.md` §1).
 
-## Local aerial preview (2026-10-14)
+## Public aerial scene (`/aerial`, updated 2026-10-20)
 
-Explicit `node build.mjs --aerial-preview` generates only `prototypes/aerial/index.html`
-and `css/aerial.css`; add `--check` to verify those two artifacts. Default build
-artifacts and CSP remain unchanged. Copy is in `src/data/aerial.mjs`, the semantic
-shell in `src/templates/aerial/page.mjs`, styling in `src/styles/components/aerial.css`.
-`js/aerial/boot.mjs` owns all controllers; scene/world/state modules use one vendored
-r160 renderer and controller-supplied local loaders/assets. Aircraft image URIs are
-external same-origin files. No blob-image CSP exception is needed. HDR failure uses
-an original PMREM studio environment; aircraft/texture failure presents a real error.
-The property is fictional; the depth-tested sensor grid covers only its boundary.
-This noindex local evaluation is not a live service/fleet claim or public release.
+The default compiler generates `aerial.html` and `css/aerial.css`. Data and semantic shell live in
+`src/data/aerial.mjs` / `src/templates/aerial/page.mjs`; generated pages are never edited directly.
+`js/aerial/boot.mjs` owns Day/Night state and native-scroll camera/lifecycle. `scene.mjs` owns one
+vendored r160 renderer, aircraft loading/rig, environment and cleanup. QA is gated by `?verify=1`.
+
+`world.mjs` assembles batched architecture via `property.mjs`, derivative-filtered world-space
+finishes via `visual-surfaces.mjs`, and instanced planting via `visual-vegetation.mjs` / `landscape.mjs`.
+Open windows have separate physical glazing/interior planes; the service wing does not overlap the
+pavilion facade. Paving joints are shader marks rather than near-coplanar thin strips. Rolling
+terrain stays level beneath the property. No external textures/dependencies were added for the pass.
+
+`lighting.mjs` synchronizes sky, fog, ambient/directional illumination and local fixtures for Day
+(default) or Night. Selection survives scroll, preferences and Retry. Static sun/moon shadows are
+cached between mode changes; aircraft does not cast a stale moving shadow. Desktop maps are 4096,
+phone/coarse-pointer maps 2048; DPR caps are 2 / 1.75. Reduced motion freezes autonomous movement
+while lighting remains selectable. Sensor and inspection modes are removed by explicit request.
+
+Aircraft images remain same-origin. Optional HDR failure uses the original PMREM studio environment
+and reports `studio-fallback`; required aircraft/image failure shows an honest error and Retry.
+No CSP exception was added. The property remains fictional and the existing aircraft rights and
+operational-coverage questions remain unchanged.
+
+
+### Aerial conversion handoff (2026-10-20)
+
+The aerial page uses the existing homepage quote workflow via `/?service=aerial#quote`.
+Build-supplied `aerialInquiry` copy configures that form; a closed service value activates it.
+`js/modules/aerial-inquiry.mjs` owns presentation and intent annotation, while `quote-form.mjs`
+retains delivery. Aerial intent travels in the existing notes field, preserving the seven division
+contracts and avoiding a speculative drone-specific backend. No flight reservation is created.
+Quote delivery now requires an explicit backend `ok` result; transport/invalid response failures
+retain inputs and report failure instead of treating a local backup as successful delivery.

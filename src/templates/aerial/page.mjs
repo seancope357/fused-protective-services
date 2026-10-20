@@ -2,7 +2,7 @@ import { html } from '../../lib/html.mjs';
 import { site } from '../../data/site.mjs';
 import { aerial } from '../../data/aerial.mjs';
 export const aerialPage = () => html`<!doctype html>
-<html lang="en" data-aerial-state="loading"><head>
+<html lang="en" data-aerial-state="loading" data-time-of-day="day"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="${aerial.description}"><title>${aerial.title}</title>
 <link rel="canonical" href="${site.url}/${aerial.slug}">
@@ -17,15 +17,14 @@ export const aerialPage = () => html`<!doctype html>
 <path d="M1070 725L1330 625V672L1070 775Z" fill="#c2a776"/><path d="M1100 1000L950 900 1000 860 1260 1000" fill="#687173"/>
 <path d="M690 790L1040 630 1470 750V870L1080 1000 690 880Z" fill="none" stroke="#b8995a" stroke-width="2"/>
 </svg><canvas id="aerial-canvas" aria-label="Illustrative aircraft and fictional property"></canvas></div>
-<header class="aerial-nav"><a href="/" aria-label="Fused home">${site.shortName}<span> / AERIAL</span></a><a href="/#quote">Discuss your property ↗</a></header>
+<header class="aerial-nav"><a href="/" aria-label="Fused home">${site.shortName}<span> / AERIAL</span></a><a href="${aerial.cta.href}">${aerial.cta.label} ↗</a></header>
 <main id="aerial-track" tabindex="-1">${aerial.chapters.map((chapter, index) => html`
 <section class="aerial-chapter" aria-labelledby="chapter-${index}"><div class="aerial-copy"><p class="aerial-eyebrow">${chapter.eyebrow}</p>
 ${index === 0 ? html`<h1 id="chapter-${index}">${chapter.title}</h1>` : html`<h2 id="chapter-${index}">${chapter.title}</h2>`}
-<p>${chapter.body}</p>${index === 3 ? html`<a class="aerial-inquiry" href="/#quote">Request a conversation ↗</a><p class="aerial-disclaimer">Illustrative aircraft; no claim of Fused ownership or manufacturer endorsement. Fictional property. Operational scope is confirmed during inquiry.</p><a href="/assets/aerial/PROVENANCE.md">Asset credits &amp; provenance</a>` : html`<a class="aerial-next" href="#chapter-${index + 1}">Scroll to explore ↓</a>`}</div></section>`)}
+<p>${chapter.body}</p><a class="aerial-inquiry" href="${aerial.cta.href}">${aerial.cta.label} ↗</a>${index === 3 ? html`<p class="aerial-disclaimer">Illustrative aircraft; no claim of Fused ownership or manufacturer endorsement. Fictional property; Day/Night is a visual demonstration, not a live feed or a promise of night operations.</p><a href="/assets/aerial/PROVENANCE.md">Asset credits &amp; provenance</a>` : html`<a class="aerial-next" href="#chapter-${index + 1}">Continue ↓</a>`}</div></section>`)}
 </main>
 <aside class="aerial-controls" aria-label="Scene controls"><div class="aerial-view-label">Illustrative visualization</div>
-<div class="aerial-toolbar"><button data-action="sensor" aria-label="Toggle illustrative sensor view" aria-pressed="false" disabled>Sensor view</button><button data-action="pause" aria-pressed="false" disabled>Pause</button><button data-action="inspect" aria-pressed="false" aria-controls="aerial-inspect" disabled>Inspect</button></div>
-<div id="aerial-inspect" hidden><p>Drag to orbit. Arrow keys rotate. Escape exits.</p><div class="aerial-toolbar"><button data-action="rotate-left" aria-label="Rotate left">←</button><button data-action="rotate-right" aria-label="Rotate right">→</button><button data-action="rotate-up" aria-label="Rotate up">↑</button><button data-action="rotate-down" aria-label="Rotate down">↓</button><button data-action="reset">Reset</button></div></div>
+<div class="aerial-toolbar" role="group" aria-label="Time of day"><button type="button" data-action="day" data-time-of-day="day" aria-pressed="true">Day</button><button type="button" data-action="night" data-time-of-day="night" aria-pressed="false">Night</button></div>
 <p id="aerial-status" role="status" aria-live="polite">Static preview. Preparing the interactive scene…</p><button data-action="retry" hidden>Retry scene</button>
 <noscript><p>Static preview — JavaScript is off. All inquiry links remain available.</p></noscript></aside>
 <script type="module" src="/js/aerial/boot.mjs"></script></body></html>`;

@@ -1,11 +1,75 @@
 # Accessibility audit — Fused Protective Services
 
-**Date:** 2026-09-14 · **Spec:** [SPEC-008](../specs/SPEC-008-accessibility-gate.md) · **Gate:** `GO_LIVE.md` → E4
+**Date:** 2026-10-20 (latest local refinement pass; original findings dated 2026-09-14) · **Spec:** [SPEC-008](../specs/SPEC-008-accessibility-gate.md) · **Gate:** `GO_LIVE.md` → E4
 **Conformance target:** WCAG 2.1 AA, as claimed by [`context/ui-standards.md`](../context/ui-standards.md)
 **Tester:** AXE (automated agent), driving real Chromium — Playwright 1.56.1 / Chromium 141.0.7390.37,
 and `@axe-core/cli` 4.10.2 (axe-core 4.10.3) on Chrome for Testing 153.0.8010.36.
 **Surfaces:** static marketing site served by `python3 serve.py` (port 5050); portal built with
 `pnpm build` and served by `pnpm start` (port 3300).
+
+## 2026-10-20 — Aerial sales funnel
+
+The rewritten four-chapter page keeps semantic headings, the existing skip link and Day/Night
+buttons. All five primary CTA placements share one destination and retain readable text. Fresh
+375px Day/Night axe WCAG AA scans report **zero violations**. Checks at 320/375/768/1440px verify
+copy fits below navigation, no horizontal overflow and clickable CTAs clear of fixed controls.
+The handoff preserves visible labels, explicitly requires a property division, leaves SMS consent
+opt-in and announces delivery failures/success in the existing live region. Intercepted offline,
+invalid-response and 503 fixtures retain entered values. These are browser checks, not native
+screen-reader or real-device GPU acceptance. See `scripts/verify-aerial-funnel.mjs` and the
+ignored `output/playwright/aerial-funnel/verification.json` (80 checks passed).
+
+## 2026-10-20 — Intro serif typography follow-up
+
+The two assembly statements now use Cinzel 600 at a responsive 30–64px. Real Chromium checks
+confirmed the self-hosted face loads and the intro text fits without horizontal overflow at
+320, 375, 768 and 1440px. Desktop/mobile captures were visually inspected; animation, keyboard
+and reduced-motion logic are unchanged. Build/drift and the 142 existing tests pass.
+
+## 2026-10-20 — Aerial Day/Night follow-up
+
+The three previous viewing controls and inspection panel are replaced with two 44px Day/Night
+buttons in a named group, exposing mutually exclusive `aria-pressed` state. Keyboard Enter/Space
+use native buttons; touch does not capture scrolling. Day/Night choices also work in the static
+error/fallback state and remain selected after Retry. Reduced motion still stops autonomous
+camera/rotor movement while explicit lighting changes remain available.
+
+Four fresh axe WCAG 2.1 AA scans (Day and Night, default and reduced motion) report **zero
+violations**. This follow-up applies to the aerial change; the broader public-site checks and their
+manual/native-screen-reader limitations remain recorded below. Geometry and higher-resolution
+rendering require separate physical-device visual/GPU acceptance.
+
+## 2026-10-20 — Shared editorial design verification
+
+The public design refresh passed **350 browser checks**, including **14 axe WCAG 2.1 AA scans**
+(all seven pages, default and reduced motion) with **zero violations**. Responsive layout checks
+cover 320, 375, 768, 1024 and 1440px in both motion modes; no horizontal page overflow was found.
+The independent static/API/geometry suite passes all 142 tests. Browser checks use the existing
+Playwright and `@axe-core/playwright` installs in `app/`; the public build has no new dependencies.
+
+Keyboard/browser review, exercised by `scripts/verify-design-system.mjs`:
+
+- Skip-to-main focus, menu forward/backward focus trap, Escape and trigger focus restoration.
+- All seven service rail keyboard activations and division-to-quote prefills.
+- Protocol ArrowRight, Home and End navigation; FAQ Enter activation.
+- Assessment result visibility and preservation of existing notes; all estimator tiers, slider
+  changes, quote prefilling and visible input focus.
+- Quote delivery failure preserves input; retry displays the reference. Application delivery
+  shows confirmation. Both deliveries use local intercepted responses and contact no backend.
+- Careers filter activation, requirements expansion, apply-to-role preselection and eligibility
+  incomplete/qualified/rejected states.
+- Invoice export empty/saved states and readable headings with JavaScript disabled on all pages.
+
+Visual review used local desktop/mobile captures in `output/playwright/`, including services,
+estimator and quote states. Outfit light headings, outlined controls and flat gold stay readable
+on opaque section backgrounds. Reduced-motion entrance **animation delays** are now explicitly
+zero (duration-only clamping previously left brief blank recruiting headings). Input text is 16px.
+All 35 measured aerial reference properties remain identical to the deployed aerial page.
+
+This is browser and keyboard evidence, not a fresh VoiceOver/NVDA or physical-device certification.
+The historical manual findings below remain their own backlog; the styling pass does not claim
+that careers tablist semantics, form error association or filter announcements were repaired.
+The original pre-fix counts and findings are retained below for traceability.
 
 ---
 

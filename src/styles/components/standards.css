@@ -23,13 +23,13 @@
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-xl);
     padding: clamp(20px, 3vw, 32px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+    box-shadow: none;
     transition: border-color var(--duration-normal) ease, box-shadow var(--duration-normal) ease, transform var(--duration-normal) var(--ease-spring);
 }
 
 .standard-card:hover {
     border-color: var(--border-gold-subtle);
-    box-shadow: 0 25px 55px rgba(0, 0, 0, 0.85), 0 0 30px var(--gold-glow-soft);
+    box-shadow: none;
     transform: translateY(-3px);
 }
 
@@ -40,24 +40,28 @@
 }
 
 .standard-index {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: 34px;
-    font-weight: 900;
-    /* 0.35 composited to 1.87:1 over the card. 34px at weight 900 is large
+    font-weight: var(--display-weight);
+    /* 0.35 composited to 1.87:1 over the card. 34px at weight 400 is large
        text, so the floor is 3:1 rather than 4.5:1; 0.62 measures 3.37:1.
        That margin is thin — if this numeral ever drops below 24px, or below
        18.66px bold, it needs 4.5:1 and this value is no longer enough.
        A11Y-AUDIT.md A-02. */
     color: rgba(186, 152, 87, 0.62);
     margin-bottom: 12px;
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .standard-title {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: 20px;
-    font-weight: 800;
+    font-weight: var(--display-weight);
     margin-bottom: 10px;
     color: var(--text-pure);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .standard-body {

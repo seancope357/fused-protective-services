@@ -17,7 +17,6 @@ const portrait = [
     { position: [42,47,53], target: [0,0,-7] }
 ];
 const clamp = value => Number.isFinite(value) ? Math.max(0,Math.min(1,value)) : 0;
-const smooth = value => { const t=clamp(value); return t*t*(3-2*t); };
 function compile(shots) {
     return Object.fromEntries(['position','target'].map(key=>[key,[0,1,2].map(axis=>{
         const values=shots.map(shot=>shot[key][axis]);
@@ -51,14 +50,6 @@ export function storyPose(progress,aspect=1.5) {
         const a=sample(paths[0],key,axis,index,t),b=sample(paths[1],key,axis,index,t);
         return a+(b-a)*mix;
     })]));
-}
-export function sensorEnvelope(progress) {
-    const u=clamp(progress);
-    return smooth((u-.50)/.14)*(1-smooth((u-.78)/.13));
-}
-export function arrivalWeight(positionError,targetError) {
-    if(!Number.isFinite(positionError)||!Number.isFinite(targetError))return 0;
-    return smooth((5-Math.hypot(positionError,targetError))/4.25);
 }
 export function stabilizationPose(time,reduced=false) {
     if(reduced||!Number.isFinite(time))return {position:[0,0,0],rotation:[0,0,0]};

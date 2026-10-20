@@ -92,15 +92,15 @@
     --radius-2xl: 28px;
     --radius-full: 9999px;
 
-    /* ----------------------------------------------------------------------
-       EDITORIAL SCALE — the restrained dialect proven on /aerial.
-       Tactical Luxury has two registers, and they are not interchangeable:
-       the ARCHITECTURAL register (Cinzel 900, uppercase, gold fills) states
-       authority on the marketing surfaces, and the EDITORIAL register below
-       (Outfit 400, negative tracking, sentence case, hairline gold) carries
-       narrative. Editorial reads as more expensive because it withholds.
-       Both draw from the one gold spectrum above; neither invents a colour.
-       ---------------------------------------------------------------------- */
+    /* Shared public-site typography, adopted from /aerial (2026-10-20).
+       Cinzel is reserved for the brand; Outfit carries content and controls. */
+    --font-body: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-brand: 'Cinzel', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --section-air: clamp(72px, 10vw, 144px);
+    --control-size: 0.875rem;
+    --control-weight: 500;
+    --control-height: 44px;
 
     /* Display faces. Outfit at weight 400 with tight negative tracking — the
        large-and-quiet move. Never raise the weight to "strengthen" these;
@@ -280,7 +280,7 @@ html {
 body {
     background-color: var(--color-void);
     color: var(--text-primary);
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-body);
     font-size: clamp(15px, 1.1vw, 16px);
     line-height: 1.6;
     overflow-x: hidden;
@@ -358,6 +358,7 @@ body {
        cascade) would otherwise replay as a sequence of timed pops. */
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
+        animation-delay: 0s !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
         transition-delay: 0s !important;
@@ -373,10 +374,8 @@ body {
    dialect instead of a lookalike. Every rule reads from tokens.css; there are
    no literal colours, sizes or easings in this file by design.
 
-   Pair it with the architectural register, do not replace it. Use editorial
-   for narrative: a section's opening statement, a chapter, a quiet CTA. Keep
-   architectural (Cinzel 900, uppercase, gold fill) for the brand plate, the
-   hero wordmark and anywhere the page must assert authority.
+   This is the public site's shared visual language. Cinzel is reserved for
+   the Fused wordmark; headings, prose and controls use Outfit throughout.
 
    The one hard rule: never raise --display-weight to make an editorial
    headline feel stronger. Scale and surrounding air do that. Weight is
@@ -399,7 +398,7 @@ body {
 /* Outfit, not Cinzel, and sentence case, not uppercase. text-wrap: balance
    keeps the ragged edge deliberate rather than accidental. */
 .display {
-    font-family: Outfit, sans-serif;
+    font-family: var(--font-body);
     text-transform: none;
     font-weight: var(--display-weight);
     line-height: var(--display-leading);
@@ -496,25 +495,25 @@ body {
 #aerial-track { position: relative; z-index: 1; pointer-events: none; }
 .aerial-chapter { min-height: 115svh; display: flex; align-items: center; padding: var(--editorial-air) var(--editorial-gutter); box-sizing: border-box; }
 .aerial-copy { max-width: var(--measure-display); pointer-events: auto; }
-.aerial-copy h1, .aerial-copy h2 { font-family: Outfit, sans-serif; text-transform: none; font-weight: var(--display-weight); line-height: var(--display-leading); letter-spacing: var(--display-tracking); margin: 1.5rem 0; text-wrap: balance; }
+.aerial-copy h1, .aerial-copy h2 { font-family: Outfit, sans-serif; text-transform: none; font-weight: var(--display-weight); line-height: var(--display-leading); letter-spacing: var(--display-tracking); margin: 1.5rem 0; text-wrap: balance; scroll-margin-top: calc(var(--space-24) + var(--space-8)); }
 .aerial-copy h1 { max-width: 510px; font-size: var(--display-xl); }
 .aerial-copy h2 { font-size: var(--display-lg); }
 .aerial-copy > p:not(.aerial-eyebrow) { max-width: var(--measure-body); line-height: var(--prose-leading); font-size: var(--prose-size); color: var(--text-primary); }
 .aerial-eyebrow, .aerial-view-label { text-transform: uppercase; letter-spacing: var(--label-tracking); font-size: var(--label-size); color: var(--text-gold-light); }
-.aerial-next { display: inline-block; margin-top: 2rem; font-size: .75rem; letter-spacing: .12em; text-decoration: none; }
-.aerial-inquiry { display: inline-flex; padding: 1rem 0; border-bottom: 1px solid var(--text-gold-core); text-decoration: none; }
-.aerial-copy .aerial-disclaimer { font-size: .75rem !important; margin-top: 3rem; }
+.aerial-next { display: block; width: fit-content; min-height: 44px; margin-top: 1rem; font-size: .75rem; letter-spacing: .12em; text-decoration: none; }
+.aerial-inquiry { display: inline-flex; min-height: 44px; align-items: center; margin-top: 1rem; padding: .75rem 0; border-bottom: 1px solid var(--text-gold-core); text-decoration: none; }
+.aerial-copy .aerial-disclaimer { font-size: .75rem !important; margin-top: 2rem; }
 .aerial-controls { position: fixed; bottom: 1.4rem; right: 3vw; z-index: 5; text-align: right; max-width: 92vw; }
 .aerial-toolbar { display: flex; gap: .35rem; justify-content: flex-end; margin-top: .6rem; }
-.aerial-controls button { white-space: nowrap; min-height: 44px; min-width: 44px; border: 1px solid var(--border-gold-subtle); border-radius: var(--radius-full); background: var(--color-surface-card); color: var(--text-primary); padding: .5rem 1rem; font: inherit; font-size: .8rem; cursor: pointer; }
-.aerial-controls button[aria-pressed="true"] { border-color: var(--text-gold-light); color: var(--text-gold-light); }
+.aerial-controls button { transition: border-color var(--duration-normal) ease, color var(--duration-normal) ease; white-space: nowrap; min-height: 44px; min-width: 44px; border: 1px solid var(--border-gold-subtle); border-radius: var(--radius-full); background: var(--color-surface-card); color: var(--text-primary); padding: .5rem 1rem; font: inherit; font-size: .8rem; cursor: pointer; }
+.aerial-controls button[aria-pressed="true"] { background: var(--color-surface-elevated); border-color: var(--text-gold-light); color: var(--text-gold-light); }
 .aerial-controls button:disabled { opacity: .5; cursor: default; }
-#aerial-status, #aerial-inspect p { font-size: .72rem; margin: .6rem 0 0; color: var(--text-primary); }
-#aerial-inspect { background: var(--color-surface-card); border-radius: var(--radius-md); padding: .8rem; margin-top: .5rem; }
+#aerial-status { font-size: .72rem; margin: .6rem 0 0; color: var(--text-primary); }
+[data-time-of-day="night"] .aerial-poster { filter: brightness(.45); }
+.aerial-controls button:hover { color: var(--text-gold-light); border-color: var(--text-gold-light); }
 .aerial-page :focus-visible { outline: 2px solid var(--text-gold-light); outline-offset: 5px; }
 .aerial-skip { position: fixed; top: -100px; z-index: 9; background: var(--color-void); padding: 1rem; }
 .aerial-skip:focus { top: 0; }
-[data-inspecting="true"] .aerial-stage { pointer-events: auto; touch-action: pan-y; cursor: grab; }
 @media (max-width: 700px) {
 .aerial-nav { padding: 1rem 6vw; }.aerial-nav a:last-child { font-size: .65rem; letter-spacing: 0; }
 .aerial-copy { max-width: 90%; }.aerial-copy h1 { font-size: clamp(2.8rem, 10vw, 4.2rem); }
@@ -522,5 +521,6 @@ body {
 .aerial-stage::after { background: linear-gradient(0deg, rgba(5,5,4,.95), rgba(5,5,4,.6) 45%, transparent 80%); }
 .aerial-controls { bottom: .75rem; right: 5vw; }
 }
+@media (max-width: 360px) { .aerial-nav span { display: none; } }
 @media (prefers-reduced-motion: reduce) { #aerial-canvas { transition: none; } }
 }

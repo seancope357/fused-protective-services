@@ -23,11 +23,11 @@ const field = ({ id, label, type = 'text', placeholder = '', required = false })
 export const quote = () => html`
     <section class="section-padding" id="quote">
         <div class="container">
-${sectionHead({
+<div data-quote-intro>${sectionHead({
     tag: 'Direct Operational Booking',
     title: 'Request a Security Detail Quote',
     desc: 'Submit your coverage parameters below. Our operations command will review your requirements and respond with a formal quote within 2 hours.'
-})}
+})}</div>
 
             <div class="form-shell" data-reveal>
                 <form id="securityQuoteForm" novalidate>

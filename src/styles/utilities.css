@@ -6,14 +6,11 @@
 }
 
 .font-mono {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
 }
 
 .gold-gradient-text {
-    background: var(--gradient-gold-metallic);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 2px 10px rgba(186, 152, 87, 0.4));
+    color: var(--text-gold-light);
 }
 
 /* Available to assistive tech, removed from the visual flow. */

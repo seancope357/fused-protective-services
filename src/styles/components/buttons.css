@@ -1,168 +1,50 @@
 @layer components {
-/* Common Gold Buttons */
-.btn-gold {
-    background: var(--gradient-gold-brushed-ui);
-    color: #050504;
-    font-weight: 900;
-    font-size: clamp(14px, 1.2vw, 16px);
-    padding: clamp(14px, 2vw, 18px) clamp(28px, 3.5vw, 42px);
-    border-radius: var(--radius-md);
-    text-decoration: none;
-    box-shadow: 0 10px 30px rgba(186, 152, 87, 0.4);
-    transition: all var(--duration-normal) var(--ease-spring);
+/* One quiet control family, shared by both public-site CSS bundles.
+   Existing class names remain stable for templates and integrations. */
+.btn-gold, .btn-secondary-glass, .btn-outline, .btn-dispatch {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    border: none;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    text-align: center;
-}
-
-.btn-gold::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-    transition: left 0.6s ease;
-}
-
-.btn-gold:hover::before {
-    left: 100%;
-}
-
-.btn-gold:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 15px 45px rgba(186, 152, 87, 0.6);
-}
-
-.btn-secondary-glass {
-    background: var(--color-surface-glass);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-primary);
-    font-weight: 700;
-    font-size: clamp(14px, 1.2vw, 16px);
-    padding: clamp(14px, 2vw, 18px) clamp(24px, 3vw, 38px);
-    border-radius: var(--radius-md);
-    text-decoration: none;
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-    transition: all var(--duration-normal) var(--ease-spring);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    cursor: pointer;
-    text-align: center;
-}
-
-.btn-secondary-glass:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--border-gold-subtle);
-    color: var(--logo-gold-highlight);
-    transform: translateY(-3px);
-}
-
-.btn-dispatch {
-    background: var(--gradient-gold-brushed-ui);
-    color: #050504;
-    padding: 8px 18px;
+    gap: var(--space-2);
+    min-height: var(--control-height);
+    padding: var(--space-3) var(--space-6);
+    border: 1px solid var(--border-gold-subtle);
     border-radius: var(--radius-full);
-    font-size: 12.5px;
-    font-weight: 800;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: 0 0 15px rgba(186, 152, 87, 0.3);
-    transition: all var(--duration-normal) var(--ease-spring);
-    white-space: nowrap;
-}
-
-.btn-dispatch:hover {
-    transform: translateY(-1px) scale(1.03);
-    box-shadow: 0 0 25px rgba(186, 152, 87, 0.6);
-}
-
-/* Outlined gold companion to .btn-gold. Used where two actions sit side by
-   side and only one may carry the solid brushed plate: the outline keeps the
-   same footprint and weight, so the pair reads as one system rather than a
-   button next to a text link (which is exactly how an unstyled <a> rendered:
-   default blue, underlined, sized by the paragraph around it). */
-.btn-outline {
-    background: rgba(186, 152, 87, 0.06);
-    color: var(--logo-gold-highlight);
-    border: 1.5px solid var(--logo-gold-bevel);
-    font-weight: 800;
-    font-size: clamp(14px, 1.2vw, 16px);
-    letter-spacing: 0.02em;
-    padding: clamp(14px, 2vw, 18px) clamp(28px, 3.5vw, 42px);
-    border-radius: var(--radius-md);
-    text-decoration: none;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 8px 24px rgba(0, 0, 0, 0.45);
-    transition: all var(--duration-normal) var(--ease-spring);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    cursor: pointer;
-    position: relative;
-    /* The hover fill is a ::before layer sent to z-index -1. Isolating the
-       button keeps that -1 inside its own stacking context, so the fill sits
-       behind the label text (a bare text node) and above the page. */
-    isolation: isolate;
-    overflow: hidden;
+    background: var(--color-surface-card);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-weight: var(--control-weight);
+    font-size: var(--control-size);
+    line-height: 1.4;
     text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color var(--duration-normal) ease,
+                color var(--duration-normal) ease,
+                background-color var(--duration-normal) ease;
 }
 
-.btn-outline::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: var(--gradient-gold-brushed);
-    opacity: 0;
-    transition: opacity var(--duration-normal) ease;
+.btn-gold { border-color: var(--text-gold-core); }
+.btn-secondary-glass { border-color: var(--border-muted); background: transparent; }
+
+:is(.btn-gold, .btn-secondary-glass, .btn-outline, .btn-dispatch):hover {
+    border-color: var(--text-gold-light);
+    color: var(--text-gold-light);
+    background: var(--color-surface-elevated);
 }
 
-.btn-outline:hover {
-    color: #050504;
-    border-color: var(--logo-gold-specular);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 34px rgba(186, 152, 87, 0.45);
+:is(.btn-gold, .btn-secondary-glass, .btn-outline, .btn-dispatch):disabled {
+    opacity: 0.5;
+    cursor: default;
 }
 
-.btn-outline:hover::before {
-    opacity: 1;
-}
-
-/* Size modifiers shared by every button family. */
-.btn-sm {
-    font-size: 13px;
-    padding: 11px 22px;
-}
-
-.btn-block {
-    width: 100%;
-    justify-content: center;
-}
+.btn-dispatch { font-size: 0.8rem; white-space: nowrap; padding: var(--space-2) var(--space-4); }
+.btn-sm { font-size: 0.8rem; padding: var(--space-2) var(--space-5); }
+.btn-block, .btn-gold--block { width: 100%; }
+.btn-gold--lg { font-size: 1rem; }
 
 @media (max-width: 850px) {
     .btn-dispatch { display: none; }
     .btn-gold, .btn-secondary-glass, .btn-outline { width: 100%; }
-}
-
-.btn-gold--block {
-    width: 100%;
-    justify-content: center;
-}
-
-.btn-gold--lg {
-    font-size: 17px;
 }
 }

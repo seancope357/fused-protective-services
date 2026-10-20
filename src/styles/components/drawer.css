@@ -21,7 +21,7 @@
     padding: var(--space-8) var(--space-6);
     flex-direction: column;
     gap: var(--space-5);
-    box-shadow: -15px 0 40px rgba(0, 0, 0, 0.9);
+    box-shadow: none;
     transition: right var(--duration-normal) var(--ease-spring);
 }
 
@@ -46,12 +46,14 @@
     color: var(--text-primary);
     text-decoration: none;
     font-size: 16px;
-    font-weight: 700;
+    font-weight: var(--control-weight);
     padding: 10px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-family: var(--font-body);
+    min-height: var(--control-height);
 }
 
 .drawer-head {
@@ -62,10 +64,12 @@
 }
 
 .drawer-title {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-body);
     font-size: 18px;
-    font-weight: 800;
+    font-weight: var(--display-weight);
     color: var(--text-pure);
+    letter-spacing: var(--display-tracking);
+    text-transform: none;
 }
 
 .drawer-close {

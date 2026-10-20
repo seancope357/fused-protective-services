@@ -177,3 +177,22 @@ Invoicing moved into the operations portal in Phase 1 (2026-09-09). The business
 * **Deposits:** Optional deposit % per quote or job; the balance invoice credits the deposit pre-tax.
 * **Payment:** Stripe Checkout (card + ACH) for the stored balance only; the Stripe webhook is the source of truth.
 * **Legacy Records:** `/invoice` on the marketing site only exports invoices the retired browser tool left in `localStorage`, for Portal → Invoices → Import legacy.
+
+
+## Fused Aerial — pilot-operated drone protection (2026-10-20)
+
+Sean confirmed **pilot-operated patrols** on 2026-10-20. The aerial page now sells inquiries
+for that service, aimed at estate/ranch, construction and commercial property buyers. One CTA,
+“Request drone protection”, leads to the existing quote form with aerial intent retained in notes.
+The buyer selects an existing division; the seven `quoteValue` contracts remain unchanged.
+
+The conversion is a request to discuss and scope protection, not a confirmed flight reservation.
+Location, priorities and preferred dates qualify the inquiry. Flight permissions, operating
+conditions, scope and availability are confirmed before booking. Pilot certification details,
+night/thermal coverage, autonomous operations, guaranteed response times, aerial pricing and
+specific flight territories remain unconfirmed and are not advertised. Day/Night is illustrative.
+
+Competitive copy research and its source limitations are recorded in
+[`docs/fused-aerial-competitive-brief-2026-10-20.html`](../docs/fused-aerial-competitive-brief-2026-10-20.html).
+The copy uses original language; competitor hardware capabilities and performance claims are not
+Fused proof. No conversion lift is claimed without analytics.

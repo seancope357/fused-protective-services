@@ -83,15 +83,15 @@
     --radius-2xl: 28px;
     --radius-full: 9999px;
 
-    /* ----------------------------------------------------------------------
-       EDITORIAL SCALE — the restrained dialect proven on /aerial.
-       Tactical Luxury has two registers, and they are not interchangeable:
-       the ARCHITECTURAL register (Cinzel 900, uppercase, gold fills) states
-       authority on the marketing surfaces, and the EDITORIAL register below
-       (Outfit 400, negative tracking, sentence case, hairline gold) carries
-       narrative. Editorial reads as more expensive because it withholds.
-       Both draw from the one gold spectrum above; neither invents a colour.
-       ---------------------------------------------------------------------- */
+    /* Shared public-site typography, adopted from /aerial (2026-10-20).
+       Cinzel is reserved for the brand; Outfit carries content and controls. */
+    --font-body: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-brand: 'Cinzel', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --section-air: clamp(72px, 10vw, 144px);
+    --control-size: 0.875rem;
+    --control-weight: 500;
+    --control-height: 44px;
 
     /* Display faces. Outfit at weight 400 with tight negative tracking — the
        large-and-quiet move. Never raise the weight to "strengthen" these;

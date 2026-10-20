@@ -5,10 +5,8 @@
    dialect instead of a lookalike. Every rule reads from tokens.css; there are
    no literal colours, sizes or easings in this file by design.
 
-   Pair it with the architectural register, do not replace it. Use editorial
-   for narrative: a section's opening statement, a chapter, a quiet CTA. Keep
-   architectural (Cinzel 900, uppercase, gold fill) for the brand plate, the
-   hero wordmark and anywhere the page must assert authority.
+   This is the public site's shared visual language. Cinzel is reserved for
+   the Fused wordmark; headings, prose and controls use Outfit throughout.
 
    The one hard rule: never raise --display-weight to make an editorial
    headline feel stronger. Scale and surrounding air do that. Weight is
@@ -31,7 +29,7 @@
 /* Outfit, not Cinzel, and sentence case, not uppercase. text-wrap: balance
    keeps the ragged edge deliberate rather than accidental. */
 .display {
-    font-family: Outfit, sans-serif;
+    font-family: var(--font-body);
     text-transform: none;
     font-weight: var(--display-weight);
     line-height: var(--display-leading);

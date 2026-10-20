@@ -15,7 +15,7 @@ export const careersHero = () => html`
             </div>
 
             <h1 class="careers-hero-title">
-                YOUR EXPERIENCE <span class="gold-gradient-text">COUNTS HERE</span>
+                Your experience <span class="gold-gradient-text">counts here.</span>
             </h1>
 
             <p class="careers-hero-lead">

@@ -9,6 +9,8 @@
 
 import { html, json } from '../lib/html.mjs';
 import { site } from '../data/site.mjs';
+import { aerial } from '../data/aerial.mjs';
+import { armedPreferences } from '../data/intake.mjs';
 import { assessment, recommendations } from '../data/assessment.mjs';
 import { tiers, defaultTier } from '../data/estimator.mjs';
 
@@ -31,6 +33,7 @@ import { dispatchBar, footer } from './footer.mjs';
     are how this island's contract drifts. */
 const clientConfig = () => ({
     site: { productionHosts: site.productionHosts },
+    aerialInquiry: { ...aerial.inquiry, armedPreference: armedPreferences[aerial.inquiry.armedPreference] },
     assessment: {
         recommendations,
         environment: Object.fromEntries(

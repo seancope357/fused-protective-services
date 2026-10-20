@@ -11,7 +11,7 @@
     height: auto;
     border-radius: var(--radius-md);
     margin-bottom: var(--space-5);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), 0 0 30px var(--gold-glow-soft);
+    box-shadow: none;
 }
 
 .footer-menu {
@@ -98,9 +98,9 @@
 }
 
 .footer-wordmark {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-brand);
     font-size: clamp(18px, 2.5vw, 24px);
-    font-weight: 900;
+    font-weight: 600;
     color: var(--text-pure);
     letter-spacing: 1.5px;
     margin-bottom: 6px;

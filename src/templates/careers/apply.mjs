@@ -10,7 +10,7 @@ export const careersApply = () => html`
 <section class="careers-apply-section" id="candidate-application">
     <div class="container">
         <div class="section-header-centered" data-reveal>
-            <h2 class="section-title">OFFICER APPLICATION</h2>
+            <h2 class="section-title">Officer application</h2>
             <p class="section-lead">
                 Submit your operational profile directly to Fused Protective Services. Applications are reviewed within 48 business hours.
             </p>

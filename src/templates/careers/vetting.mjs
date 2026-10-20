@@ -10,7 +10,7 @@ export const careersVetting = () => html`
     <div class="container">
         <div class="section-header-centered" data-reveal>
             <div class="tactical-badge">SCREENING MATRIX</div>
-            <h2 class="section-title">THE 5-STAGE VETTING PROTOCOL</h2>
+            <h2 class="section-title">The 5-stage vetting protocol</h2>
             <p class="section-lead">
                 Every candidate is evaluated through an exhaustive 5-stage verification process to ensure flawless tactical judgment, moral integrity, and client discretion.
             </p>

@@ -135,7 +135,7 @@ html {
 body {
     background-color: var(--color-void);
     color: var(--text-primary);
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-body);
     font-size: clamp(15px, 1.1vw, 16px);
     line-height: 1.6;
     overflow-x: hidden;
@@ -213,6 +213,7 @@ body {
        cascade) would otherwise replay as a sequence of timed pops. */
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
+        animation-delay: 0s !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
         transition-delay: 0s !important;
