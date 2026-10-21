@@ -5,7 +5,7 @@ import { createWorld } from './world.mjs';
 import { cameraPose, pixelRatio, aircraftSpan, aircraftPosition, dampFactor } from './state.mjs';
 import { createLighting } from './lighting.mjs';
 import { prepareAircraft } from './aircraft.mjs';
-import { stabilizationPose } from './choreography.mjs';
+import { stabilizationPose, flightPose } from './choreography.mjs';
 export function createScene(canvas, verify) {
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, preserveDrawingBuffer: verify });
     renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -32,7 +32,7 @@ export function createScene(canvas, verify) {
     studio.traverse(o => { o.geometry?.dispose(); o.material?.dispose(); });
     let loaded = false, disposed = false, bounds = null, lighting = 'studio', rig = null;
     const lookTarget = new THREE.Vector3();
-    let cameraInitialized = false, cameraSettled = false;
+    let cameraInitialized = false, cameraSettled = false, flightProgress = 0, lastFlightProgress = 0;
     async function load(progress) {
         // The controller's GLB uses external same-origin images, preserving img-src 'self'.
         const manager = new THREE.LoadingManager();
@@ -60,22 +60,28 @@ export function createScene(canvas, verify) {
     }
     function render(state, reduced, time = 0, parallax = { x: 0, y: 0 }, snapCamera = false, delta = 1 / 60) {
         if (disposed) return;
-        const pose = cameraPose(state.progress, reduced, camera.aspect);
+        // Damp one shared progress clock so camera and aircraft never separate on fast scroll.
+        const alpha = dampFactor(delta);
+        lastFlightProgress = flightProgress;
+        const destination = reduced ? 0 : state.progress;
+        flightProgress = !cameraInitialized || reduced || snapCamera ? destination : flightProgress + (destination-flightProgress)*alpha;
+        cameraSettled = Math.abs(destination-flightProgress) < 1e-7;
+        if (cameraSettled) flightProgress = destination;
+        const pose = cameraPose(flightProgress, reduced, camera.aspect);
         const target = new THREE.Vector3(...pose.target);
         const offset = new THREE.Vector3(...pose.position).sub(target);
         const spherical = new THREE.Spherical().setFromVector3(offset);
         spherical.theta += parallax.x * .015; spherical.phi += parallax.y * .01;
         const desiredPosition = target.clone().add(new THREE.Vector3().setFromSpherical(spherical));
-        const alpha = dampFactor(delta);
-        if (!cameraInitialized || reduced || snapCamera) {
-            camera.position.copy(desiredPosition); lookTarget.copy(target); cameraInitialized = true;
-        } else { camera.position.lerp(desiredPosition, alpha); lookTarget.lerp(target, alpha); }
-        cameraSettled = camera.position.distanceToSquared(desiredPosition) + lookTarget.distanceToSquared(target) < 1e-7;
-        if (cameraSettled) { camera.position.copy(desiredPosition); lookTarget.copy(target); }
+        camera.position.copy(desiredPosition); lookTarget.copy(target); cameraInitialized = true;
         camera.lookAt(lookTarget);
         const stabilization = stabilizationPose(time, reduced);
-        aircraft.position.fromArray(aircraftPosition).add(new THREE.Vector3(...stabilization.position));
-        aircraft.rotation.set(stabilization.rotation[0], -.4 + stabilization.rotation[1], stabilization.rotation[2]);
+        const flight = flightPose(flightProgress, reduced);
+        const speed = reduced || snapCamera ? 0 : Math.max(-1, Math.min(1, (flightProgress-lastFlightProgress)/Math.max(delta,.001)*8));
+        aircraft.position.fromArray(flight.position).add(new THREE.Vector3(...stabilization.position));
+        aircraft.rotation.set(stabilization.rotation[0] + speed*.065, flight.heading + stabilization.rotation[1], stabilization.rotation[2] - Math.abs(speed)*.09, 'YXZ');
+        lensFill.position.copy(aircraft.position).add(new THREE.Vector3(-3.5,3,5.5));
+        lensFill.target.position.copy(aircraft.position);
         // Rotor motion follows the same pause-aware elapsed clock as the hover.
         // Pausing or reduced motion restores the authored blade pose, never a frozen blur disc.
         rig?.update(time, reduced || state.paused);
@@ -88,6 +94,6 @@ export function createScene(canvas, verify) {
         textures.forEach(t => t.dispose()); materials.forEach(m => m.dispose()); geometries.forEach(g => g.dispose());
     }
     resize();
-    return { load, render, resize, isSettling: () => !cameraSettled, context: renderer.getContext(), stats: () => ({ cameraSettled, timeOfDay: lights.stats().mode, shadowMapSize: lights.stats().shadowMapSize, property: world.stats(), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, camera: { position: camera.position.toArray(), target: lookTarget.toArray(), direction: camera.getWorldDirection(new THREE.Vector3()).toArray() }, modelLoaded: loaded, lighting, pixelRatio: renderer.getPixelRatio(), aircraftDraws: rig?.stats().aircraftDraws ?? 0, rotorCount: rig?.stats().rotorCount ?? 0, bounds }),
+    return { load, render, resize, isSettling: () => !cameraSettled, context: renderer.getContext(), stats: () => ({ cameraSettled, flightProgress, aircraft: { position: aircraft.position.toArray(), rotation: aircraft.rotation.toArray() }, timeOfDay: lights.stats().mode, shadowMapSize: lights.stats().shadowMapSize, property: world.stats(), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, camera: { position: camera.position.toArray(), target: lookTarget.toArray(), direction: camera.getWorldDirection(new THREE.Vector3()).toArray() }, modelLoaded: loaded, lighting, pixelRatio: renderer.getPixelRatio(), aircraftDraws: rig?.stats().aircraftDraws ?? 0, rotorCount: rig?.stats().rotorCount ?? 0, bounds }),
         dispose() { disposed = true; rig?.dispose(); rig = null; disposeObject(scene); environment.dispose(); pmrem.dispose(); renderer.dispose(); } };
 }

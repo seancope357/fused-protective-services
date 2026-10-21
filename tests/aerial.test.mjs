@@ -230,3 +230,26 @@ test('terrain is level beneath the property and continuous across the meadow tra
     }
     assert.equal(changes,true);
 });
+
+const {flightPose}=await import('../js/aerial/choreography.mjs');
+test('entire patrol keeps the aircraft visible, foreground-sized and outside the reading column',()=>{
+    for(const aspect of [320/900,390/844,.75,1,1.2,1.44,16/9,2.2]) {
+        for(let i=0;i<=200;i++) {
+            const u=i/200,pose=cameraPose(u,false,aspect),flight=flightPose(u);
+            const camera=new THREE.PerspectiveCamera(40,aspect,.3,600);
+            camera.position.fromArray(pose.position);camera.lookAt(...pose.target);camera.updateMatrixWorld();
+            const center=new THREE.Vector3(...flight.position).project(camera);
+            assert.ok(aspect<.8?center.y>.4:center.x>.15, `reading clearance ${aspect}/${u}: ${center.toArray()}`);
+            const extent=[];
+            // Bounding sphere of radius 1.05 includes banking and rotor sweep.
+            for(let j=0;j<24;j++)for(let k=0;k<=12;k++) {
+                const theta=j*Math.PI/12,phi=k*Math.PI/12;
+                const point=new THREE.Vector3(Math.sin(phi)*Math.cos(theta),Math.cos(phi),Math.sin(phi)*Math.sin(theta)).multiplyScalar(1.05).add(new THREE.Vector3(...flight.position)).project(camera);
+                assert.ok(Math.abs(point.x)<.98&&Math.abs(point.y)<.98, `frame ${aspect}/${u}: ${point.toArray()}`);
+                extent.push(point.x);
+            }
+            const width=(Math.max(...extent)-Math.min(...extent))/2;
+            assert.ok(width>.075,`aircraft too small ${aspect}/${u}: ${width}`);
+        }
+    }
+});

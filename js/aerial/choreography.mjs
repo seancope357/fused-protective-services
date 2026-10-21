@@ -2,19 +2,20 @@
 // Shape-preserving cubic Hermite interpolation keeps velocity continuous at joins
 // without spline overshoot through architecture or an artificial stop per chapter.
 const times = [0, .14, .38, .68, 1];
+// Camera offsets relative to the aircraft: the subject remains foreground-sized.
 const desktop = [
-    { position: [3.8,10.85,5.6], target: [1.6,10.2,1] },
-    { position: [5.6,11.1,6.1], target: [2,10.2,.8] },
-    { position: [16,13,26], target: [0,3,-8] },
-    { position: [25,23,24], target: [0,1,-9] },
-    { position: [36,34,40], target: [0,0,-7] }
+    { position: [1.3,.35,4.6], target: [-.9,-.3,0] },
+    { position: [3,2,6], target: [-1.5,-.6,.5] },
+    { position: [5,4,7], target: [-2,-.6,1] },
+    { position: [5,3,6], target: [-1.8,-.5,1] },
+    { position: [2,1.2,5], target: [-1.2,-.3,.3] }
 ];
 const portrait = [
-    { position: [3.8,10.85,10], target: [2.5,8.7,1] },
-    { position: [5.4,11.7,11], target: [2.4,8.8,0] },
-    { position: [25,24,39], target: [0,2,-8] },
-    { position: [33,38,39], target: [0,1,-9] },
-    { position: [42,47,53], target: [0,0,-7] }
+    { position: [1.3,.35,9], target: [-.1,-1.7,-1] },
+    { position: [3,3,11], target: [-.2,-2.8,-1] },
+    { position: [4,4,12], target: [-.3,-3.2,-1] },
+    { position: [4,3,11], target: [-.2,-3,-1] },
+    { position: [2,1.5,10], target: [-.1,-2.4,-1] }
 ];
 const clamp = value => Number.isFinite(value) ? Math.max(0,Math.min(1,value)) : 0;
 function compile(shots) {
@@ -48,7 +49,7 @@ export function storyPose(progress,aspect=1.5) {
     const mix=clamp((1.2-aspect)/.5);
     return Object.fromEntries(['position','target'].map(key=>[key,[0,1,2].map(axis=>{
         const a=sample(paths[0],key,axis,index,t),b=sample(paths[1],key,axis,index,t);
-        return a+(b-a)*mix;
+        return a+(b-a)*mix+flightPose(u).position[axis];
     })]));
 }
 export function stabilizationPose(time,reduced=false) {
@@ -57,4 +58,16 @@ export function stabilizationPose(time,reduced=false) {
         position:[.006*Math.sin(time*.43),.012*Math.sin(time*.7)+.003*Math.sin(time*1.31),.004*Math.sin(time*.37)],
         rotation:[.003*Math.sin(time*.37),.002*Math.sin(time*.18),.004*Math.sin(time*.43)]
     };
+}
+
+// A broad, continuous patrol above the house and the tallest perimeter planting.
+// Smoothstep eases out of the opening hover and into the final inquiry composition.
+export function flightPose(progress, reduced = false) {
+    const u = reduced ? 0 : clamp(progress), eased = u*u*(3-2*u);
+    const angle = eased * Math.PI * 1.7;
+    const dx = 20*Math.cos(angle), dz = -15*Math.sin(angle);
+    // Unwrapped heading avoids a 360-degree spin at the atan2 branch cut.
+    const heading = Math.PI/2 + angle + Math.atan2(-5*Math.sin(angle)*Math.cos(angle), 20*Math.cos(angle)**2+15*Math.sin(angle)**2);
+    return { position: [2.5+20*Math.sin(angle), 10.5+2*Math.sin(Math.PI*u)**2, -14+15*Math.cos(angle)],
+        heading, tangent: [dx, 0, dz] };
 }
