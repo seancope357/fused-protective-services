@@ -79,10 +79,16 @@
     --space-20: clamp(64px, 10vw, 80px);
     --space-24: clamp(76px, 12vw, 96px);
 
-    /* Section Surfaces — the recessed bands between full-bleed sections */
-    --surface-section-sunken: rgba(9, 10, 9, 0.75);
-    --surface-section-deep: rgba(9, 10, 9, 0.80);
-    --surface-section-framed: rgba(12, 13, 12, 0.85);
+    /* Section Surfaces — translucent so the fixed particle mesh
+       (#tactical-bg-canvas) shows through the whole page, not just the intro
+       (Sean, 2026-11-23). The base page surface is transparent; these only
+       tint the alternating bands. Text sits on near-black either way: the
+       body background behind the canvas is --color-void. Content panels
+       (cards, form fields, summary boxes) keep their own opaque surfaces. */
+    --surface-section-base: transparent;
+    --surface-section-sunken: rgba(9, 10, 9, 0.40);
+    --surface-section-deep: rgba(5, 5, 4, 0.15);
+    --surface-section-framed: rgba(12, 13, 12, 0.45);
 
     /* Radii */
     --radius-sm: 6px;
@@ -371,7 +377,7 @@ body {
 .section-padding {
     padding: var(--section-air) 0;
     position: relative;
-    background: var(--color-void);
+    background: var(--surface-section-base);
 }
 
 .section-tag, .tactical-eyebrow, .tactical-badge {
@@ -408,10 +414,10 @@ body {
     margin-bottom: var(--space-12);
 }
 
-.section-padding--sunken { background: var(--color-surface-base); }
-.section-padding--deep { background: var(--color-void); }
+.section-padding--sunken { background: var(--surface-section-sunken); }
+.section-padding--deep { background: var(--surface-section-deep); }
 .section-padding--framed {
-    background: var(--color-surface-base);
+    background: var(--surface-section-framed);
     border-top: 1px solid var(--border-subtle);
     border-bottom: 1px solid var(--border-subtle);
 }
@@ -1103,8 +1109,9 @@ html[data-forge-fallback] .forge-cue {
     padding: var(--section-air) 0 var(--space-12);
     text-align: left;
     position: relative;
-    /* The emblem owns the intro. A calm opaque reading surface starts here. */
-    background: var(--color-void);
+    /* Translucent like every section, so the particle mesh carries on
+       behind the hero. The forge stage hides itself before this point. */
+    background: var(--surface-section-base);
 }
 
 .hero .container { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--space-12); }
@@ -1204,7 +1211,7 @@ html[data-forge-fallback] .forge-cue {
    surface, separated by hairlines, the way client strips sit under a SaaS
    hero. Marks are monochrome so no client's brand colour fights the gold. */
 .proof-band {
-    background: var(--color-void);
+    background: var(--surface-section-base);
     border-top: 1px solid var(--border-subtle);
     border-bottom: 1px solid var(--border-subtle);
     padding: var(--space-10) 0;
@@ -2245,7 +2252,7 @@ html[data-forge-fallback] .forge-cue {
 /* ── Hero ─────────────────────────────────────────────────────────── */
 .careers-hero-section {
     padding: clamp(100px, 14vw, 150px) 0 clamp(40px, 6vw, 60px);
-    background: var(--color-void);
+    background: var(--surface-section-base);
 }
 
 .careers-hero-content {
@@ -2350,7 +2357,7 @@ html[data-forge-fallback] .forge-cue {
 /* ── Pre-Qualification ─────────────────────────────────────────────── */
 .careers-prequal-section {
     padding: var(--section-air) 0;
-    background: var(--color-surface-base);
+    background: var(--surface-section-sunken);
     border-top: 1px solid var(--border-subtle);
     border-bottom: 1px solid var(--border-subtle);
 }
@@ -2528,7 +2535,7 @@ html[data-forge-fallback] .forge-cue {
 /* ── Positions Board ───────────────────────────────────────────────── */
 .careers-positions-section {
     padding: var(--section-air) 0;
-    background: var(--color-void);
+    background: var(--surface-section-base);
 }
 
 .filter-tabs-track {

@@ -2,7 +2,7 @@
 .section-padding {
     padding: var(--section-air) 0;
     position: relative;
-    background: var(--color-void);
+    background: var(--surface-section-base);
 }
 
 .section-tag, .tactical-eyebrow, .tactical-badge {
@@ -39,10 +39,10 @@
     margin-bottom: var(--space-12);
 }
 
-.section-padding--sunken { background: var(--color-surface-base); }
-.section-padding--deep { background: var(--color-void); }
+.section-padding--sunken { background: var(--surface-section-sunken); }
+.section-padding--deep { background: var(--surface-section-deep); }
 .section-padding--framed {
-    background: var(--color-surface-base);
+    background: var(--surface-section-framed);
     border-top: 1px solid var(--border-subtle);
     border-bottom: 1px solid var(--border-subtle);
 }

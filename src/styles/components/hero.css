@@ -3,8 +3,9 @@
     padding: var(--section-air) 0 var(--space-12);
     text-align: left;
     position: relative;
-    /* The emblem owns the intro. A calm opaque reading surface starts here. */
-    background: var(--color-void);
+    /* Translucent like every section, so the particle mesh carries on
+       behind the hero. The forge stage hides itself before this point. */
+    background: var(--surface-section-base);
 }
 
 .hero .container { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--space-12); }

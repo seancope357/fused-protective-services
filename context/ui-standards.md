@@ -62,9 +62,13 @@ The animated WebGL particle mesh and voxel canvas sit behind page content. The f
 * `--surface-section-deep`: `rgba(9, 10, 9, 0.80)`
 * `--surface-section-framed`: `rgba(12, 13, 12, 0.85)`
 
-Public reading sections use opaque `--color-void` / `--color-surface-base` surfaces so the
-assembled emblem stays within its intro rather than competing with subsequent copy. Panels retain
-the existing card tokens, restrained borders and reduced radii.
+Public reading sections are **translucent** (Sean, 2026-11-23): the base section surface is
+`--surface-section-base` (transparent) and alternating bands use the light `--surface-section-*`
+tints, so the fixed gold particle mesh stays visible the whole way down `/` and `/careers`. This
+replaces the 2026-10-20 opaque treatment. The assembled emblem still cannot ghost behind content,
+because `js/logo-forge.js` fades and hides its stage once the visitor scrolls past the track.
+Content panels (cards, form fields, summary boxes) keep their opaque card tokens, restrained
+borders and reduced radii, so text never sits directly on moving particles inside a panel.
 
 > [!NOTE]
 > **Why `mix-blend-mode` is Forbidden Over Canvas:**

@@ -3,7 +3,7 @@
    surface, separated by hairlines, the way client strips sit under a SaaS
    hero. Marks are monochrome so no client's brand colour fights the gold. */
 .proof-band {
-    background: var(--color-void);
+    background: var(--surface-section-base);
     border-top: 1px solid var(--border-subtle);
     border-bottom: 1px solid var(--border-subtle);
     padding: var(--space-10) 0;

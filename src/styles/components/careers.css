@@ -6,7 +6,7 @@
 /* ── Hero ─────────────────────────────────────────────────────────── */
 .careers-hero-section {
     padding: clamp(100px, 14vw, 150px) 0 clamp(40px, 6vw, 60px);
-    background: var(--color-void);
+    background: var(--surface-section-base);
 }
 
 .careers-hero-content {
@@ -111,7 +111,7 @@
 /* ── Pre-Qualification ─────────────────────────────────────────────── */
 .careers-prequal-section {
     padding: var(--section-air) 0;
-    background: var(--color-surface-base);
+    background: var(--surface-section-sunken);
     border-top: 1px solid var(--border-subtle);
     border-bottom: 1px solid var(--border-subtle);
 }
@@ -289,7 +289,7 @@
 /* ── Positions Board ───────────────────────────────────────────────── */
 .careers-positions-section {
     padding: var(--section-air) 0;
-    background: var(--color-void);
+    background: var(--surface-section-base);
 }
 
 .filter-tabs-track {
