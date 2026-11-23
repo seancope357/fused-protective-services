@@ -74,7 +74,9 @@ jobs:
 
   a11y:
     name: Accessibility — WCAG 2.1 AA scan
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest moved to 26.04 (Nov 2026), which the pinned
+    # Playwright cannot install Chromium on. Unpin once Playwright is upgraded.
+    runs-on: ubuntu-24.04
     # ┌───────────────────────────────────────────────────────────────────┐
     # │  THIS JOB BLOCKS. `--exit` on both scans makes axe exit non-zero  │
     # │  on any violation, and there is no continue-on-error.             │
