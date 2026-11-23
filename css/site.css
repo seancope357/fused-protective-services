@@ -1198,6 +1198,85 @@ html[data-forge-fallback] .forge-cue {
 
 }
 
+/* ── components/proof.css ────────────────────────────────────── */
+@layer components {
+/* "Trusted at" band. Sits directly under the hero on the same opaque void
+   surface, separated by hairlines, the way client strips sit under a SaaS
+   hero. Marks are monochrome so no client's brand colour fights the gold. */
+.proof-band {
+    background: var(--color-void);
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: var(--space-10) 0;
+}
+
+.proof-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+}
+
+.proof-label {
+    flex: none;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: var(--control-weight);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-gold-core);
+    margin: 0;
+}
+
+.proof-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-8) var(--space-16);
+}
+
+.proof-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.proof-wordmark {
+    font-family: var(--font-body);
+    font-size: clamp(20px, 2.4vw, 28px);
+    font-weight: var(--display-weight);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--text-primary);
+}
+
+/* Official marks render in their own colours, unaltered. If the strip grows
+   to several logos and they clash, flatten them to white together with
+   `filter: grayscale(1) brightness(0) invert(1)`. */
+.proof-logo {
+    display: block;
+    height: clamp(40px, 4.6vw, 56px);
+    width: auto;
+}
+
+.proof-place {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+    .proof-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-5);
+    }
+}
+}
+
 /* ── components/bookshelf.css ────────────────────────────────── */
 @layer components {
 .bookshelf-container {

@@ -18,6 +18,7 @@ import { head } from './head.mjs';
 import { nav, drawer } from './nav.mjs';
 import { assembly } from './assembly.mjs';
 import { hero } from './hero.mjs';
+import { proofBand } from './proof.mjs';
 import { bookshelf } from './bookshelf.mjs';
 import { protocol } from './protocol.mjs';
 import { assessmentSection } from './assessment.mjs';
@@ -88,6 +89,7 @@ ${nav()}
     <main id="main" tabindex="-1">
 ${assembly()}
 ${hero()}
+${proofBand()}
 ${bookshelf()}
 ${protocol()}
 ${assessmentSection()}

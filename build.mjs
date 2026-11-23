@@ -53,6 +53,7 @@ const STYLE_ORDER = [
     'components/forge.css',
     'components/hero.css',
     'components/metrics.css',
+    'components/proof.css',
     'components/bookshelf.css',
     'components/protocol.css',
     'components/assessment.css',
