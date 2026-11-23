@@ -8,9 +8,13 @@
 import { html } from '../lib/html.mjs';
 import { proof } from '../data/proof.mjs';
 
+/* Wordmark-shaped logos (wider than 6:1) get a shorter height so they carry
+   the same visual weight as compact marks instead of spanning the row. */
+const logoClass = ({ width, height }) => (width / height > 6 ? 'proof-logo proof-logo--wide' : 'proof-logo');
+
 const mark = (client) =>
     client.logo
-        ? html`<img src="${client.logo.src}" alt="${client.name}" class="proof-logo" width="${client.logo.width}" height="${client.logo.height}" loading="lazy">`
+        ? html`<img src="${client.logo.src}" alt="${client.name}" class="${logoClass(client.logo)}" width="${client.logo.width}" height="${client.logo.height}" loading="lazy">`
         : html`<span class="proof-wordmark">${client.name}</span>`;
 
 export const proofBand = () =>

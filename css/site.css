@@ -1233,7 +1233,8 @@ html[data-forge-fallback] .forge-cue {
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    /* Bottom-aligned so the place labels share a baseline when logos differ in height. */
+    align-items: flex-end;
     gap: var(--space-8) var(--space-16);
 }
 
@@ -1259,6 +1260,11 @@ html[data-forge-fallback] .forge-cue {
     display: block;
     height: clamp(40px, 4.6vw, 56px);
     width: auto;
+}
+
+.proof-logo--wide {
+    height: clamp(24px, 2.6vw, 32px);
+    max-width: 100%;
 }
 
 .proof-place {

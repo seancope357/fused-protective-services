@@ -98,11 +98,13 @@ Root directory, outside-root files and the Git connection are set; the portal de
   in Portal → Reviews and paste the export into `src/data/reviews.mjs`. The schema.org
   rating appears only from real reviews.
 
-## 11. COTA logo consent
+## 11. Client logo consent (COTA, Texas Tribune Festival)
 
 - **TODO(cameron):** written OK from Circuit of The Americas (an email from his contact is
   enough) to show its logo in the "Trusted at" band. COTA's ticket policy bars commercial
   use of its logo without prior written consent. Sean shipped the logo on 2026-11-23 with
   this still open.
 - **File:** `src/data/proof.mjs` → the COTA entry's `logo`.
-- **If COTA objects:** set `logo: null`; the band falls back to the name as a wordmark.
+- **TODO(cameron):** the same written OK from The Texas Tribune for the Texas Tribune
+  Festival logo (added 2026-11-23), and what work Fused did there.
+- **If either objects:** set that entry's `logo: null`; the band falls back to the name as a wordmark.

@@ -21,6 +21,13 @@
    prior written consent. Sean deployed the logo on 2026-11-23 with that consent
    still being requested (docs/OPEN_QUESTIONS.md §11). If COTA objects, set
    `logo: null` and the wordmark shows instead.
+
+   2026-11-23: The Texas Tribune Festival added at Sean's request. Logo is the
+   Festival's wordmark (festival.texastribune.org/images/horizontal_logo.png)
+   rendered black on the Festival's yellow, #ffc200, matching its own share
+   image; the Festival has no separate symbol. If Cameron or the Tribune
+   supply an official yellow file, replace assets/clients/tribfest.png. Written OK
+   from the Tribune is pending, same as COTA (OPEN_QUESTIONS.md §11).
    ========================================================================== */
 
 export const proof = {
@@ -30,6 +37,11 @@ export const proof = {
             name: 'Circuit of The Americas',
             place: 'Austin, TX',
             logo: { src: 'assets/clients/cota.svg', width: 359, height: 120 }
+        },
+        {
+            name: 'The Texas Tribune Festival',
+            place: 'Austin, TX',
+            logo: { src: 'assets/clients/tribfest.png', width: 729, height: 77 }
         }
     ]
 };
