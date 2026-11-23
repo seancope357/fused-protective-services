@@ -7,25 +7,21 @@ Every item here is a business fact the code cannot invent, or an account only a 
 can open. Each names the file or setting and what happens if it is left alone.
 Placeholders are flagged in red on every host, production included, so none can ship quietly.
 
-## 1. Dispatch phone number — resolved 2026-09-09
+## 1. Dispatch phone number — resolved 2026-09-09, re-confirmed 2026-11-23
 
-`(512) 555-0199` confirmed by Sean as the dispatch line; `placeholder` is now false in
-`src/data/site.mjs`. Note: 555-01xx is the block reserved for fiction in the North
-American numbering plan; if the line does not ring, edit `display` and `e164` there.
+`(512) 555-0199` confirmed by Sean as the dispatch line; `placeholder` is false in
+`src/data/site.mjs`. On 2026-11-23 Sean confirmed it is a real, working number, which
+closes the earlier worry about the 555-01xx fiction block.
 
-## 2. Texas DPS Private Security licence number — number supplied 2026-09-14; address open
+## 2. Texas DPS Private Security licence number — resolved 2026-11-23
 
-- **Number:** `01766480`, supplied by Sean; `placeholder: false` in `src/data/site.mjs`.
-  Renders in the footer, schema.org `identifier`, proposal and invoice headers.
-- **TODO(cameron):** confirm `01766480` is the **company** licence and not an individual
-  registration or commission number. The docs expected the older `B12345`/`C12345` shape;
-  an 8-digit number may simply be the current TOPS format.
-- **TODO(cameron):** the company address exactly as it appears in DPS records. The same rule
-  (§35.9(a)(1)) and Tex. Occ. Code §1702.131 require it in advertising unless it is a
-  residential address. The site shows only "Austin, TX" today; `src/data/site.mjs` →
-  `address` has no street field yet, so the footer and schema.org record need one added.
-- *Not legal advice — confirm the exact requirement with the Private Security Board or
-  counsel (same review as §6).*
+- **Number:** `B32355001`, the company licence. Cameron sent it; Sean confirmed it on
+  2026-11-23. It replaced `01766480` (supplied 2026-09-14), which was never confirmed as the
+  company licence. Renders in the footer, schema.org `identifier`, proposal and invoice headers.
+- **Address:** Sean decided on 2026-11-23 not to show a street address. (37 TAC §35.9 asks for
+  the DPS-record address in advertising unless it is residential.)
+- **Still open (optional):** Cameron's personal Level IV PPO number, if he wants it shown
+  alongside the company licence. It cannot replace the company licence.
 
 ## 3. Dispatch alert recipients
 

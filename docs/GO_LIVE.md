@@ -46,8 +46,8 @@ deduplication.
 advertising in Texas is regulated; every item below is either a legal requirement or a
 statement the site makes that must be true.
 
-- [ ] **A1 · Texas DPS licence number.** *Number done 2026-09-14 (`01766480`); the DPS-record
-      address below is still open.* `src/data/site.mjs` → `licenseNumber.value`, then
+- [x] **A1 · Texas DPS licence number.** *Done 2026-11-23: company licence `B32355001`
+      (replaced `01766480`); no street address, by Sean's decision.* `src/data/site.mjs` → `licenseNumber.value`, then
       `placeholder: false`, then `node build.mjs`. 37 Tex. Admin. Code §35.9 requires it in
       advertising, and this website is advertising. The same rule requires the company
       address as it appears in DPS records (unless residential); the site shows only
@@ -62,9 +62,9 @@ statement the site makes that must be true.
       production included, with no JavaScript involved. That is intended pressure, not a
       defect — the alternative is advertising a licence number that is not ours. Connecting
       the custom domain no longer hides it.
-- [ ] **A2 · Prove the dispatch line rings.** `(512) 555-0199` is marked confirmed in
-      `src/data/site.mjs`, but `555-01xx` is the North American block reserved for fiction.
-      Dial it from an outside phone. If it does not connect, edit `display` and `e164`.
+- [x] **A2 · Prove the dispatch line rings.** *Done 2026-11-23: Sean confirmed
+      `(512) 555-0199` is a real, working number.* If it ever changes, edit `display` and
+      `e164` in `src/data/site.mjs`.
       Every ad, the nav, the drawer, the dispatch bar, the footer, the schema record and
       the confirmation emails read from that one field. **Owner: Cameron / Sean.**
 - [ ] **A3 · Attorney review of `/privacy`, `/terms`, `/sms-consent`.** Then `reviewed: true`

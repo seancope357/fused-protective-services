@@ -137,7 +137,7 @@ old browser-stored invoices for import into the portal.
 
 ## ☎️ The licence number and the dispatch line
 
-The DPS licence number is `01766480` (supplied 2026-09-14), set in `licenseNumber` in
+The DPS company licence number is `B32355001` (confirmed 2026-11-23), set in `licenseNumber` in
 [`src/data/site.mjs`](src/data/site.mjs); the footer, schema.org record, proposals and
 invoices all read it. Any fact marked `placeholder: true` makes the build warn, renders a
 red PLACEHOLDER flag beside it on **every** host, and makes

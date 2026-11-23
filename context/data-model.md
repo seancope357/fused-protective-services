@@ -84,7 +84,7 @@ interface SiteConfig {
     };
     licenseNumber: {
         label: string;               // "Texas DPS Private Security Licence"
-        value: string;               // "01766480"
+        value: string;               // "B32355001"
         placeholder: boolean;        // false — when true: red flag on every host; --verify-release fails
     };
     email: string;                   // "dispatch@fusedprotectiveservices.com"

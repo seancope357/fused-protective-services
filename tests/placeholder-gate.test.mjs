@@ -159,7 +159,7 @@ test('supplying the fact removes the flag markup entirely — no reserved space'
         run(dir);
         const html = readFileSync(join(dir, 'index.html'), 'utf8');
 
-        assert.match(html, /01766480/, 'the supplied number must render');
+        assert.match(html, /B32355001/, 'the supplied number must render');
         assert.doesNotMatch(html, /placeholder-flag/, 'no flag element may be generated');
         assert.doesNotMatch(html, /Placeholder licence number/);
         assert.doesNotMatch(html, /data-placeholder/, 'no outlined element may remain');

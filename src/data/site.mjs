@@ -9,7 +9,9 @@
    Both now derive from `phone` below, so the number a visitor reads is the
    number their handset dials.
 
-   Confirmed as the dispatch line by Sean on 2026-09-09. If it ever changes,
+   Confirmed as the dispatch line by Sean on 2026-09-09, and re-confirmed as a
+   real, working number on 2026-11-23 (the 555-01xx fiction-block worry is
+   closed). If it ever changes,
    edit `display` and `e164` here; nothing else needs to move. Setting
    `placeholder` back to true re-enables the build warning, the red flag on
    every host (see src/templates/partials.mjs), and a failing
@@ -23,11 +25,13 @@ const phone = {
 /* 37 Tex. Admin. Code §35.9 requires a licensed security company to show its DPS
    license number — and its address as it appears in DPS records, unless that is a
    residential address — in any advertisement, which includes this website.
-   Number supplied by Sean 2026-09-14.
-   TODO(cameron): the DPS-record address; `address` below has no street field yet. */
+   B32355001 is the company licence, sent by Cameron and confirmed by Sean on
+   2026-11-23. It replaced 01766480 (supplied 2026-09-14), which was never
+   confirmed as the company licence. Sean decided on 2026-11-23 not to show a
+   street address. */
 const licenseNumber = {
     label: 'Texas DPS Private Security Licence',
-    value: '01766480',
+    value: 'B32355001',
     placeholder: false
 };
 

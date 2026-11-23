@@ -138,7 +138,7 @@ invoice → paid — is the highest-value item, and it is not an engineering tas
   and night/thermal availability still need operational confirmation before advertising them.
 - Sean: view `/aerial` on a phone and direct the next visual pass.
 
-Cameron's first sign-in on the real portal proves criterion 8: create his owner account from Settings, and he enrols an authenticator and sets his own password. Before that, confirm the hosted `secure_password_change` setting, and have Cameron confirm `01766480` is the company licence and give the DPS-record address.
+Cameron's first sign-in on the real portal proves criterion 8: create his owner account from Settings, and he enrols an authenticator and sets his own password. Before that, confirm the hosted `secure_password_change` setting, (Licence `B32355001` confirmed 2026-11-23; no street address, by Sean's decision.)
 
 ## Open Questions
 
