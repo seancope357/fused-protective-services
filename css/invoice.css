@@ -79,10 +79,16 @@
     --space-20: clamp(64px, 10vw, 80px);
     --space-24: clamp(76px, 12vw, 96px);
 
-    /* Section Surfaces — the recessed bands between full-bleed sections */
-    --surface-section-sunken: rgba(9, 10, 9, 0.75);
-    --surface-section-deep: rgba(9, 10, 9, 0.80);
-    --surface-section-framed: rgba(12, 13, 12, 0.85);
+    /* Section Surfaces — translucent so the fixed particle mesh
+       (#tactical-bg-canvas) shows through the whole page, not just the intro
+       (Sean, 2026-11-23). The base page surface is transparent; these only
+       tint the alternating bands. Text sits on near-black either way: the
+       body background behind the canvas is --color-void. Content panels
+       (cards, form fields, summary boxes) keep their own opaque surfaces. */
+    --surface-section-base: transparent;
+    --surface-section-sunken: rgba(9, 10, 9, 0.40);
+    --surface-section-deep: rgba(5, 5, 4, 0.15);
+    --surface-section-framed: rgba(12, 13, 12, 0.45);
 
     /* Radii */
     --radius-sm: 6px;
