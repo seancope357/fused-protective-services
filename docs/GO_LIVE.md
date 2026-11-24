@@ -100,8 +100,9 @@ done until that step passes.
       **Verify:** submit the quote form with your own address → two emails (owner alert +
       confirmation, same reference code); then Clients → *Invite billing contact* → the
       sign-in link arrives and opens the client portal.
-- [ ] **B2 · Point alerts at Cameron.** `DISPATCH_ALERT_TO` and `DISPATCH_ALERT_SMS_TO` on
-      both projects, plus Portal → Settings. They currently point at Sean.
+- [ ] **B2 · Point alerts at Cameron.** *Email done 2026-11-23: `DISPATCH_ALERT_TO` is
+      `dispatch@` plus Sean on both projects. SMS number still open.* `DISPATCH_ALERT_SMS_TO`
+      on both projects, plus Portal → Settings.
       **Owner: Cameron** (supplies inbox + mobile). ([§3](OPEN_QUESTIONS.md))
 - [ ] **B3 · Twilio + A2P 10DLC.** Brand registration needs the EIN and takes business
       days — **start it before everything else on this page.** ([RUNBOOK §3](RUNBOOK.md))
@@ -184,7 +185,7 @@ you can run a business on.
       matters — a rule that aborts the tick means no reminders and no overdue chasers, with no
       symptom. Needs a chainable Supabase double that throws for one table.
       **Owner: engineering.**
-- [ ] **D1c · Set `OPS_ALERT_TO`.** Without it, alerts fall back to `DISPATCH_ALERT_TO` and a
+- [x] **D1c · Set `OPS_ALERT_TO`.** *Done 2026-11-23: Sean's address, both projects.* Without it, alerts fall back to `DISPATCH_ALERT_TO` and a
       stack trace reaches whoever is on the dispatch line rather than an engineer. With
       neither set, `report()` records the skip as `no_recipient`. **Owner: Sean.**
 - [ ] **D2 · Uptime checks** → [**SPEC-004**](../specs/SPEC-004-health-and-heartbeat.md) on `/`, `/careers`, `POST /api/intake` (synthetic, honeypot-

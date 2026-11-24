@@ -23,12 +23,17 @@ closes the earlier worry about the 555-01xx fiction block.
 - **Still open (optional):** Cameron's personal Level IV PPO number, if he wants it shown
   alongside the company licence. It cannot replace the company licence.
 
-## 3. Dispatch alert recipients
+## 3. Dispatch alert recipients — email resolved 2026-11-23; mobile open
 
-- **TODO(cameron):** the inbox and mobile number for lead alerts and daily digests.
-- **Where:** Portal → Settings (owner email, owner phone), or Vercel env
-  `DISPATCH_ALERT_TO` / `DISPATCH_ALERT_SMS_TO` on both projects.
-- **If left:** alerts go to Sean's inbox; emergency texts go nowhere.
+- **Email:** `DISPATCH_ALERT_TO` on both Vercel projects is
+  `dispatch@fusedprotectiveservices.com` (Cameron's Zoho inbox) plus Sean's address during
+  launch. Drop Sean from the list once Cameron is running it. Portal → Settings is empty, so
+  the environment variable governs (a saved `owner_email` would override it).
+- **`OPS_ALERT_TO`** is Sean's address on both projects, so error alerts never reach the
+  dispatch inbox.
+- **TODO(cameron):** the mobile number for emergency texts (`DISPATCH_ALERT_SMS_TO`, or
+  Portal → Settings → owner phone). Needs Twilio (§10) first.
+- **Note:** nothing is emailed until Resend is set up (§8).
 
 ## 4. Sales tax
 
@@ -61,6 +66,11 @@ closes the earlier worry about the 555-01xx fiction block.
 
 - **TODO(sean):** accept Resend's terms in the Vercel dashboard, install, verify the
   domain, set `DISPATCH_ALERT_FROM` on both projects (`docs/RUNBOOK.md` §2).
+- **Ready since 2026-11-23:** the domain receives mail (Zoho), and `_dmarc` is published at
+  `p=none`. When Resend gives its records: its MX and SPF normally sit on a `send.`
+  subdomain, so the root SPF (`v=spf1 include:zohomail.com ~all`) stays as it is. If Resend
+  asks for a root SPF include, **merge** it into that one record; two root SPF records
+  break both senders.
 - **If left:** no client-facing email at all — no confirmations, proposals, briefs,
   invoices, receipts, and **no client sign-in links** (clients cannot use the portal).
 
