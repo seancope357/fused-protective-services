@@ -79,7 +79,7 @@ statement the site makes that must be true.
       `tax.defaultRatePct` is 8.25% (Austin). Confirm security services are taxable at the
       job jurisdiction's combined rate, and which clients are exempt. Wrong tax on issued
       invoices is expensive to unwind. **Owner: Cameron.** ([§4](OPEN_QUESTIONS.md))
-- [ ] **A6 · `dispatch@fusedprotectiveservices.com` must receive mail.** The privacy policy
+- [x] **A6 · `dispatch@fusedprotectiveservices.com` must receive mail.** *Done 2026-11-23: Zoho Mail (free plan) mailbox `dispatch@`, alias `cameron@`; MX, SPF and DKIM on Vercel DNS, verified by Zoho. Admin login is Cameron's.* The privacy policy
       directs correction and deletion requests there, and it is the `from` identity for
       client email. An address that bounces is a broken promise in a published policy.
       **Owner: Sean** (falls out of C1 + C2).
