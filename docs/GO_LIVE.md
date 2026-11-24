@@ -92,7 +92,7 @@ The site's entire job is to turn a visitor into a lead and a lead into cash. Eac
 below is a link in that chain; each has a verification step in the runbook, and none is
 done until that step passes.
 
-- [ ] **B1 · Resend: verify the sending domain, install, set `DISPATCH_ALERT_FROM`** on
+- [x] **B1 · Resend: verify the sending domain, install, set `DISPATCH_ALERT_FROM`** *Done 2026-11-23: free Resend account (direct, not Marketplace), domain verified, key + sender on both projects, test send delivered. The form-submission check below is still to run.* on
       both Vercel projects. ([RUNBOOK §2](RUNBOOK.md)) **Owner: Sean.**
       *Until this is done there is no client-facing email at all* — no confirmations, no
       proposals, no briefs, no invoices, no receipts, and **no client sign-in links**, so
@@ -171,7 +171,7 @@ you can run a business on.
       built client bundle: zero occurrences), so it needed **no portal CSP change** — and a test
       now pins `connect-src` so whoever adds a browser SDK gets a failing test telling them a
       security review is due. **Owner: engineering — done.**
-- [ ] **D1a · Error alerting is dark until B1.** The reporter skips with `no_verified_sender`
+- [x] **D1a · Error alerting is dark until B1.** *Unblocked 2026-11-23: `DISPATCH_ALERT_FROM` is set; errors email `OPS_ALERT_TO`.* The reporter skips with `no_verified_sender`
       and emails nothing until `DISPATCH_ALERT_FROM` is set — it logs every time, and never
       claims a send it did not make. This follows SPEC-003 to the letter, but note the
       codebase's own convention differs: owner-audience mail elsewhere falls back to Resend's

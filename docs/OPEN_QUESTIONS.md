@@ -62,17 +62,23 @@ closes the earlier worry about the 555-01xx fiction block.
 - **Where:** Portal → Settings → *Default deposit %*; per-quote override on every quote.
 - **If left:** quotes default to no deposit. Deposit and balance invoicing work when set.
 
-## 8. Resend marketplace terms and sending domain
+## 8. Resend — resolved 2026-11-23
 
-- **TODO(sean):** accept Resend's terms in the Vercel dashboard, install, verify the
-  domain, set `DISPATCH_ALERT_FROM` on both projects (`docs/RUNBOOK.md` §2).
-- **Ready since 2026-11-23:** the domain receives mail (Zoho), and `_dmarc` is published at
-  `p=none`. When Resend gives its records: its MX and SPF normally sit on a `send.`
-  subdomain, so the root SPF (`v=spf1 include:zohomail.com ~all`) stays as it is. If Resend
-  asks for a root SPF include, **merge** it into that one record; two root SPF records
-  break both senders.
-- **If left:** no client-facing email at all — no confirmations, proposals, briefs,
-  invoices, receipts, and **no client sign-in links** (clients cannot use the portal).
+- **Account:** a free Resend account (3,000 emails/month, 100/day) signed up directly at
+  resend.com with `dispatch@fusedprotectiveservices.com`. Not the Vercel Marketplace: the
+  Marketplace's free plan is disabled for this team and the budget is $0. The Vercel
+  Resend installation (`icfg_0EUK…`) has no account behind it and is unused.
+- **Domain:** `fusedprotectiveservices.com` verified in Resend (us-east-1). DNS: DKIM TXT
+  `resend._domainkey`, CNAMEs `send` → `send.forge.rmta.net` and `rsend` →
+  `rsend.forge.rmta.net`. Root MX stays Zoho; Resend receiving is **off** and its
+  `@ MX receive.forge.rmta.net` record was deliberately not added (priority 9 would take
+  the inbox from Zoho). Click/open tracking off.
+- **Vercel:** `RESEND_API_KEY` (sending-only key `fused-vercel-production`) and
+  `DISPATCH_ALERT_FROM=Fused Dispatch <dispatch@fusedprotectiveservices.com>` on both
+  projects, production. Both redeployed. A test send from dispatch@ to dispatch@ landed in
+  the Zoho inbox.
+- **Still to prove:** one real quote-form submission (owner alert + visitor confirmation),
+  and a client sign-in link from the portal.
 
 ## 9. Portal Git settings — resolved 2026-09-09
 
