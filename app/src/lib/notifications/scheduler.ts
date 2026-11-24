@@ -4,14 +4,14 @@ import { appUrl } from '@/lib/shared';
 import { dispatch, alreadySent } from './index';
 import {
     unansweredLeads, jobsStartingIn24h, jobsDueReviewRequest, invoicesDueReminder,
-    invoicesToMarkOverdue, isDigestHour, localYmd, jobsToday
+    invoicesToMarkOverdue, isDigestDue, localYmd, jobsToday
 } from './conditions';
 import { report as reportError } from '@/lib/observability';
 import type { Client, Invoice, Job, Lead, Site } from '@/lib/db/types';
 
 export type TickReport = Record<string, number | string>;
 
-/** One hourly pass. Every branch is idempotent through the notifications log. */
+/** One scheduler pass (daily on the Hobby plan; see TICK_HOURS). Every branch is idempotent through the notifications log. */
 export async function runTick(now = new Date()): Promise<TickReport> {
     const db = supabaseAdmin();
     const base = appUrl();
@@ -117,7 +117,7 @@ export async function runTick(now = new Date()): Promise<TickReport> {
 
     /* ---- Daily 7am digest ---- */
     await rule('daily_digest', async () => {
-        if (isDigestHour(now) && !(await alreadySent('daily_digest', 'digest', DIGEST_ENTITY, today))) {
+        if (isDigestDue(now) && !(await alreadySent('daily_digest', 'digest', DIGEST_ENTITY, today))) {
             const dayStart = new Date(`${today}T00:00:00-05:00`);
             const { data: todays } = await db.from('jobs').select('*').gte('starts_at', new Date(dayStart.getTime() - 12 * 3600000).toISOString()).lte('starts_at', new Date(dayStart.getTime() + 36 * 3600000).toISOString());
             const { data: newLeads } = await db.from('client_quotes').select('*').eq('status', 'new').eq('source_env', 'production').order('created_at', { ascending: false }).limit(20);

@@ -189,8 +189,8 @@ you can run a business on.
       stack trace reaches whoever is on the dispatch line rather than an engineer. With
       neither set, `report()` records the skip as `no_recipient`. **Owner: Sean.**
 - [ ] **D2 · Uptime checks** → [**SPEC-004**](../specs/SPEC-004-health-and-heartbeat.md) on `/`, `/careers`, `POST /api/intake` (synthetic, honeypot-
-      tripped so it delivers nothing), the portal login page, and the hourly
-      `/api/cron/tick`. A silently dead cron means no reminders, no overdue chasers and no
+      tripped so it delivers nothing), the portal login page, and the daily
+      `/api/cron/tick` (13:00 UTC; daily since 2026-11-23 because the budget is $0 and Hobby allows one run a day). A silently dead cron means no reminders, no overdue chasers and no
       7am digest — with no symptom until revenue is missing. **Owner: engineering.**
 - [ ] **D3 · Analytics and conversion measurement.** → [**SPEC-005**](../specs/SPEC-005-conversion-analytics.md) Also absent. Without it nobody can say
       whether the assessment quiz, the estimator or the WebGL intro help or hurt, or what a

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { dispatchWith, type EngineDeps, type LogRow } from '@/lib/notifications/engine';
 import { failureReason, statusOf } from '@/lib/notifications/log';
 import { rules } from '@/lib/notifications/templates';
-import { unansweredLeads, jobsStartingIn24h, jobsDueReviewRequest, invoicesDueReminder, invoicesToMarkOverdue, isDigestHour } from '@/lib/notifications/conditions';
+import { unansweredLeads, jobsStartingIn24h, jobsDueReviewRequest, invoicesDueReminder, invoicesToMarkOverdue, isDigestDue, TICK_HOURS } from '@/lib/notifications/conditions';
 import type { Client, Invoice, Job, Lead, Quote, Proposal } from '@/lib/db/types';
 
 const client = (over: Partial<Client> = {}): Client => ({
@@ -158,12 +158,18 @@ describe('scheduler conditions', () => {
         expect(unansweredLeads([lead({ status: 'contacted' })], now)).toHaveLength(0);
     });
 
-    it('24h reminder window is one hour wide and only for scheduled jobs', () => {
+    it('day-before reminder window spans one daily tick plus an hour of slack each side', () => {
+        // TICK_HOURS = 24 (app/vercel.json runs the tick once a day), so the window is
+        // 11h ≤ starts-in < 37h. Consecutive daily ticks overlap; the notifications log
+        // dedupes, so every job is reminded exactly once even if a tick lands late.
         const j = (starts: string, status: Job['status'] = 'scheduled') => ({ starts_at: starts, status } as Job);
-        expect(jobsStartingIn24h([j('2026-09-10T15:30:00Z')], now)).toHaveLength(1);
-        expect(jobsStartingIn24h([j('2026-09-10T13:00:00Z')], now)).toHaveLength(0); // 22h
-        expect(jobsStartingIn24h([j('2026-09-10T16:30:00Z')], now)).toHaveLength(0); // 25.5h
-        expect(jobsStartingIn24h([j('2026-09-10T15:30:00Z', 'cancelled')], now)).toHaveLength(0);
+        expect(TICK_HOURS).toBe(24);
+        expect(jobsStartingIn24h([j('2026-09-10T15:00:00Z')], now)).toHaveLength(1); // 24h
+        expect(jobsStartingIn24h([j('2026-09-10T02:30:00Z')], now)).toHaveLength(1); // 11.5h
+        expect(jobsStartingIn24h([j('2026-09-10T01:30:00Z')], now)).toHaveLength(0); // 10.5h
+        expect(jobsStartingIn24h([j('2026-09-11T03:30:00Z')], now)).toHaveLength(1); // 36.5h
+        expect(jobsStartingIn24h([j('2026-09-11T04:30:00Z')], now)).toHaveLength(0); // 37.5h
+        expect(jobsStartingIn24h([j('2026-09-10T15:00:00Z', 'cancelled')], now)).toHaveLength(0);
     });
 
     it('review request 24h after completion', () => {
@@ -181,10 +187,13 @@ describe('scheduler conditions', () => {
         expect(invoicesToMarkOverdue([inv('2026-09-14'), inv('2026-09-15'), inv('2026-09-10', 'overdue')], today).map((i) => i.id)).toEqual(['2026-09-14']);
     });
 
-    it('digest hour is 7am Central', () => {
-        expect(isDigestHour(new Date('2026-09-09T12:00:00Z'))).toBe(true);  // CDT
-        expect(isDigestHour(new Date('2026-09-09T13:00:00Z'))).toBe(false);
-        expect(isDigestHour(new Date('2026-12-09T13:00:00Z'))).toBe(true);  // CST
+    it('digest is due from 7am Central onward (the log sends it once per day)', () => {
+        // The daily tick fires at 13:00 UTC: 7am CST in winter, 8am CDT in summer.
+        expect(isDigestDue(new Date('2026-09-09T11:00:00Z'))).toBe(false); // 6am CDT
+        expect(isDigestDue(new Date('2026-09-09T12:00:00Z'))).toBe(true);  // 7am CDT
+        expect(isDigestDue(new Date('2026-09-09T13:00:00Z'))).toBe(true);  // 8am CDT, summer daily tick
+        expect(isDigestDue(new Date('2026-12-09T12:00:00Z'))).toBe(false); // 6am CST
+        expect(isDigestDue(new Date('2026-12-09T13:00:00Z'))).toBe(true);  // 7am CST, winter daily tick
     });
 });
 

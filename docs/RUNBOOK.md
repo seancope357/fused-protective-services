@@ -250,7 +250,7 @@ remains available for a manual deploy.
 | Variable | Value |
 | :--- | :--- |
 | `APP_URL` | `https://app.fusedprotectiveservices.com` once DNS exists; currently `https://fused-portal.vercel.app`. Used in every emailed link. |
-| `CRON_SECRET` | Random string. Vercel Cron sends it as a bearer token to `/api/cron/tick` hourly (`app/vercel.json`). |
+| `CRON_SECRET` | Random string. Vercel Cron sends it as a bearer token to `/api/cron/tick` once a day at 13:00 UTC (`app/vercel.json`; Hobby plan limit, `TICK_HOURS` in `app/src/lib/notifications/conditions.ts` must match). |
 
 **Verify.** `curl -H "Authorization: Bearer $CRON_SECRET" https://fused-portal.vercel.app/api/cron/tick`
 returns `{"ok":true,"report":{…}}`. Without the header: 401.
