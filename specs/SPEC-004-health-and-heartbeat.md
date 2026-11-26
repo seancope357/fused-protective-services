@@ -4,7 +4,7 @@
 
 ## Why
 
-`app/vercel.json` schedules `/api/cron/tick` hourly. That one endpoint drives the 2-hour
+`app/vercel.json` schedules `/api/cron/tick` (hourly when this was written; **daily at 13:00 UTC since 2026-11-23**). That one endpoint drives the 2-hour
 unanswered-lead alert, day-before reminders, the unstaffed-job warning, review requests,
 overdue chasers at day 1/7/14, and the 7am Central digest.
 
@@ -86,7 +86,7 @@ public; the tick is not.
    still responds rather than hanging (bounded timeout).
 3. `configured` is boolean-only for every integration.
 4. Each tick persists `last_tick_at` and a per-rule summary.
-5. A tick starting more than 2 hours after the previous one reports at `error` severity and
+5. A tick starting more than TICK_HOURS + 2 hours (26 h on the daily cron) after the previous one reports at `error` severity and
    still completes its work.
 6. Portal health reports heartbeat staleness and goes `503` past the threshold.
 7. A honeypot-tripped POST to `/api/intake` still returns `200`, writes no row and sends
@@ -117,7 +117,7 @@ public; the tick is not.
 - **`settings` row or a `heartbeats` table?** *Recommended: `settings`* if its shape allows
   a JSON value — one row, no migration, no new RLS surface. Inspect
   `20260910000006_reviews_notifications_settings.sql` first and say which you found.
-- **Staleness threshold:** *Recommended: alert at 2 h, health red at 3 h* for an hourly
+- **Staleness threshold:** **Amended 2026-11-26.** The cron went daily on 2026-11-23 (Hobby allows one run a day), so the thresholds now derive from `TICK_HOURS`: alert at **TICK_HOURS + 2 h (26 h)**, health red at **2 × TICK_HOURS + 2 h (50 h)**. A test fails if `app/vercel.json`'s cron and `TICK_HOURS` disagree. *Original text, for an hourly schedule:* alert at 2 h, health red at 3 h for an hourly
   schedule. Tight enough to catch a real outage the same morning, loose enough to survive
   one skipped invocation.
 - **Is `/api/health` rate limited?** *Recommended: no, but `no-store` and cheap.* If it ever
