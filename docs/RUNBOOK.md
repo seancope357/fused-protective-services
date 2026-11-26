@@ -377,7 +377,7 @@ committed font is not declared.
 
 ---
 
-## 8c. What the marketing site serves (SPEC-017)
+## 8d. What the marketing site serves (SPEC-017)
 
 The static project serves every file it uploads, so the committed root `.vercelignore`
 is an **allowlist**: `/*` excludes everything, and `!` lines re-include the pages, `css/`,
