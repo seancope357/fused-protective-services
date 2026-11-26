@@ -37,8 +37,8 @@ merge a PR it did not open.
 |:--|:--|:--|:--|:--|:--|
 | W0 | Clean `main`: move the aerial work onto its own branch | XS | build, Sean authorizes | — | done: `feat/aerial-estate-refinement` @ `4cf24a9` (pushed, no PR) |
 | W1 | SPEC-017: serve only public files | S | build | W0 | in review: PR #15, CI green, preview verified; merge is Sean's |
-| W2 | Doc sync: GO_LIVE, specs README, progress tracker | XS | build | W1 | in review: PR (docs/w2-doc-sync) |
-| W3 | SPEC-004 re-cut: health checks plus a daily-tick dead-man's switch | M | build | W1 | ready |
+| W2 | Doc sync: GO_LIVE, specs README, progress tracker | XS | build | W1 | in review: PR #16, CI green |
+| W3 | SPEC-004 re-cut: health checks plus a daily-tick dead-man's switch | M | build | W1 | in review: PR #17, CI green, preview `/api/health` 200 on both; #12 closed |
 | W4 | SPEC-018: claims guardrail and an honest emergency confirmation | S | build | W1 | ready |
 | W5 | SPEC-013 resume: emergency lead reaches a phone via Telegram ($0) | M | build | W3 | ready |
 | **G1** | **F1 dry run on production: lead → quote → proposal → job → invoice → paid → review** | — | **Cameron and Sean** | W3, W5 | human gate |
