@@ -1,11 +1,14 @@
 import 'server-only';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { TICK_HOURS } from '@/lib/notifications/conditions';
+
+const HOUR_MS = 60 * 60 * 1000;
 
 /* ==========================================================================
    SCHEDULER HEARTBEAT — SPEC-004
 
-   `/api/cron/tick` drives every time-based thing the business does: the 2-hour
-   unanswered-lead alert, day-before reminders, the unstaffed-job warning,
+   `/api/cron/tick` (daily on Hobby; see TICK_HOURS) drives every time-based thing
+   the business does: the unanswered-lead alert, day-before reminders, the unstaffed-job warning,
    review requests, overdue chasers at day 1/7/14, and the 7am digest.
 
    If it stops, NOTHING REPORTS IT. Every symptom is an absence — a lead nobody
@@ -33,14 +36,19 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 
 export const HEARTBEAT_KEY = 'scheduler_heartbeat';
 
-/** The tick runs hourly. Two hours means one invocation was genuinely missed,
-    not merely late — tight enough to catch a real outage the same morning,
-    loose enough to survive a single skipped run without crying wolf. */
-export const STALE_ALERT_MS = 2 * 60 * 60 * 1000;
+/** Thresholds derive from the tick interval, which MUST match the cron in
+    app/vercel.json (a test enforces it). Hobby only guarantees a run lands
+    somewhere within its scheduled hour, so a gap of TICK_HOURS ± 1h is on time.
 
-/** Health goes red an hour after the alert fires, so the page and the alert do
-    not arrive together for one late tick that then recovers on its own. */
-export const STALE_UNHEALTHY_MS = 3 * 60 * 60 * 1000;
+    Alert: one tick plus 2h. Late beyond the landing window, so a run was
+    genuinely missed or badly delayed, not merely late in its hour.
+    (Daily cron: 26h. Hourly: 3h.) */
+export const STALE_ALERT_MS = (TICK_HOURS + 2) * HOUR_MS;
+
+/** Unhealthy: two ticks plus 2h, a whole run missed. Health goes red well after
+    the alert, so the page and the alert do not arrive together for one late tick
+    that then recovers on its own. (Daily cron: 50h. Hourly: 4h.) */
+export const STALE_UNHEALTHY_MS = (2 * TICK_HOURS + 2) * HOUR_MS;
 
 export type Heartbeat = {
     last_tick_at: string;

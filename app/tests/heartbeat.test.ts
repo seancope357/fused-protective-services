@@ -8,13 +8,58 @@
    ========================================================================== */
 
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { staleness, STALE_ALERT_MS, STALE_UNHEALTHY_MS, HEARTBEAT_KEY } from '@/lib/heartbeat';
+import { TICK_HOURS } from '@/lib/notifications/conditions';
 
-/* 15:00 UTC is 10am Central — deliberately NOT the 7am digest hour. At 12:00Z
-   the digest rule runs, and with a double that returns shape-less rows it
-   throws, so a "quiet hour" test would silently have been measuring rule
-   isolation instead of the heartbeat. */
-const NOW = new Date('2026-09-23T15:00:00Z');
+const HOUR_MS = 60 * 60 * 1000;
+
+/** Hours between runs for the cron expressions this project uses: daily at a fixed
+    minute and hour (`M H * * *`) or hourly (`M * * * *`). Anything else must be
+    taught here explicitly rather than guessed. */
+function cronIntervalHours(expr: string): number {
+    const [min, hour, dom, mon, dow] = expr.trim().split(/\s+/);
+    if (dom !== '*' || mon !== '*' || dow !== '*' || !/^\d+$/.test(min)) {
+        throw new Error(`unsupported cron expression: ${expr}`);
+    }
+    if (hour === '*') return 1;
+    if (/^\d+$/.test(hour)) return 24;
+    throw new Error(`unsupported cron expression: ${expr}`);
+}
+
+describe('thresholds follow the real schedule', () => {
+    it('app/vercel.json cron and TICK_HOURS agree, so the switch cannot drift from the schedule', () => {
+        const config = JSON.parse(readFileSync(join(__dirname, '..', 'vercel.json'), 'utf8'));
+        const tick = config.crons.find((c: { path: string }) => c.path === '/api/cron/tick');
+        expect(tick, 'no /api/cron/tick cron in app/vercel.json').toBeTruthy();
+        expect(cronIntervalHours(tick.schedule)).toBe(TICK_HOURS);
+    });
+
+    it('alert = one tick + 2h, unhealthy = two ticks + 2h', () => {
+        expect(STALE_ALERT_MS).toBe((TICK_HOURS + 2) * HOUR_MS);
+        expect(STALE_UNHEALTHY_MS).toBe((2 * TICK_HOURS + 2) * HOUR_MS);
+    });
+
+    it('a tick landing anywhere in its scheduled hour never alerts (Hobby guarantees only the hour)', () => {
+        for (const late of [-1, 0, 1]) {
+            const s = staleness({ last_tick_at: agoMs((TICK_HOURS + late) * HOUR_MS) }, NOW);
+            expect(s.alert).toBe(false);
+        }
+    });
+
+    it('one whole missed tick alerts but is not yet unhealthy', () => {
+        const s = staleness({ last_tick_at: agoMs((TICK_HOURS + 3) * HOUR_MS) }, NOW);
+        expect(s).toMatchObject({ alert: true, unhealthy: false });
+    });
+});
+
+/* 10:00 UTC is 5am Central: before the digest is due. Since the cron went daily
+   (2026-11-23), `isDigestDue` is true from 7am onward, not only during the 7am hour.
+   With a double that returns shape-less rows, the digest rule throws, so a "quiet
+   tick" test run after 7am would silently be measuring rule isolation instead of
+   the heartbeat. */
+const NOW = new Date('2026-09-23T10:00:00Z');
 const agoMs = (ms: number) => new Date(NOW.getTime() - ms).toISOString();
 
 describe('staleness', () => {
@@ -34,13 +79,13 @@ describe('staleness', () => {
         expect(s.unhealthy).toBe(false);
     });
 
-    it('alerts past 2h but is not yet unhealthy — one late tick must not page AND go red', () => {
+    it('alerts past the alert threshold but is not yet unhealthy — one late tick must not page AND go red', () => {
         const s = staleness({ last_tick_at: agoMs(STALE_ALERT_MS + 60_000) }, NOW);
         expect(s.alert).toBe(true);
         expect(s.unhealthy).toBe(false);
     });
 
-    it('goes unhealthy past 3h', () => {
+    it('goes unhealthy past the unhealthy threshold', () => {
         const s = staleness({ last_tick_at: agoMs(STALE_UNHEALTHY_MS + 60_000) }, NOW);
         expect(s.alert).toBe(true);
         expect(s.unhealthy).toBe(true);
@@ -110,14 +155,14 @@ describe('runTick heartbeat and rule isolation', () => {
 
     it('a late tick reports exactly once at error severity AND still completes (acceptance 5)', async () => {
         const { runTick, double, reports } = await withTick({
-            rows: { settings: [{ value: { last_tick_at: agoMs(4 * 60 * 60 * 1000) } }] }
+            rows: { settings: [{ value: { last_tick_at: agoMs(STALE_ALERT_MS + 2 * HOUR_MS) } }] }
         });
         const result = await runTick(NOW);
 
         const missed = reports.filter((r) => r.context?.previous_tick_at);
         expect(missed.length).toBe(1);
         expect(missed[0].severity).toBe('error');
-        expect(missed[0].context?.gap_hours).toBeGreaterThanOrEqual(4);
+        expect(missed[0].context?.gap_hours).toBeGreaterThanOrEqual(TICK_HOURS + 4);
 
         /* The alert is the point; refusing to work because we were late would
            turn one missed hour into two. */
