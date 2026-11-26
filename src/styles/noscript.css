@@ -26,9 +26,8 @@
     height: 120vh;
 }
 
-/* An assembly readout and a "keep scrolling" cue over an emblem that will
-   never assemble are both lies. Same reasoning as the fallback rules. */
-.forge-hud-left,
+/* A "keep scrolling" cue over an emblem that will never assemble is a lie.
+   Same reasoning as the fallback rules. */
 .forge-cue {
     display: none;
 }

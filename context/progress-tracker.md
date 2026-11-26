@@ -1,8 +1,15 @@
 # Progress Tracker
 
-Updated: 2026-10-20. This file tracks the current implementation unit; [PROGRESS.md](../PROGRESS.md) retains the broader operational history and backlog.
+Updated: 2026-11-23. This file tracks the current implementation unit; [PROGRESS.md](../PROGRESS.md) retains the broader operational history and backlog.
 
 ## Current Phase
+
+**2026-11-23 — Aerial estate visual-refinement handoff.**
+The fictional property now has a more complete, terrain-aware Hill Country setting: an arrival drive,
+pool court, sheltered entry, fencing, denser groves, native planting and materially richer surfaces.
+All existing scene, funnel and generated-output checks pass locally. This is browser-native WebGL work,
+not a claim of Unreal Engine rendering or real-device GPU performance; owner review on real hardware
+remains the acceptance step.
 
 **2026-10-20 — Public design and aerial protection release handoff.**
 Sean authorized committing and pushing the reviewed changes to GitHub `main` on 2026-10-20.
@@ -26,10 +33,9 @@ SPEC-014 (roster/assignment/coverage) and SPEC-015 (licence expiry) are written 
 
 ## Current Goal
 
-Turn the aerial page into a focused pilot-operated drone protection inquiry funnel, based on
-official competitor copy research and Sean's confirmed service capability. Preserve the scene,
-Day/Night and refined visual system. The CTA → form → mocked delivery path is verified locally;
-Sean has now authorized GitHub `main` publication of the complete reviewed public-site update.
+Refine the Aerial page's fictional estate scene into a more cinematic, credible Hill Country
+environment while preserving the existing pilot-operated drone inquiry funnel, Day/Night system and
+accessibility contracts. The visual unit is verified locally; real-hardware owner sign-off remains.
 
 ### Previous aerial / operations handoff
 
@@ -48,6 +54,15 @@ GO_LIVE **F1** — Cameron pushing one fake client through quote → proposal �
 invoice → paid — is the highest-value item, and it is not an engineering task.
 
 ## Completed
+
+- Aerial estate visual refinement (2026-11-23): replaced the sparse property setting with an original,
+  terrain-aware Hill Country scene: a curved arrival drive, sheltered entry, water/pool court, pergola,
+  perimeter rails, terraced exterior, 78-tree estate groves, native yucca, rocks and grass. Surface,
+  sky, fog and lighting work together for a more cinematic day/night read; the broader 46-degree camera
+  lens keeps the property and setting in frame. No runtime dependencies or external visual assets were
+  added. Full static suite (148 tests), generated-output check, 53 scene-browser checks and 80 funnel/
+  accessibility checks pass locally. The browser scene measured 28 draw calls, 261,811 triangles and
+  7,867,553 deferred-asset bytes; real-device FPS remains unmeasured.
 
 - Publication preflight (2026-10-20): `node build.mjs --verify-release` and all 146 site/API/geometry
   tests pass. Portal `pnpm typecheck`, `pnpm test` (204 pass; 189 database/browser tests skipped
@@ -126,7 +141,7 @@ invoice → paid — is the highest-value item, and it is not an engineering tas
 - Aerial: shipped as a public page. Remaining before it is genuinely finished —
   Sean's aesthetic sign-off on real hardware (rotor blur opacity especially),
   real-device GPU/FPS measurement, a mobile low-detail tier for the ~7.9MB /
-  127k-triangle payload, and a rights-cleared replacement aircraft.
+  262k-triangle rendered scene, and a rights-cleared replacement aircraft.
 
 ## Next Up
 
@@ -148,6 +163,11 @@ Cameron's first sign-in on the real portal proves criterion 8: create his owner 
 - Confirm the hosted Supabase `secure_password_change` setting before Cameron's account is created.
 
 ## Architecture Decisions
+
+- 2026-11-23 aerial estate visual: extend the original procedural WebGL environment rather than adding
+  licensed imagery, runtime asset downloads or a renderer dependency. Terrain-aware drive geometry,
+  physical water, denser instanced planting and a 46-degree composition lens improve contextual realism
+  while retaining the established 350k-triangle browser verification ceiling and Day/Night behavior.
 
 - 2026-10-20 aerial conversion: use the existing quote endpoint and seven division contracts.
   A closed `service=aerial` value adapts form copy; source-controlled notes annotation preserves
@@ -172,6 +192,13 @@ Cameron's first sign-in on the real portal proves criterion 8: create his owner 
 - A Git deploy never migrates the hosted database (`docs/RUNBOOK.md` §1). SPEC-012 adds no migration.
 
 ## Session Notes
+
+- 2026-11-23 aerial visual unit: `node --test 'tests/*.test.mjs'` (148 pass) and `node build.mjs --check`
+  pass. `PLAYWRIGHT_MODULE="$PWD/app/node_modules/playwright/index.mjs" node scripts/verify-aerial.mjs`
+  passes all 53 checks. Its `ready()` helper must call `page.waitForFunction` with `null` before its
+  options object; otherwise Playwright silently applies the 30-second default instead of the intended
+  60-second recovery budget. `verify-aerial-funnel.mjs` passes all 80 checks with mocked intake only.
+  No live lead, deployment, commit or publication occurred.
 
 - Funnel: `node scripts/verify-aerial-funnel.mjs`; ignored captures/report in
   `output/playwright/aerial-funnel/`. Uses existing portal Playwright/axe modules. 80 checks pass;

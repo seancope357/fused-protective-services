@@ -4,6 +4,7 @@ export const initialState = reduced => ({ paused: reduced, timeOfDay: 'day', pro
 export const timeOfDay = value => value === 'night' ? 'night' : 'day';
 export const aircraftSpan = 1.8;
 export const aircraftPosition = [2.5, 10.5, 1];
+export const cameraFov = 46;
 // Retain actual phone detail instead of forcing every coarse-pointer screen to DPR 1.
 export const pixelRatio = (dpr, width, coarse = false) => Math.min(Math.max(1, dpr || 1), coarse || width < 700 ? 1.75 : 2);
 export const dampFactor = delta => 1 - Math.exp(-Math.max(0, Number.isFinite(delta) ? delta : 0) * 12);

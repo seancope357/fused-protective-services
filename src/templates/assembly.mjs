@@ -22,7 +22,7 @@ export const assembly = () => html`
                 <p class="forge-motto">${site.motto}</p>
                 <span class="forge-continue">CONTINUE <span class="forge-continue-arrow" aria-hidden="true">&darr;</span></span>
             </div>
-            <div class="forge-hud-left font-mono" id="forgeReadout" aria-hidden="true">ASSEMBLING 000.0%</div>
+            <a class="btn-gold forge-primary-action" href="#quote">Request a Security Detail <span aria-hidden="true">&rarr;</span></a>
             <div class="forge-cue font-mono" id="forgeCue" aria-hidden="true">SCROLL <span class="forge-cue-arrow">&darr;</span></div>
         </div>
     </section>`;

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { cameraPose, initialState, timeOfDay, clampProgress, aircraftSpan, aircraftPosition } from '../js/aerial/state.mjs';
+import { cameraPose, initialState, timeOfDay, clampProgress, aircraftSpan, aircraftPosition, cameraFov } from '../js/aerial/state.mjs';
 import { aerialPage } from '../src/templates/aerial/page.mjs';
 test('camera travel is bounded, reversible, continuous and stays above property', () => {
     assert.equal(clampProgress(-1), 0); assert.equal(clampProgress(2), 1);
@@ -141,10 +141,13 @@ const { RGBELoader } = await import('../js/vendor/aerial/RGBELoader.mjs');
 test('property has real glazing depth, coherent roof layers and bounded instanced landscaping', () => {
     const scene=new THREE.Scene(),world=createWorld(scene),meshes=[];
     scene.updateMatrixWorld(true);scene.traverse(o=>{if(o.isMesh)meshes.push(o);});
-    assert.equal(meshes.filter(m=>m.isInstancedMesh).length,5);
+    assert.equal(meshes.filter(m=>m.isInstancedMesh).length,6, 'tree crowns/leaves plus four landscape layers');
     const leaves=scene.getObjectByName('leaf-sprays');
-    assert.ok(leaves.count<=55*168);assert.equal(leaves.material.alphaToCoverage,true);
+    assert.equal(world.vegetation.trees,78);
+    assert.ok(leaves.count<=world.vegetation.trees*world.vegetation.cardsPerTree);assert.equal(leaves.material.alphaToCoverage,true);
     assert.equal(leaves.material.transparent,false);assert.ok(leaves.material.map.generateMipmaps);
+    assert.ok(scene.getObjectByName('hill-country-yucca'), 'native foreground planting must remain part of the scene');
+    assert.ok(meshes.some(mesh => mesh.material.name === 'property-water'), 'the water court must retain its independent reflective surface');
     const opaque=meshes.filter(m=>!m.isInstancedMesh&&!m.material.transparent);
     const ray=new THREE.Raycaster(new THREE.Vector3(.7,1.9,-7),new THREE.Vector3(0,0,-1));
     const hit=ray.intersectObjects(opaque,false)[0];
@@ -179,7 +182,7 @@ test('physical aircraft fits the hero frame above portrait copy, with the body v
     assert.ok(aircraftSpan / 15 >= .1 && aircraftSpan / 15 <= .14);
     for (const aspect of [16 / 9, 1.44, .75, 390 / 844, 320 / 844]) {
         const pose = cameraPose(0, false, aspect);
-        const camera = new THREE.PerspectiveCamera(40, aspect, .1, 400);
+        const camera = new THREE.PerspectiveCamera(cameraFov, aspect, .1, 400);
         camera.position.fromArray(pose.position); camera.lookAt(...pose.target); camera.updateMatrixWorld();
         assert.ok(camera.position.y > aircraftPosition[1], 'view body top, not just underside');
         const center = new THREE.Vector3(...aircraftPosition).project(camera);
@@ -236,10 +239,13 @@ test('entire patrol keeps the aircraft visible, foreground-sized and outside the
     for(const aspect of [320/900,390/844,.75,1,1.2,1.44,16/9,2.2]) {
         for(let i=0;i<=200;i++) {
             const u=i/200,pose=cameraPose(u,false,aspect),flight=flightPose(u);
-            const camera=new THREE.PerspectiveCamera(40,aspect,.3,600);
+            const camera=new THREE.PerspectiveCamera(cameraFov,aspect,.3,600);
             camera.position.fromArray(pose.position);camera.lookAt(...pose.target);camera.updateMatrixWorld();
             const center=new THREE.Vector3(...flight.position).project(camera);
-            assert.ok(aspect<.8?center.y>.4:center.x>.15, `reading clearance ${aspect}/${u}: ${center.toArray()}`);
+            // The broader 46° establishing lens retains a 10% NDC gap to the
+            // right of the desktop reading column; portrait keeps its upper-
+            // third clearance because copy occupies the lower screen.
+            assert.ok(aspect<.8?center.y>.4:center.x>.1, `reading clearance ${aspect}/${u}: ${center.toArray()}`);
             const extent=[];
             // Bounding sphere of radius 1.05 includes banking and rotor sweep.
             for(let j=0;j<24;j++)for(let k=0;k<=12;k++) {

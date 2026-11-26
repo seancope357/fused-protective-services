@@ -50,6 +50,21 @@ export function createLandscape(scene, height) {
         dummy.position.set(x,height(x,z),z);dummy.rotation.set(0,random()*6,0);dummy.scale.set(s,s,s);dummy.updateMatrix();grasses.setMatrixAt(i,dummy.matrix);
         color.setHSL(.19+random()*.08,.15+random()*.2,.4+random()*.12);grasses.setColorAt(i,color);
     }
-    shrubs.name='planted-borders';rocks.name='limestone-outcrops';grasses.name='meadow-tufts';
-    for(const mesh of [shrubs,rocks,grasses]) {mesh.castShadow=mesh!==grasses;mesh.receiveShadow=true;scene.add(mesh);}
+    // Short, architectural yucca clusters supply a recognisable Hill Country
+    // foreground layer between the house, rock and meadow scales.
+    const blades=[];
+    for(let i=0;i<9;i++) {
+        const a=i/9*Math.PI*2, tipX=Math.cos(a)*.55,tipZ=Math.sin(a)*.55;
+        blades.push(-.055,0,-.055,.055,0,.055,tipX,.58+Math.sin(i*3)*.12,tipZ);
+    }
+    const yuccaGeometry=new THREE.BufferGeometry();yuccaGeometry.setAttribute('position',new THREE.Float32BufferAttribute(blades,3));yuccaGeometry.computeVertexNormals();
+    const yuccaMaterial=new THREE.MeshStandardMaterial({color:0x67744a,roughness:.92,side:THREE.DoubleSide});
+    const yuccas=new THREE.InstancedMesh(yuccaGeometry,yuccaMaterial,120);
+    for(let i=0;i<120;i++) {
+        const side=i%2?1:-1,x=side*(10.5+random()*5.6),z=-19+random()*22,s=.45+random()*.75;
+        dummy.position.set(x,height(x,z),z);dummy.rotation.set(0,random()*6,0);dummy.scale.set(s,s,s);dummy.updateMatrix();yuccas.setMatrixAt(i,dummy.matrix);
+        color.setHSL(.19+random()*.06,.2+random()*.15,.34+random()*.12);yuccas.setColorAt(i,color);
+    }
+    shrubs.name='planted-borders';rocks.name='limestone-outcrops';grasses.name='meadow-tufts';yuccas.name='hill-country-yucca';
+    for(const mesh of [shrubs,rocks,grasses,yuccas]) {mesh.castShadow=mesh!==grasses;mesh.receiveShadow=true;scene.add(mesh);}
 }

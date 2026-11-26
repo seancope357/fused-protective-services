@@ -29,34 +29,43 @@ function leafTexture() {
     map.magFilter = THREE.LinearFilter; map.needsUpdate = true; return map;
 }
 function crownGeometry() {
-    const geometry=new THREE.IcosahedronGeometry(1,2),p=geometry.attributes.position;
+    const geometry=new THREE.SphereGeometry(1,12,8),p=geometry.attributes.position;
     for(let i=0;i<p.count;i++) {
         const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
-        const r=.9+.075*Math.sin(x*21+y*13)+.065*Math.sin(y*19-z*17)+.045*Math.cos(z*27+x*11);
+        const r=.94+.035*Math.sin(x*21+y*13)+.03*Math.sin(y*19-z*17)+.02*Math.cos(z*27+x*11);
         p.setXYZ(i,x*r,y*r,z*r);
     }
     geometry.computeVertexNormals();return geometry;
 }
 export function createVegetation(scene, staticWorld, trunkMaterial, terrainHeight = () => -.2) {
     const random = randomSource(821), trees = [];
+    // Mature live-oak groupings deliberately frame the estate. They interrupt
+    // the horizon at several depths without filling the driveway or the story's
+    // text-safe viewing corridor.
+    const groves = [
+        [-24,-20,5.8],[-25,-13,5.2],[-23,-5,4.6],[-22,3,5.4],[-19,12,4.8],
+        [23,-21,5.5],[25,-13,4.7],[23,-5,5.6],[24,4,4.8],[20,13,5.3],
+        [-13,20,4.4],[-4,23,5.3],[7,22,4.7],[16,20,5.4]
+    ];
+    for (const [x, z, height] of groves) trees.push({ x, z, height, slender: false, estate: true });
     // Rejection-sampled woodland margins, with a clear arrival road and parcel.
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < 340; i++) {
         const x = (random()-.5)*185, z = (random()-.5)*165-26;
         if (x > -27 && x < 28 && z > -32 && z < 18) continue;
         if (Math.abs(x-7) < 9 && z > 0) continue;
-        if (trees.some(t => Math.hypot(t.x-x,t.z-z) < 6)) continue;
-        trees.push({ x, z, height: 4 + random()*2.5, slender: random() > .65 });
-        if (trees.length === 55) break;
+        if (trees.some(t => Math.hypot(t.x-x,t.z-z) < 5.4)) continue;
+        trees.push({ x, z, height: 4.2 + random()*2.8, slender: random() > .62, estate: false });
+        if (trees.length === 78) break;
     }
-    const material = new THREE.MeshStandardMaterial({ color: 0xb3bd9c, roughness: .94,
+    const material = new THREE.MeshStandardMaterial({ color: 0x75815d, roughness: .94,
         map: leafTexture(), alphaTest: .25, alphaToCoverage: true, side: THREE.DoubleSide, envMapIntensity: .6 });
-    const cardsPerTree = 168;
+    const cardsPerTree = 228;
     const leaves = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), material, trees.length*cardsPerTree);
     const dummy = new THREE.Object3D(), color = new THREE.Color();
     // Solid, smooth inner crowns stop the see-through confetti silhouette. Leaf
     // sprays provide the irregular edges, with MSAA alpha-to-coverage for distance.
-    const crownMaterial = new THREE.MeshStandardMaterial({color:0x8d9977,roughness:1,envMapIntensity:.6});
-    const crowns = new THREE.InstancedMesh(crownGeometry(),crownMaterial,trees.length*5);
+    const crownMaterial = new THREE.MeshStandardMaterial({color:0x536246,roughness:1,envMapIntensity:.45});
+    const crowns = new THREE.InstancedMesh(crownGeometry(),crownMaterial,trees.length*3);
     let crownIndex=0;
     function branch(start, end, radius) {
         const delta = end.clone().sub(start);
@@ -67,13 +76,13 @@ export function createVegetation(scene, staticWorld, trunkMaterial, terrainHeigh
     }
     let index = 0;
     for (const tree of trees) {
-        const { x, z, height, slender } = tree, width = slender ? 1.9 : 3.2;
+        const { x, z, height, slender, estate } = tree, width = slender ? 2.0 : (estate ? 3.65 : 3.15);
         const groundY=terrainHeight(x,z);
-        for(let c=0;c<5;c++) {
-            const angle=c*Math.PI*.4, radius=c===0?0:width*.5;
-            dummy.position.set(x+Math.cos(angle)*radius,groundY+height*.83+(c===0?.5:0),z+Math.sin(angle)*radius);
-            dummy.rotation.set(random()*.3,random()*6,random()*.3);
-            dummy.scale.set(width*.54,height*.17,width*.54);dummy.updateMatrix();
+        for(let c=0;c<3;c++) {
+            const angle=c*Math.PI*.67, radius=c===0?0:width*(.28+random()*.12);
+            dummy.position.set(x+Math.cos(angle)*radius,groundY+height*(.78+random()*.08)+(c===0?.35:0),z+Math.sin(angle)*radius);
+            dummy.rotation.set(random()*.16,random()*6,random()*.16);
+            dummy.scale.set(width*(.66+random()*.08),height*(.26+random()*.025),width*(.66+random()*.08));dummy.updateMatrix();
             crowns.setMatrixAt(crownIndex,dummy.matrix);
             color.setHSL(.23+random()*.055,.2+random()*.15,.36+random()*.12);crowns.setColorAt(crownIndex++,color);
         }
@@ -85,12 +94,12 @@ export function createVegetation(scene, staticWorld, trunkMaterial, terrainHeigh
         }
         for (let c = 0; c < cardsPerTree; c++) {
             const angle = random()*Math.PI*2, vertical = random()*2-1;
-            const radius = Math.sqrt(1-vertical*vertical)*Math.cbrt(random());
-            dummy.position.set(x+Math.cos(angle)*radius*width, groundY+height*.8+vertical*(slender ? 2.7 : 1.9), z+Math.sin(angle)*radius*width);
+            const radius = Math.sqrt(1-vertical*vertical)*Math.pow(random(), .38);
+            dummy.position.set(x+Math.cos(angle)*radius*width, groundY+height*.8+vertical*(slender ? 2.85 : 2.1), z+Math.sin(angle)*radius*width);
             dummy.rotation.set(random()*Math.PI, random()*Math.PI, random()*Math.PI);
-            const scale = 1.2+random()*.9; dummy.scale.set(scale, scale, scale); dummy.updateMatrix();
+            const scale = .42+random()*.34; dummy.scale.set(scale, scale, scale); dummy.updateMatrix();
             leaves.setMatrixAt(index, dummy.matrix);
-            color.setHSL(.23+random()*.07, .2+random()*.15, .4+random()*.18);
+            color.setHSL(.23+random()*.06, .21+random()*.14, .28+random()*.13);
             leaves.setColorAt(index++, color);
         }
     }
@@ -98,5 +107,5 @@ export function createVegetation(scene, staticWorld, trunkMaterial, terrainHeigh
     leaves.castShadow = true; leaves.receiveShadow = true;
     crowns.castShadow = true; crowns.receiveShadow = true;
     leaves.name='leaf-sprays'; crowns.name='tree-crowns';scene.add(crowns,leaves);
-    return { leaves,crowns,trees:trees.length };
+    return { leaves,crowns,trees:trees.length, cardsPerTree };
 }

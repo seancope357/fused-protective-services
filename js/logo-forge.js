@@ -241,7 +241,7 @@ function trackLength() {
 
 /* Progress is published as well as consumed: --assembly on the root
    element and a pixelScroll event carrying the same number, so the
-   intro copy beats and HUD readout move on the camera's clock instead
+   intro copy beats move on the camera's clock instead
    of guessing at a second one. */
 
 let assembly = -1;   // starts off-scale so the first publish always lands
@@ -318,25 +318,6 @@ function onHandOff() {
 
 window.addEventListener('scroll', onHandOff, { passive: true });
 window.addEventListener('resize', onHandOff);
-
-/* ── HUD readout ───────────────────────────────────────────────── */
-/* Consumes the published pixelScroll event like any other page seam.
-   Hidden entirely by css/forge.css when data-forge-fallback is up — a
-   progress figure over a static image would be a lie. */
-
-const readoutEl = document.getElementById('forgeReadout');
-
-window.addEventListener('pixelScroll:settled', function (e) {
-  if (!readoutEl) return;
-  const r = e.detail.settled;
-  if (r >= 0.999) {
-    readoutEl.textContent = 'SHIELD INTEGRITY 100% · OPERATIONAL';
-    readoutEl.classList.add('is-set');
-  } else {
-    readoutEl.textContent = 'ASSEMBLING ' + (r * 100).toFixed(1).padStart(5, '0') + '%';
-    readoutEl.classList.remove('is-set');
-  }
-});
 
 /* Scroll-coupled camera travel is the whole-field motion vestibular
    guidance warns about. When it is unwelcome, present the assembled

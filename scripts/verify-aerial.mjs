@@ -12,7 +12,7 @@ const page=await browser.newPage({viewport:{width:1440,height:1000},deviceScaleF
 page.on('pageerror',e=>results.errors.push(e.message));
 page.on('console',m=>{if(m.type()==='error')results.errors.push(m.text());});
 page.on('requestfailed',r=>results.network.push({url:r.url(),failure:r.failure()}));
-async function ready(p){await p.waitForFunction(()=>window.__aerial?.ready,{timeout:60000});}
+async function ready(p){await p.waitForFunction(()=>window.__aerial?.ready, null, {timeout:60000});}
 async function pixels(){return page.evaluate(()=>{
     const qa=window.__aerial;qa.render();const gl=qa.context,w=gl.drawingBufferWidth,h=gl.drawingBufferHeight,b=new Uint8Array(w*h*4);
     gl.readPixels(0,0,w,h,gl.RGBA,gl.UNSIGNED_BYTE,b);

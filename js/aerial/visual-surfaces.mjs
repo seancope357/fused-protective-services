@@ -89,13 +89,14 @@ export function createSky(scene) {
             void main() {
                 vec3 d = normalize(direction);
                 float elevation = max(d.y, 0.0);
-                vec3 horizon = mix(vec3(.68,.76,.78), vec3(.045,.075,.13), night);
-                vec3 zenith = mix(vec3(.14,.36,.61), vec3(.003,.009,.029), night);
-                vec3 sky = mix(horizon, zenith, pow(smoothstep(0.0,.9,elevation),.45));
+                vec3 horizon = mix(vec3(.40,.56,.63), vec3(.035,.060,.105), night);
+                vec3 zenith = mix(vec3(.045,.20,.42), vec3(.002,.006,.020), night);
+                vec3 sky = mix(horizon, zenith, pow(smoothstep(0.0,.9,elevation),.56));
                 float sun = max(dot(d, normalize(vec3(-.55,.7,.4))),0.0);
-                sky += (1.0-night) * vec3(1.0,.79,.5) * (pow(sun,700.0)*6.0 + pow(sun,12.0)*.1);
-                float clouds = sin(d.x*19.0+d.z*9.0) * sin(d.z*26.0-d.x*8.0);
-                sky += (1.0-night) * .035 * smoothstep(.05,.7,elevation) * clouds;
+                sky += (1.0-night) * vec3(1.0,.73,.42) * (pow(sun,750.0)*4.0 + pow(sun,15.0)*.065);
+                float cloudBase = sin(d.x*15.0+d.z*7.0) + .5*sin(d.x*31.0-d.z*15.0) + .25*sin(d.z*54.0+d.x*22.0);
+                float clouds = smoothstep(.58,1.08,cloudBase) * smoothstep(.06,.75,elevation) * (1.0-smoothstep(.72,.95,elevation));
+                sky = mix(sky, vec3(.72,.76,.74), clouds * (1.0-night) * .16);
                 gl_FragColor = vec4(sky,1.0);
                 #include <tonemapping_fragment>
                 #include <colorspace_fragment>

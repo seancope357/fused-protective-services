@@ -6,19 +6,23 @@ import { createProperty } from './property.mjs';
 import { createLandscape } from './landscape.mjs';
 
 export function terrainHeight(x, z) {
-    const away = Math.max(0, Math.min(1, (Math.hypot(x, z + 8) - 38) / 65));
-    const hills = 2.5 + 2.0*Math.sin(x*.028 + z*.018) + 1.8*Math.sin(z*.035 - x*.012);
-    return -.2 + away*away*hills;
+    const away = Math.max(0, Math.min(1, (Math.hypot(x, z + 8) - 27) / 58));
+    const eased = away * away * (3 - 2 * away);
+    const hills = 2.1 + 1.8*Math.sin(x*.028 + z*.018) + 1.55*Math.sin(z*.035 - x*.012) + .7*Math.cos((x+z)*.045);
+    return -.2 + eased * hills;
 }
 export function createWorld(scene) {
     const limestone = surface(0xb3ab95, .82), paving = surface(0xa9a698, .88, false, 'paving');
-    const ground = surface(0x576344, 1, true), road = surface(0x414441, .96, false, 'asphalt');
+    const ground = surface(0x4c583a, 1, true), road = surface(0x383b39, .96, false, 'asphalt');
     const gravel = surface(0x787a69, 1, false, 'gravel'), timber = surface(0x785137, .69, false, 'timber');
     const metal = new THREE.MeshStandardMaterial({ color: 0x292e2e, roughness: .42, metalness: .72, envMapIntensity: .8 });
     const glass = new THREE.MeshPhysicalMaterial({ color: 0xb3cfcc, roughness: .1, metalness: .15, transparent: true, opacity: .22, depthWrite: false, envMapIntensity: 1.3 });
     const interior = new THREE.MeshStandardMaterial({ color: 0x3d3527, roughness: 1 });
     const roof = surface(0x777970,.95,false,'roof');
     const fabric = surface(0xafa995, .96, false, 'fabric');
+    const poolTile = surface(0x265d67, .52, false, 'pool-tile');
+    const water = new THREE.MeshPhysicalMaterial({ color: 0x25728a, roughness: .08, metalness: .12, clearcoat: .8, clearcoatRoughness: .06, envMapIntensity: 1.25 });
+    water.name = 'property-water';
     const glow = new THREE.MeshStandardMaterial({ color: 0xffdfae, emissive: 0xffb669, emissiveIntensity: 0 });
     const staticWorld = new THREE.Group();
     const fixtures = [];
@@ -31,11 +35,28 @@ export function createWorld(scene) {
     for (let i=0; i<positions.count; i++) positions.setY(i, terrainHeight(positions.getX(i), positions.getZ(i)));
     terrain.computeVertexNormals();
     const land = new THREE.Mesh(terrain, ground); land.receiveShadow = true; land.name = 'rolling-meadow'; staticWorld.add(land);
-    // Level access drive, gravel shoulders and a generous forecourt.
-    box(6.5, .12, 70, 7, -.12, 34, gravel);
-    box(5.3, .12, 70, 7, -.045, 34, road);
+    // Level access drive, gravel shoulders and a generous forecourt. Curving
+    // ribbons make the approach read as terrain-aware rather than an infinite
+    // rectangular strip across the meadow.
+    function ribbon(points, width, y, material) {
+        const vertices = [], indices = [];
+        for (let i = 0; i < points.length; i++) {
+            const point = points[i], before = points[Math.max(0, i - 1)], after = points[Math.min(points.length - 1, i + 1)];
+            const dx = after[0] - before[0], dz = after[1] - before[1], length = Math.hypot(dx, dz) || 1;
+            const px = -dz / length * width / 2, pz = dx / length * width / 2;
+            vertices.push(point[0] + px, terrainHeight(point[0] + px, point[1] + pz) + y, point[1] + pz);
+            vertices.push(point[0] - px, terrainHeight(point[0] - px, point[1] - pz) + y, point[1] - pz);
+            if (i) indices.push(i * 2 - 2, i * 2 - 1, i * 2, i * 2 - 1, i * 2 + 1, i * 2);
+        }
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        geometry.setIndex(indices); geometry.computeVertexNormals();
+        const mesh = new THREE.Mesh(geometry, material); mesh.receiveShadow = true; staticWorld.add(mesh);
+    }
+    const drive = [[7, 74], [7, 44], [6.2, 23], [8.7, 10], [7, 3.1]];
+    ribbon(drive, 6.9, .09, gravel); ribbon(drive, 5.45, .155, road);
     box(10, .13, 8, 7, .01, 3, gravel);
-    const property = createProperty(box, { limestone, paving, metal, timber, glass, interior, fabric, light: glow, roof });
+    const property = createProperty(box, { limestone, paving, metal, timber, glass, interior, fabric, light: glow, roof, poolTile, water });
     // Perimeter rails remain within the fictional parcel, with an open vehicle approach.
     for (let x=-19; x<=19; x+=2) for (const z of [-25,7]) {
         if(z===7 && x>3 && x<11) continue;

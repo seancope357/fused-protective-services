@@ -2,7 +2,7 @@ import * as THREE from '../vendor/three.module.js';
 import { GLTFLoader } from '../vendor/aerial/GLTFLoader.mjs';
 import { RGBELoader } from '../vendor/aerial/RGBELoader.mjs';
 import { createWorld } from './world.mjs';
-import { cameraPose, pixelRatio, aircraftSpan, aircraftPosition, dampFactor } from './state.mjs';
+import { cameraPose, pixelRatio, aircraftSpan, aircraftPosition, cameraFov, dampFactor } from './state.mjs';
 import { createLighting } from './lighting.mjs';
 import { prepareAircraft } from './aircraft.mjs';
 import { stabilizationPose, flightPose } from './choreography.mjs';
@@ -12,7 +12,7 @@ export function createScene(canvas, verify) {
     renderer.toneMappingExposure = 1.05; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.shadowMap.autoUpdate = false;
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, 1, .3, 600);
+    const camera = new THREE.PerspectiveCamera(cameraFov, 1, .3, 600);
     const world = createWorld(scene), lights = createLighting(scene, renderer, world);
     lights.setMode('day');
     const aircraft = new THREE.Group(); aircraft.position.fromArray(aircraftPosition); aircraft.rotation.y = -.4; scene.add(aircraft);
@@ -87,7 +87,7 @@ export function createScene(canvas, verify) {
         rig?.update(time, reduced || state.paused);
         lights.setMode(state.timeOfDay); renderer.render(scene, camera);
     }
-    function resize() { renderer.setPixelRatio(pixelRatio(devicePixelRatio, innerWidth, matchMedia('(pointer: coarse)').matches)); renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.fov = 40; camera.updateProjectionMatrix(); }
+    function resize() { renderer.setPixelRatio(pixelRatio(devicePixelRatio, innerWidth, matchMedia('(pointer: coarse)').matches)); renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.fov = cameraFov; camera.updateProjectionMatrix(); }
     function disposeObject(root) {
         const textures = new Set(), materials = new Set(), geometries = new Set();
         root.traverse(o => { o.shadow?.dispose(); if (o.geometry) geometries.add(o.geometry); for (const m of o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : []) { materials.add(m); for (const value of Object.values(m)) if (value?.isTexture) textures.add(value); } });

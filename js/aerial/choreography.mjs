@@ -4,6 +4,8 @@
 const times = [0, .14, .38, .68, 1];
 // Camera offsets relative to the aircraft: the subject remains foreground-sized.
 const desktop = [
+    // The first lens is deliberately broad enough to establish the estate,
+    // while leaving the foreground aircraft clear of the reading column.
     { position: [1.3,.35,4.6], target: [-.9,-.3,0] },
     { position: [3,2,6], target: [-1.5,-.6,.5] },
     { position: [5,4,7], target: [-2,-.6,1] },
@@ -11,7 +13,7 @@ const desktop = [
     { position: [2,1.2,5], target: [-1.2,-.3,.3] }
 ];
 const portrait = [
-    { position: [1.3,.35,9], target: [-.1,-1.7,-1] },
+    { position: [1.3,.35,9], target: [-.1,-2.7,-2.3] },
     { position: [3,3,11], target: [-.2,-2.8,-1] },
     { position: [4,4,12], target: [-.3,-3.2,-1] },
     { position: [4,3,11], target: [-.2,-3,-1] },

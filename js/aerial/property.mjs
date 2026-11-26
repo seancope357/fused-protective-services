@@ -3,7 +3,7 @@ import * as THREE from '../vendor/three.module.js';
 // Dimensions are metres. Solid walls stop at the window reveals; glazing and
 // interior surfaces occupy separate planes instead of fighting a solid facade.
 export function createProperty(box, materials) {
-    const { limestone, paving, metal, timber, glass, interior, fabric, light, roof } = materials;
+    const { limestone, paving, metal, timber, glass, interior, fabric, light, roof, poolTile, water } = materials;
     box(24, .26, 15, 0, .03, -8, paving);
     box(15, .2, 7, -2, .28, -12, paving);
     // Main living pavilion: rear/side walls, solid piers and deep shaded reveals.
@@ -51,10 +51,36 @@ export function createProperty(box, materials) {
         box(1.8, .36, .7, x, .49, -4.5, fabric);
         box(1.8, .48, .1, x, .83, -4.84, timber);
     }
+    // A real water court gives the aerial read a strong, calm focal plane. The
+    // coping, deep tile bed and water are separate surfaces, so reflections do
+    // not appear to sit on top of a solid stone slab.
+    box(10.8, .24, 5.2, -6.9, .15, -1.5, paving);
+    box(9.95, .09, 4.35, -6.9, .305, -1.5, poolTile);
+    box(9.4, .035, 3.8, -6.9, .372, -1.5, water, false);
+    for (const [x, z, w, d] of [[-6.9, .63, 10.8, .32], [-6.9, -3.63, 10.8, .32], [-12.12, -1.5, .32, 4.6], [-1.68, -1.5, .32, 4.6]]) {
+        box(w, .11, d, x, .43, z, limestone);
+    }
+    // Sun loungers, a low fire court and a shallow pergola establish human
+    // scale without inventing a service or operational capability.
+    for (const [x, z] of [[-10.9, 1.5], [-9.45, 1.5], [-3.9, 1.5]]) {
+        box(.62, .12, 1.55, x, .61, z, fabric);
+        box(.62, .1, .16, x, .78, z - .64, timber);
+    }
+    box(2.1, .34, 1.3, -12.9, .48, -4.2, limestone);
+    box(.95, .15, .95, -12.9, .71, -4.2, metal);
+    for (const x of [-14.25, -11.55]) for (const z of [-4.95, -3.45]) box(.08, 2.2, .08, x, 1.55, z, metal);
+    for (let z = -4.95; z <= -3.45; z += .38) box(2.8, .08, .08, -12.9, 2.64, z, timber);
     box(1.1, .38, .7, -4, .48, -3.7, limestone);
     for (const [x,z] of [[-10,-3],[10,-3],[-10,-14]]) {
         box(1.2, .65, 1.2, x, .48, z, limestone);
         box(1.04, .06, 1.04, x, .84, z, interior);
     }
+    // A sheltered arrival portal makes the long drive resolve at the house,
+    // instead of disappearing into a generic flat forecourt.
+    box(5.3, 2.45, .28, 7, 1.22, 5.72, limestone);
+    box(6.1, .18, 1.25, 7, 2.55, 5.28, metal);
+    box(4.35, 1.55, .04, 7, 1.52, 5.55, glass, false);
+    for (let x = 5.08; x < 9.05; x += .34) box(.075, 1.62, .08, x, 1.5, 5.46, timber);
+    for (const x of [3.5, 10.5]) box(.42, 2.9, .42, x, 1.45, 5.52, limestone);
     return { frontWall: -8.65, glazing: -8.79, roofTop: 4.2, terraceTop: .16, wingStart: 5.7, pavilionEnd: 5.5 };
 }
