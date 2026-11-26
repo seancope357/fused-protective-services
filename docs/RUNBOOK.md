@@ -377,6 +377,17 @@ committed font is not declared.
 
 ---
 
+## 8d. What the marketing site serves (SPEC-017)
+
+The static project serves every file it uploads, so the committed root `.vercelignore`
+is an **allowlist**: `/*` excludes everything, and `!` lines re-include the pages, `css/`,
+`js/`, `assets/`, `api/`, `src/data/` and `src/lib/` (`api/intake.mjs` imports
+`src/data/site.mjs` at runtime). Adding a new public top-level file or directory means
+adding a `!` line, or it will 404 in production. `tests/public-surface.test.mjs` fails
+when an internal path would upload, or a page, asset or api import would not.
+`app/.vercelignore` exists so the portal never inherits the root allowlist; do not
+delete it.
+
 ## 9. Environment variable index
 
 | Variable | Project | Required for |
