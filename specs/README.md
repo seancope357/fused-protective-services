@@ -29,6 +29,11 @@ has nothing unbuilt in its `Depends on` line.
 | [013](SPEC-013-telegram-owner-alerts.md) | Free owner alerts over Telegram | B3 | M | — | ⏸ **Parked 2026-10-07** — WIP on `feat/telegram-owner-alerts`, does not typecheck |
 | [014](SPEC-014-officers-roster-and-coverage.md) | Officers roster, assignment, coverage | — | L | — | **Ready** (post-launch ops) |
 | [015](SPEC-015-license-expiry.md) | DPS licence expiry alerts + guard | — | S | 014 | **Ready** (post-launch ops) |
+| 016 | Owner-editable DPS licence (documents) | — | S | — | ⏸ **Parked**: local branch `feat/spec-016-owner-editable-licence` only, never pushed; Sean decides land or delete |
+| [017](SPEC-017-public-surface.md) | Marketing site serves only public files | E | S | — | ◐ **PR #15**: CI green, preview verified (internal paths 404) |
+| 018 | Claims guardrail + honest emergency confirmation | — | S | 017 | **Ready**: spec not yet written ([WORKSHEET](WORKSHEET.md) W4) |
+
+**Run order (2026-11-26):** follow [`WORKSHEET.md`](WORKSHEET.md) one step per loop, using [`PASS-PROMPT.md`](PASS-PROMPT.md). It supersedes "lowest-numbered Ready spec" for this pass. SPEC-004 is re-cut (W3) because PR #12 conflicts with main and assumes an hourly cron, and the cron is now daily.
 
 **Status as of 2026-10-07.** Nine of twelve launch specs are done: 001, 002, 003, 006,
 007, 008 (gate now armed and blocking), 010, 011, 012. **004** (uptime + cron dead-man's
