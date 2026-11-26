@@ -1,8 +1,20 @@
 # Progress Tracker
 
-Updated: 2026-10-20. This file tracks the current implementation unit; [PROGRESS.md](../PROGRESS.md) retains the broader operational history and backlog.
+Updated: 2026-11-26. This file tracks the current implementation unit; [PROGRESS.md](../PROGRESS.md) retains the broader operational history and backlog.
 
 ## Current Phase
+
+**2026-11-26: spec-driven pass started.** The ordered steps are in
+[`specs/WORKSHEET.md`](../specs/WORKSHEET.md), run one per loop with
+[`specs/PASS-PROMPT.md`](../specs/PASS-PROMPT.md) under `STANDING_AUTH: pr-only`.
+- W0: the uncommitted 2026-11-23 aerial estate refinement (19 files, plus that day's tracker
+  notes) is on branch `feat/aerial-estate-refinement` (`4cf24a9`, pushed, no PR). It awaits
+  Sean's real-device review.
+- W1: SPEC-017 merged (#15). Production served `/PROGRESS.md`, `/docs/RUNBOOK.md` and other
+  internal files. The preview of the fix returns 404 for them and 200 for the public pages.
+  Production now returns 404 for every internal path.
+- W3: SPEC-004 merged (#17). Health checks are in, with the dead-man's switch at 26 h / 50 h for the daily cron.
+- Next up is W4 (the claims guardrail). It needs Sean's call: confirm the claims or remove the copy.
 
 **2026-10-20 — Public design and aerial protection release handoff.**
 Sean authorized committing and pushing the reviewed changes to GitHub `main` on 2026-10-20.

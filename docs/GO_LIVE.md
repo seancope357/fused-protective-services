@@ -1,5 +1,7 @@
 # GO-LIVE — Fused Protective Services
 
+> **Update 2026-11-26:** domains, Resend, the licence and the dispatch line are done. What is left before launch is attorney review, the terms, sales tax, Stripe, Cameron's F1 dry run and SPEC-004 (health checks). The engineering order lives in [`specs/WORKSHEET.md`](../specs/WORKSHEET.md).
+>
 > **Status as of 2026-09-13: the software is ready; the business configuration is not.**
 > Nothing on this list is a code rewrite. It is licences, accounts, DNS, two legal
 > paragraphs, and the operational scaffolding a revenue system needs before it carries
@@ -123,12 +125,16 @@ done until that step passes.
 
 ## Gate C — Domains and environment separation
 
-- [ ] **C1 · DNS for `fusedprotectiveservices.com` and `app.fusedprotectiveservices.com`.**
+- [x] **C1 · DNS for `fusedprotectiveservices.com` and `app.fusedprotectiveservices.com`.**
+      *Done (verified 2026-11-26): NS `ns1/ns2.vercel-dns.com`; apex `A 64.29.17.1` → 200,
+      `www` 308 → apex, `app.` → 200 on `/login`.*
       ([RUNBOOK §7](RUNBOOK.md)) Resend cannot verify a domain the business does not
       control, so B1 depends on this. Note that every canonical URL, `og:url`, `sitemap.xml`
       entry and the schema.org record already point at the custom domain — today they point
       at a hostname that does not resolve. **Owner: Cameron** (registrar) **/ Sean** (Vercel).
-- [ ] **C2 · `APP_URL` set to the app subdomain and redeployed.** Every emailed link is
+- [ ] **C2 · `APP_URL` set to the app subdomain and redeployed.** *Unverified 2026-11-26: the
+      subdomain serves the portal, but the variable's value was not read (values are not
+      printed). Sean: `vercel env ls` plus one emailed link settles it.* Every emailed link is
       built from it. **Owner: Sean.**
 - [ ] **C3 · Stop preview deploys writing to the production database.** → [**SPEC-002**](../specs/SPEC-002-environment-separation.md) (code shipped)
       **The code half is done.** Every row from a non-production deployment is
