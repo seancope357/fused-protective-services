@@ -10,10 +10,11 @@ Updated: 2026-11-26. This file tracks the current implementation unit; [PROGRESS
 - W0: the uncommitted 2026-11-23 aerial estate refinement (19 files, plus that day's tracker
   notes) is on branch `feat/aerial-estate-refinement` (`4cf24a9`, pushed, no PR). It awaits
   Sean's real-device review.
-- W1: SPEC-017 is PR #15. Production served `/PROGRESS.md`, `/docs/RUNBOOK.md` and other
+- W1: SPEC-017 merged (#15). Production served `/PROGRESS.md`, `/docs/RUNBOOK.md` and other
   internal files. The preview of the fix returns 404 for them and 200 for the public pages.
-  CI is green.
-- W2: this doc sync. Next up is W3 (SPEC-004 re-cut for the daily cron).
+  Production now returns 404 for every internal path.
+- W3: SPEC-004 merged (#17). Health checks are in, with the dead-man's switch at 26 h / 50 h for the daily cron.
+- Next up is W4 (the claims guardrail). It needs Sean's call: confirm the claims or remove the copy.
 
 **2026-10-20 — Public design and aerial protection release handoff.**
 Sean authorized committing and pushing the reviewed changes to GitHub `main` on 2026-10-20.

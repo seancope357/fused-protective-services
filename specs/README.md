@@ -30,7 +30,7 @@ has nothing unbuilt in its `Depends on` line.
 | [014](SPEC-014-officers-roster-and-coverage.md) | Officers roster, assignment, coverage | — | L | — | **Ready** (post-launch ops) |
 | [015](SPEC-015-license-expiry.md) | DPS licence expiry alerts + guard | — | S | 014 | **Ready** (post-launch ops) |
 | 016 | Owner-editable DPS licence (documents) | — | S | — | ⏸ **Parked**: local branch `feat/spec-016-owner-editable-licence` only, never pushed; Sean decides land or delete |
-| [017](SPEC-017-public-surface.md) | Marketing site serves only public files | E | S | — | ◐ **PR #15**: CI green, preview verified (internal paths 404) |
+| [017](SPEC-017-public-surface.md) | Marketing site serves only public files | E | S | — | ✅ **Done**: #15; production internal paths 404 (2026-11-26) |
 | 018 | Claims guardrail + honest emergency confirmation | — | S | 017 | **Ready**: spec not yet written ([WORKSHEET](WORKSHEET.md) W4) |
 
 **Run order (2026-11-26):** follow [`WORKSHEET.md`](WORKSHEET.md) one step per loop, using [`PASS-PROMPT.md`](PASS-PROMPT.md). It supersedes "lowest-numbered Ready spec" for this pass. SPEC-004 is re-cut (W3) because PR #12 conflicts with main and assumes an hourly cron, and the cron is now daily.
