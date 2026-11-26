@@ -1,0 +1,37 @@
+# SPEC-017: the marketing site uploads, and therefore serves, ONLY what is listed here.
+# Vercel serves every uploaded file of this static project, so this file is the public
+# surface. Everything at the root is excluded first, then the public paths are re-included.
+# Enforced by tests/public-surface.test.mjs. Docs: vercel.com/docs/deployments/vercel-ignore
+#
+# The portal (Root Directory `app`) has its own app/.vercelignore. Vercel uses a project's
+# own file in preference to this one, so this allowlist never applies to the portal build.
+
+/*
+
+# Generated pages and the deploy config (built by build.mjs).
+!*.html
+!vercel.json
+!robots.txt
+!sitemap.xml
+!llms.txt
+
+# Front-end runtime.
+!css
+!js
+!assets
+
+# Serverless functions, and the shared modules they import at runtime.
+# api/intake.mjs imports src/data/site.mjs, so src/data (public business facts)
+# and src/lib must upload. They are therefore readable at /src/data/*.mjs, which
+# exposes nothing the rendered pages do not already show. Templates, styles and
+# everything else under src/ stay out.
+!api
+!src
+/src/*
+!src/data
+!src/lib
+
+# Never upload, even inside an allowed directory.
+.env*
+.DS_Store
+*.log

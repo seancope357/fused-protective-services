@@ -1,0 +1,9 @@
+# The portal project (Root Directory `app`). This file exists so that Vercel uses it
+# instead of falling back to the repository-root .vercelignore, which is the marketing
+# site's public-surface allowlist (SPEC-017) and would strip the portal's build inputs.
+# The portal is a Next.js build: nothing here is served as a raw file.
+.env*
+.DS_Store
+*.log
+node_modules
+.next
